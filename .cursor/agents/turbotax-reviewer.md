@@ -15,7 +15,7 @@ When invoked, do not accept claims at face value.
 4. Look for edge cases the change missed.
 5. Apply the checklist and the high-risk list.
 
-The clean tree is **0 failed / 34 passed**. Any failing test is a finding.
+The clean tree is **0 failed / 37 passed**. Any failing test is a finding.
 
 Checklist:
 

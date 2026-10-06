@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Download } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { displayReturnStatus } from "@/components/return-table";
 import { ReturnStatusBadge, ReviewStatusBadge } from "@/components/status-badge";
@@ -45,7 +46,17 @@ export default async function ReturnDetailPage({ params }: { params: Promise<{ i
         description={`${filingStatusLabel(filer.filingStatus)} · ${filer.state} · due ${formatDate(taxReturn.dueOn)}${
           taxReturn.extendedOn ? ` · extension filed ${formatDate(taxReturn.extendedOn)}` : ""
         }`}
-        actions={<ReturnStatusBadge status={displayReturnStatus(taxReturn)} />}
+        actions={
+          <>
+            <Button asChild variant="outline" size="sm">
+              <a href={`/api/filers/${filer.id}/tax-summary?year=${taxReturn.taxYear}`} download>
+                <Download className="size-4" />
+                Download tax summary (CSV)
+              </a>
+            </Button>
+            <ReturnStatusBadge status={displayReturnStatus(taxReturn)} />
+          </>
+        }
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,0.7fr)]">
