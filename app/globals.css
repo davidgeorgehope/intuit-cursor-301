@@ -1,10 +1,9 @@
 @import "tailwindcss";
 
 /*
-  Ledgerly design tokens — indigo reference
-  ----------------------------------------
-  Match the attached dashboard mock: white chrome, violet accent.
-  Do not introduce a fourth catalog price. Restyle via these variables.
+  Expert Ops design tokens — indigo reference
+  -------------------------------------------
+  White chrome, violet accent. Restyle via these variables; never add a new hex.
 */
 
 :root {

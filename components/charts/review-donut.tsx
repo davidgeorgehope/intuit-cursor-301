@@ -2,7 +2,7 @@ import Link from "next/link";
 
 type Slice = { id: string; label: string; count: number; color: string };
 
-export function DisputeDonut({ slices }: { slices: readonly Slice[] }) {
+export function ReviewDonut({ slices }: { slices: readonly Slice[] }) {
   const total = slices.reduce((sum, slice) => sum + slice.count, 0) || 1;
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
@@ -18,7 +18,7 @@ export function DisputeDonut({ slices }: { slices: readonly Slice[] }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-center">
-        <svg viewBox="0 0 96 96" className="size-40" role="img" aria-label="Dispute status mix">
+        <svg viewBox="0 0 96 96" className="size-40" role="img" aria-label="Credit review status mix">
           <circle cx="48" cy="48" r={radius} fill="none" stroke="var(--indigo-soft)" strokeWidth="12" />
           {arcs.map((arc) => (
             <circle
@@ -59,8 +59,8 @@ export function DisputeDonut({ slices }: { slices: readonly Slice[] }) {
           </li>
         ))}
       </ul>
-      <Link href="/disputes" className="text-sm font-medium text-indigo hover:underline">
-        View all disputes →
+      <Link href="/reviews" className="text-sm font-medium text-indigo hover:underline">
+        View all credit reviews →
       </Link>
     </div>
   );

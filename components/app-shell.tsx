@@ -1,22 +1,19 @@
 import type { ReactNode } from "react";
 import { AppChrome } from "@/components/app-chrome";
-import { getOpenDisputeCount, getOpenDisputeNotices } from "@/lib/data";
+import { getOpenReviewCount, getOpenReviewNotices } from "@/lib/data";
 
 export async function AppShell({ children }: { children: ReactNode }) {
-  let openDisputeCount = 0;
-  let openDisputes: Awaited<ReturnType<typeof getOpenDisputeNotices>> = [];
+  let openReviewCount = 0;
+  let openReviews: Awaited<ReturnType<typeof getOpenReviewNotices>> = [];
   try {
-    [openDisputeCount, openDisputes] = await Promise.all([
-      getOpenDisputeCount(),
-      getOpenDisputeNotices(),
-    ]);
+    [openReviewCount, openReviews] = await Promise.all([getOpenReviewCount(), getOpenReviewNotices()]);
   } catch {
-    openDisputeCount = 0;
-    openDisputes = [];
+    openReviewCount = 0;
+    openReviews = [];
   }
 
   return (
-    <AppChrome openDisputeCount={openDisputeCount} openDisputes={openDisputes}>
+    <AppChrome openReviewCount={openReviewCount} openReviews={openReviews}>
       {children}
     </AppChrome>
   );

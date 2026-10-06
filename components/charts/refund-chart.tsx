@@ -1,6 +1,6 @@
 import { formatUsd } from "@/lib/money";
 
-export function RevenueChart({
+export function RefundChart({
   series,
   totalCents,
   change,
@@ -11,9 +11,9 @@ export function RevenueChart({
 }) {
   const width = 640;
   const height = 230;
-  const pad = { top: 12, right: 16, bottom: 28, left: 44 };
+  const pad = { top: 12, right: 16, bottom: 28, left: 52 };
   const rawMax = Math.max(...series.map((point) => point.cents), 1);
-  const max = Math.ceil(rawMax / 20000) * 20000 || 20000;
+  const max = Math.ceil(rawMax / 100_000) * 100_000 || 100_000;
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
 
@@ -60,10 +60,10 @@ export function RevenueChart({
         viewBox={`0 0 ${width} ${height}`}
         className="h-52 w-full"
         role="img"
-        aria-label="Collected revenue over the last 30 days"
+        aria-label="Refunds accepted over the last 30 days"
       >
         <defs>
-          <linearGradient id="ledgerlyRevenue" x1="0" x2="0" y1="0" y2="1">
+          <linearGradient id="refundsAccepted" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.24" />
             <stop offset="100%" stopColor="#4F46E5" stopOpacity="0.01" />
           </linearGradient>
@@ -89,7 +89,7 @@ export function RevenueChart({
             </text>
           </g>
         ))}
-        <path d={area} fill="url(#ledgerlyRevenue)" />
+        <path d={area} fill="url(#refundsAccepted)" />
         <path d={line} fill="none" stroke="#4F46E5" strokeWidth="2.5" strokeLinejoin="round" />
         {last ? (
           <g>
@@ -127,7 +127,7 @@ function ChangeChip({ change }: { change: number | null }) {
   );
 }
 
-/** Catmull-Rom → cubic bezier so the seed's step-y payments read as a smooth trend. */
+/** Catmull-Rom → cubic bezier so the seed's step-y acceptances read as a smooth trend. */
 function smoothPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return "";
   const path: string[] = [`M${points[0].x} ${points[0].y}`];
