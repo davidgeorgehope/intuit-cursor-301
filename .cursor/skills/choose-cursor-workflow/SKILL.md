@@ -1,47 +1,37 @@
 ---
 name: choose-cursor-workflow
-description: Walk the 101 or 201 Ledgerly track, then choose the mode, model, rule, or skill that fits the shape of the work. You still review the result.
+description: Walk the 301 TurboTax Expert Ops track, then choose the mode, model, rule, or skill that fits the shape of the work. You still review the result.
 ---
 
-# Walk the 101 or 201 track
+# Walk the 301 track
 
-The demo ships two jumpable tracks: **101** and **201**. Every beat is independent — if the user names a beat, jump directly to it. You still review the result.
+The demo ships one track: **301**. Every beat is independent — if the user names a beat, jump directly to it. You still review the result.
 
-## The tracks
+## The track
 
-101 — You will explore different ways to work in Grok Build, use modes and models for the right tasks, apply rules and skills to ensure consistent quality, and complete at least one task with an agent.
+301 — You will engineer the context an agent sees, decompose one feature into scoped sessions, orchestrate the parts that split behind a single approval gate, and match each role to a model on purpose.
 
-201 — You will curate what belongs in an agent's context, encode conventions as project skills, connect a curated set of MCP servers, and split one task across parallel agents.
+The beats live in `lib/runbooks/meta.ts` and as copy-paste blocks on `/runbooks/301`. Use the matching `example` verbatim.
 
-The beats live in `lib/runbooks/meta.ts` and as copy-paste blocks on `/runbooks/101` and `/runbooks/201`. Use the matching `example` verbatim. Do not invent another catalog price.
+Start a demo session with `npm run demo:session -- start` and record any rule, skill, Canvas, or branch a beat creates. Reset is script-first: `npm run demo:reset`.
 
-The named demo error is `dsp_1043` / the suggested-credit v1 client. Do not mention the invoice or dispute filter-pill `state=` seam unless the user is on that click path.
+## Sections and beats
 
-Start a demo session with `npm run demo:session -- start`. Record every rule, skill, Canvas, Figma deck, Linear board, and demo branch it creates. Reset is script-first and clears both tracks at once; update the event record and reset script whenever a beat gains a new leftover.
-
-## 101 sections and beats
-
-1. **What is Grok Build?** — Ask, Plan, Build in Agent mode, Debug, check the models, plan to fix the bug.
-2. **How do you work with an agent?** — Run Mode allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint.
-3. **How do you govern an agent?** — create a user rule, test the rule, create a user skill, test the skill, Canvas, MCP / Figma.
-
-## 201 sections and beats
-
-1. **How do you manage context?** — rename agents, Ask DDD, check context usage, compare agents, ask across chats.
-2. **How do you standardize agent behavior?** — personal create-api skill, promote it.
-3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. The operator creates a private Linear team in the UI first (Settings → Teams → New team, Make team private). Then run `stage-linear`. `.cursor/mcp.json` has no project servers and there is no `mcp/` directory. Do not stand up a SQLite MCP.
-4. **How do you parallelize a task?** — open a new agent, resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
+1. **How do you engineer context?** — open AGENTS.md and `app/api/AGENTS.md`, ask what rides every turn, personal and team skills, trigger the SSN hook, read the context ring.
+2. **How do you decompose a feature?** — Plan mode, the `decompose-feature` skill on the tax summary export, review the session cards, save the plan.
+3. **How do you orchestrate the work?** — approve at the gate, Build in Parallel, watch the task cards, `acceptance-verifier`, `turbotax-reviewer`, the `/multitask` fallback, and the optional credit-review stub.
+4. **How do you spend tokens on purpose?** — the model per role, the usage dashboard, a fresh chat per task.
 
 ## Choose the mode
 
 - **Ask** reads and explains; it does not edit. Use it to orient before touching code.
-- **Plan** maps an approach before implementation.
+- **Plan** maps an approach before implementation. It ends at the approval gate.
 - **Agent** is the default; it inspects, edits, and runs checks within the boundary you give it.
-- **Debug** verifies a change and investigates failures.
+- **Debug** verifies a change and investigates failures with runtime evidence.
 
 ## Choose the model
 
-Use a high-reasoning model to plan and coordinate, and a faster model for narrow, well-scoped edits. On Teams and Enterprise, Auto (Grok Build Router) classifies each request for you. Pin a model when the role is already known.
+Plan and coordinate on a frontier reasoning model — think once. Build on a fast default across many turns. Keep noisy subagents on a smaller tier. Use Fast variants only when latency matters; they cost more per token. Five parallel subagents cost roughly five times one agent, so parallelize only work that splits and can be verified.
 
 ## What does not change
 

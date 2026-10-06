@@ -1,18 +1,18 @@
 export const PROJECT_AGENTS = [
   {
-    name: "ledgerly-reviewer",
-    path: ".cursor/agents/ledgerly-reviewer.md",
-    when: "After any code change. Read-only check that the work exists and runs, then catalog prices, seed names, protected paths, and high-risk changes.",
+    name: "turbotax-reviewer",
+    path: ".cursor/agents/turbotax-reviewer.md",
+    when: "After any code change. Read-only check that the work exists and runs, then tax-year limits, synthetic filers, protected paths, and high-risk changes.",
+  },
+  {
+    name: "acceptance-verifier",
+    path: ".cursor/agents/acceptance-verifier.md",
+    when: "Finish line for a plan. Runs each done-when line and reports PASS, PARTIAL, or FAIL with evidence. Writes no product code.",
   },
   {
     name: "api-instrumenter",
     path: ".cursor/agents/api-instrumenter.md",
     when: "/multitask worker. Add the request-log helper to one named API route and nothing else.",
-  },
-  {
-    name: "dispute-verifier",
-    path: ".cursor/agents/dispute-verifier.md",
-    when: "/goal and /orchestrate finish line. Report pass/fail evidence; write no product code.",
   },
 ] as const;
 
@@ -20,17 +20,17 @@ export const PROJECT_SKILLS = [
   {
     name: "choose-cursor-workflow",
     path: ".cursor/skills/choose-cursor-workflow/SKILL.md",
-    when: "Walk the 101 or 201 track, then choose the mode, model, rule, or skill from the shape of the work.",
+    when: "Walk the 301 track, then choose the mode, model, rule, or skill from the shape of the work.",
   },
   {
-    name: "stage-linear",
-    path: ".cursor/skills/stage-linear/SKILL.md",
-    when: "Reconcile Fieldnote issues on the private ce-field-demos Linear project.",
+    name: "decompose-feature",
+    path: ".cursor/skills/decompose-feature/SKILL.md",
+    when: "Split one feature into scoped sessions, each with inputs and a done-when line.",
   },
   {
-    name: "standard-bug-fix",
-    path: ".cursor/skills/standard-bug-fix/SKILL.md",
-    when: "/standard-bug-fix on one ce-field-demos Linear issue.",
+    name: "create-api",
+    path: ".cursor/skills/create-api/SKILL.md",
+    when: "Add one HTTP route: lib/ helper, app/api handler, Vitest on the handler.",
   },
   {
     name: "dispatch-subagents",
@@ -45,11 +45,11 @@ export const PROJECT_SKILLS = [
   {
     name: "autopilot",
     path: "~/.cursor/skills-cursor/autopilot/SKILL.md",
-    when: "Built-in skill for Grok Build's former /babysit PR workflow.",
+    when: "Built-in skill for the former /babysit PR workflow.",
   },
   {
     name: "automate",
     path: "~/.cursor/skills-cursor/automate/SKILL.md",
-    when: "Open the Grok Build Automations editor with a reviewed event- or schedule-driven draft.",
+    when: "Open the Cursor Automations editor with a reviewed event- or schedule-driven draft.",
   },
 ] as const;

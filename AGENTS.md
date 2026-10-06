@@ -8,104 +8,38 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Ledgerly
+# TurboTax Expert Ops
 
-Fictional billing ops SaaS. Fieldnote Workspace. Operator Avery Quinn. No auth. No real companies.
+Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic filers, operator Avery Quinn, no auth.
 
-Catalog prices are frozen: Starter **$49**, Growth **$99**, Scale **$249**. Never invent a fourth price, live ARR, or a real customer name.
+## Build & test
 
-This is a **Grok Build demo app** with two jumpable tracks: 101 and 201. Runbook beats live in `lib/runbooks/meta.ts` and as copy-paste blocks on `/runbooks/101` and `/runbooks/201`; the presenter run-of-show is `demo-howto.md`. Project subagents live in `.cursor/agents/`. Skills live in `.cursor/skills/`. Do not add talk-track or speaker-note skills. Do not reintroduce retired Advanced runbooks without a request.
+- Setup: `npm i && npx prisma generate && npx prisma db seed` (the seed is safe to re-run).
+- Dev server: `npm run dev` on port **43173**.
+- Tests: `npm test`. Shipped suite on a clean tree: **0 failed / 34 passed**.
+- Lint: `npm run lint`. Reset after a demo: `npm run demo:reset`.
 
-## Grok Build Cloud specific instructions
+## Data
 
-### Install
+- Filers come only from `prisma/seed.ts` and `prisma/extra-filers.ts`. Emails end in `.example`.
+- Never write a full SSN anywhere. The database stores `ssnLast4`; fixtures use SSNs that start with `000`.
+- Money is integer cents. Format at the edge with `formatUsd` or `formatRefund` (`lib/money.ts`).
+- Limits and deadlines come from `lib/tax-year.ts`. Age anything against `lib/clock.ts` (Oct 8, 2026), never `Date.now()`.
 
-```bash
-npm i
-npx prisma generate
-```
+## API
 
-`.cursor/environment.json` runs that on setup.
+- Conventions: `app/api/AGENTS.md` and `.cursor/skills/create-api/SKILL.md`.
 
-### Seed
+## Agent behavior
 
-SQLite file is `prisma/dev.db` (gitignored). Schema URL is hardcoded in `prisma/schema.prisma` as `file:./dev.db`. No `.env` required.
+- One scoped session per chat. Carry the plan forward, not the transcript.
+- Plans live in `.cursor/plans/`. Stop when the plan's done-when lines pass.
+- `rev_1043` claims $4,000 against the $2,500 AOTC limit on purpose. Do not "correct" the claim.
+- `lib/reviews/resolve.ts`, its route, and the review page panel are unfinished on purpose. Leave them unless asked.
+- Review with `turbotax-reviewer`; verify a plan with `acceptance-verifier`.
+- Runbook beats: `lib/runbooks/meta.ts` and `/runbooks/301`. Run-of-show: `demo-howto.md`.
 
-```bash
-npx prisma db seed
-```
+## Definition of done
 
-The seed script runs `prisma db push` first, then reloads deterministic Fieldnote data. Safe to re-run. Demo clock is **2026-08-23**.
-
-### Dev server
-
-```bash
-npm run dev
-```
-
-Listens on **43173** (not 3000).
-
-### Private Linear team (manual, before 201 MCP)
-
-Linear MCP cannot create teams. The operator creates a private team in the Linear UI, then an agent runs `stage-linear`.
-
-1. Open Linear → **Settings → Teams → New team**.
-2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Settings URL looks like `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only the operator**. Do not add any other team.
-5. Run `stage-linear` to create or reconcile project `ce-field-demos` on that team with the three Fieldnote issues plus the nine Collections Command Center slices (same project, tagged with the feature note and a team-scoped label).
-
-`stage-linear` never guesses the team — it lists the operator's private teams and confirms the exact one before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project without unlinking (the team is retained; the next `stage-linear` reactivates the board).
-
-Do not `save_project` onto a public team. Do not add a local ticket board, ticket API, ticket MCP, or ticket marketplace plugin.
-
-### Demo reset
-
-For any reset request, run `npm run demo:reset` first. It resets everything it knows about — there is no 101-only or 201-only reset. The `reset-demo-state` skill handles only its reported MCP/discovery leftovers. When a demo beat creates a new leftover, update its session event record and `scripts/demo-reset.ts` in the same change.
-
-### Tests
-
-```bash
-npm test
-```
-
-One test fails on a clean tree: `tests/suggested-credit-api.test.ts` expects the client to use v2 while `lib/disputes/suggested-credit-api.ts` still selects deprecated v1. That migration is tracked on its own, so do not fix it as a drive-by. Preserve both routes and never change the test or seed to get green.
-
-Passing tests include `tests/money.test.ts` and `tests/plans.test.ts`. Environment start seeds the database and runs only the passing tests so a red suite cannot mark the machine as failed to boot.
-
-Shipped suite on a clean tree: **1 failed / 33 passed**. The `dsp_1043` page shows v1's $400 result; v2 and the stored credit are correctly capped at $249. Invoice and dispute status pills write `state=` while the pages read `status` — that click path is a separate planted UI seam, not a second red test. Do not volunteer it when explaining the app or the failing test; only when the user is on that click path.
-
-### Multi-file stub (leave it unless asked)
-
-Incomplete on purpose:
-
-- `lib/disputes/resolve.ts`
-- `app/api/disputes/[id]/resolve/route.ts`
-- `app/disputes/[id]/page.tsx` (resolution panel)
-
-### Product constraints
-
-- Prices only from `lib/plans.ts`.
-- Customer names only from `prisma/seed.ts` and `prisma/extra-accounts.ts`.
-- Comments in code must not cite Slack, GitHub, or issue-tracker URLs.
-- Do not rename Collections / Nudge / Pulse / Slatebook / Harborbill, and never reintroduce retired pre-remap names.
-- Do not add Deno workflows or GitHub Actions starters. Do not add better-sqlite3.
-- Do not add talk-track / speaker-note skills. Do not add a fourth catalog-solving agent. Runbook beats live in `lib/runbooks/meta.ts`.
-- Do not rename the FilterPills query key from `state` to `status` unless asked.
-- Do not add a Prisma/SQLite MCP or restore the `mcp/` directory. Query the seed with Prisma (`write-prisma-query`) or the HTTP API.
-
-### Agents and skills
-
-| Path | Role |
-| --- | --- |
-| `.cursor/agents/ledgerly-reviewer.md` | Read-only review after code changes. Confirms the work runs. |
-| `.cursor/agents/api-instrumenter.md` | `/multitask` worker — one API route |
-| `.cursor/agents/dispute-verifier.md` | `/goal` and `/orchestrate` finish line |
-| `.cursor/skills/choose-cursor-workflow/` | Walk the 101 or 201 track: modes, models, rules, skills, and finishing one task with an agent |
-| `.cursor/skills/stage-linear/` | Reconcile Fieldnote issues on the private `ce-field-demos` Linear project |
-| `.cursor/skills/standard-bug-fix/` | `/standard-bug-fix` — pull one ce-field-demos Linear issue and fix only that bug |
-| `.cursor/skills/dispatch-subagents/` | Parallel Task launches |
-| `.cursor/skills/hand-to-cloud-agent/` | Cloud `/goal`, `/autopilot`, and `/orchestrate` |
-| `.cursor/skills/write-prisma-query/` | Invoice, dispute, and customer lookups against SQLite — not an MCP |
-| `.cursor/mcp.json` | Empty project MCP map. 101 uses Figma (user MCP). 201 uses Linear (user MCP or `plugins/standard-bug-fix`). |
-| `plugins/standard-bug-fix/` | 201-track disk plugin: `/standard-bug-fix` skill, Linear writeback rule, Linear MCP. |
+- `npm test` and `npm run lint` pass, and the changed page or route was exercised on port 43173.
+- If the suite count changed, every doc that cites it was updated (`tests/runbooks.test.ts` checks).

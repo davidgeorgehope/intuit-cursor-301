@@ -1,0 +1,30 @@
+---
+description: TurboTax Expert Ops voice, tax-year figures, and synthetic taxpayer data
+alwaysApply: true
+---
+
+# TurboTax Expert Ops
+
+A demo console for TurboTax tax experts, built for the Intuit × Cursor 301 session. Write like a precise tax-ops tool.
+
+## Taxpayer data
+
+- Filers come from `prisma/seed.ts` and `prisma/extra-filers.ts` only. Emails end in `.example`. Operator is Avery Quinn.
+- Never write a full SSN anywhere — code, tests, fixtures, or chat. Fixtures use SSNs that start with `000`. The database stores `ssnLast4` only.
+- No real taxpayers, no real customer data, and no Intuit or TurboTax logos.
+
+## Tax-year figures
+
+- Limits and deadlines come from `lib/tax-year.ts`: AOTC $2,500 per student, LLC $2,000 per return, Apr 15 and Oct 15, 2026. Never invent a limit, bracket, or deadline.
+- Money is integer cents; format with `formatUsd` or `formatRefund`.
+
+## Seams
+
+- `rev_1043` claims $4,000 against the $2,500 AOTC limit. That is valid input for the cap — do not "correct" it.
+- The credit-review resolve stub (`lib/reviews/resolve.ts`, its route, the review page panel) stays unfinished unless asked.
+- When a test is added or removed, update every doc that cites the suite count in the same change; `tests/runbooks.test.ts` checks.
+- Restyles go through `app/globals.css` tokens only — no new hex.
+
+## Voice
+
+Calm, specific, short. "Return", "refund", and "credit", never "synergy". UI copy should sound like an expert's console, not "Welcome to your app."

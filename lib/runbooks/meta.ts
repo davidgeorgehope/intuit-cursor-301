@@ -1,19 +1,12 @@
 /**
- * Grok Build runbooks as they appear on /runbooks and in the README.
- * The 101 and 201 tracks are shipped; their beats are the source of truth.
+ * Cursor runbooks as they appear on /runbooks and in the README.
+ * The 301 track is shipped; its beats are the source of truth.
  */
 
 export * from "@/lib/runbooks/types";
-export { RUNBOOK_SECTIONS_101 } from "@/lib/runbooks/beats/101";
-export { RUNBOOK_SECTIONS_201 } from "@/lib/runbooks/beats/201";
+export { RUNBOOK_SECTIONS_301 } from "@/lib/runbooks/beats/301";
 export { PROJECT_AGENTS, PROJECT_SKILLS } from "@/lib/runbooks/agents";
 export { RUNBOOK_TRACKS, getRunbookTrack, type RunbookTrack } from "@/lib/runbooks/tracks";
-export {
-  FIELD_DEMO_FILTER_TITLE,
-  FIELD_DEMO_ISSUES,
-  FIELD_DEMO_SUGGESTED_CREDIT_TITLE,
-  LINEAR_FIELD_DEMOS_PROJECT,
-} from "@/lib/runbooks/linear-field-demos";
 export {
   runbookBeatSequence,
   runbookBeats,

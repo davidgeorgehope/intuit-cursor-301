@@ -1,12 +1,12 @@
-# Ledgerly
+# TurboTax Expert Ops
 
-Fictional B2B billing ops. Fieldnote Workspace. Operator **Avery Quinn**. Catalog is Starter **$49**, Growth **$99**, Scale **$249**. Demo clock is frozen at **23 August 2026**. Synthetic data only — no real companies.
+Demo console for the **Intuit × Cursor 301** session, "Orchestrating how you work," on October 8, 2026. A tax expert, Avery Quinn, works extension season for tax year 2025: e-file rejects, education-credit reviews, and returns due on the Oct 15 extension deadline. The demo clock is frozen on **8 October 2026**. Every filer is synthetic.
 
-Use it for the jumpable Grok Build **101** and **201** tracks. Copy-paste prompts live on `/runbooks/101` and `/runbooks/201`; the presenter run-of-show and speaker notes are `demo-howto.md`.
+Copy-paste prompts live on `/runbooks/301`. The presenter run-of-show, mapped to the session deck, is `demo-howto.md`.
 
 ## Run
 
-Node 20. Nothing else global.
+Node 20 or later. Nothing else global.
 
 ```bash
 npm i
@@ -15,105 +15,68 @@ npx prisma db seed
 npm run dev
 ```
 
-Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts the app on 43173 and seeds only when the database is missing or empty.
+Open **http://localhost:43173**, or ask an agent to run the `start-expert-ops` skill — it starts the app on 43173 and seeds only when the database is empty.
 
-`npm test` is **1 failed / 33 passed** on a clean tree — `tests/suggested-credit-api.test.ts` is the planted API-version bug. The UI shows the deprecated v1 result of $400 for `dsp_1043`; v2 and the stored credit correctly cap at the $249 Scale price. Status pills on Invoices and Disputes write `state=` while the pages read `status`, so clicking a filter does not change the list — that is a separate planted UI seam, not a second red test. Reset a demo with `npm run demo:reset` first; `reset-demo-state` only finishes reported MCP cleanup. Use `npm run db:reset` only for data.
+`npm test` is **0 failed / 34 passed** on a clean tree. The prompt hook has its own tests: `node --test .cursor/hooks`. Reset after a session with `npm run demo:reset`.
 
 ## App
 
-Dashboard, Invoices, Collections, Disputes, Runbooks, Settings. Extra book accounts are in `prisma/extra-accounts.ts`.
-
-| Demo hook | Where |
+| Page | What it shows |
 | --- | --- |
-| Runbook beats | `/runbooks/101` and `/runbooks/201` (`/workflows` and `/analysis` redirect to 101) |
-| `/loop` job | `POST` then `GET` `/api/demo/job` (~45s, not written to SQLite) |
-| Agents | `.cursor/agents/` — `ledgerly-reviewer`, `api-instrumenter`, `dispute-verifier` |
-| Skills | `.cursor/skills/` — run the demo, stage Linear, or pick a Cursor workflow |
-| Disk plugin | `plugins/standard-bug-fix/` — add from local repository; `/standard-bug-fix`, Linear MCP |
-| Presenter script | `demo-howto.md` — the 101 and 201 run-of-show |
+| Dashboard | Refunds accepted in the last 30 days, extended returns not yet filed, e-file rejects, open credit reviews |
+| Returns | 24 Form 1040s with their W-2, 1099-INT, and 1098-T forms. Filter by status; search by filer, state, or number |
+| E-file rejects | IND-031-04, IND-032-04, and IND-181-01 rejects, with the fix and the days left before Oct 15 |
+| Credit reviews | AOTC and lifetime learning credit claims, capped at the 2025 limits. `rev_1043` claims $4,000 against the $2,500 limit on purpose |
+| Settings | Tax year 2025 limits and the taxpayer-data rules |
+
+The credit-review resolution panel (`lib/reviews/resolve.ts`, its route, and the review page) is unfinished on purpose. `.cursor/plans/resolve-review.md` finishes it as an optional second orchestration.
+
+## Taxpayer data
+
+- Filers, employers, and schools are invented. Emails end in `.example`.
+- The database stores only `ssnLast4`. Test fixtures use SSNs that start with 000.
+- `.cursor/hooks/synthetic-prompt.mjs` blocks a prompt with an SSN- or EIN-shaped number, a non-`.example` email, or a live credential before the model sees it.
+- Refunds were computed offline from the 2025 Tax Table and standard deduction, with a credit only where a review was approved. The app reads them from the seed; it is not a tax engine. Education-credit limits are the only tax rules the app computes (`lib/education-credit.ts`).
+
+## Agent context
+
+| Path | Role |
+| --- | --- |
+| `AGENTS.md` | About 40 lines: commands, data rules, definition of done |
+| `app/api/AGENTS.md` | Nested route conventions — wins under `app/api/` |
+| `.cursor/rules/turbotax.mdc` | The one always-on product rule |
+| `.cursor/hooks.json` | The synthetic-data hook — a hard stop outside the model |
+| `.cursor/skills/decompose-feature/` | Split a feature into scoped session cards, then stop at the gate |
+| `.cursor/skills/create-api/` | Add one route: `lib/` helper, handler, Vitest on the handler |
+| `.cursor/agents/turbotax-reviewer.md` | Read-only reviewer after a change |
+| `.cursor/agents/acceptance-verifier.md` | PASS / PARTIAL / FAIL against a plan's done-when lines |
+| `.cursor/agents/api-instrumenter.md` | `/multitask` worker — one API route |
+| `.cursor/plans/tax-summary-export.fallback.md` | Fallback plan for the live decompose beat |
+
+Other project skills: `choose-cursor-workflow`, `dispatch-subagents`, `hand-to-cloud-agent`, `start-expert-ops`, `write-prisma-query`, `add-dashboard-widget`, `draft-filer-message`, and `reset-demo-state`.
 
 ## Starter prompts
 
 Ask:
 
 ```text
-What are Ledgerly's only plan prices, and which seeded invoices are overdue? Cite lib/plans.ts, prisma/seed.ts, and prisma/extra-accounts.ts.
-
-Explain the dispute flow end to end. What is intentionally unfinished? Cite the resolve helper, the resolve API route, and the dispute page. Do not edit any files.
+/ask What does this application do, and which seeded returns were rejected? Cite lib/rejects.ts and prisma/seed.ts. Do not edit any files.
 ```
 
-Cmd-K on the settings description default:
+Decompose (live demo A):
 
 ```text
-Rewrite this input's default value as one calm sentence explaining that the demo clock is frozen on 23 August 2026 so overdue math never drifts during a meeting. Keep it under 15 words.
+/plan Use the decompose-feature skill. Feature: on the return page, a labeled link downloads the filer's tax summary for one tax year as CSV. The year comes from ?year=. Unknown filer is 404; a bad year is 400. Do not write code yet.
 ```
 
-Agent — suggested-credit API migration:
+Verify (live demo B):
 
 ```text
-Diagnose why dsp_1043 shows a $400 suggested credit even though v2 caps it at $249. Switch lib/disputes/suggested-credit-api.ts from v1 to v2. Preserve both API routes, the $400 dispute claim, and tests/suggested-credit-api.test.ts. Run the relevant tests and verify the page shows $249 from v2.
+Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.
 ```
-
-Then create the guardrail live:
-
-```text
-/create-rule Future code must never call /api/v1/disputes/*/suggested-credit. It must use /api/v2/disputes/*/suggested-credit. Create the project rule at .cursor/rules/suggested-credit-api-v2.mdc and show me the file before I keep it.
-```
-
-Design Mode on the dashboard KPI cards:
-
-```text
-Restyle the four KPI cards on this dashboard using only the existing design tokens in app/globals.css: a soft indigo accent on each card, stronger emphasis on the value, and a subtle hover lift. No new hex colors, no layout rewrite, no data or price changes — $49, $99, and $249 stay exactly as rendered. Touch components/kpi-card.tsx, and app/page.tsx only if you must. Two files max, nothing under lib/ or tests/. Show me the diff — I am undoing this after the demo.
-```
-
-## The 101 track
-
-Open `/runbooks/101`, copy a card, and paste it in Grok Build. You still review the result.
-
-1. **What is Grok Build?** — Ask, Plan, Build in Agent mode, Debug, and check the models.
-2. **How do you work with an agent?** — Run Mode allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint.
-3. **How do you govern an agent?** — create and test a rule, create and test a skill, Canvas, MCP / Figma.
-
-## The 201 track
-
-Open `/runbooks/201`, copy a card, and paste it in Grok Build. You still review the result.
-
-1. **How do you manage context?** — rename agents, Ask DDD (whole app vs `@invoice-table.tsx`), check context usage, compare agents, ask across chats.
-2. **How do you standardize agent behavior?** — personal create-api skill, promote it to the project.
-3. **How do you connect an agent to external tools?** — Linear MCP, MCP allowlist, list open issues from the issue tracker, add `plugins/standard-bug-fix` from the local repository, enable the Standard bug fix plugin (skills, rules, MCP server), standard bug fix on the overdue filter. Create a private Linear team by hand, then run `stage-linear`.
-4. **How do you parallelize a task?** — open a new agent, open the resolve-dispute plan, ledgerly-reviewer, dispatch-subagents skill, `/multitask`, Canvas subagent progress, ledgerly-reviewer check.
-
-## Create the private Linear team (manual)
-
-Linear MCP cannot create teams. Do this in the Linear UI **before** the 201 MCP section, on the operator’s account only.
-
-1. Open Linear → **Settings → Teams → New team**.
-2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only you**. Do not add any other team.
-5. Then ask an agent to run `stage-linear`. That skill creates or reconciles project `ce-field-demos` on this team with the three Fieldnote issues plus the nine Collections Command Center slices, tagged as that feature.
-
-`stage-linear` never guesses the team — it lists your private teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; your team is retained for the next run).
-
-Do not skip the private-team step. A project on a public team is visible to that team.
-During a fresh setup, create issues sequentially: suggested-credit first, **Clicking Overdue or Needs review does not filter the queue** second, and invoice-email third.
-
-## Agents and skills
-
-| Name | Role |
-| --- | --- |
-| `ledgerly-reviewer` | Read-only review after a change. Confirms the work runs, then catalog, seed names, planted seams, and high-risk changes. |
-| `api-instrumenter` | One API route per parallel worker. |
-| `dispute-verifier` | Dispute-resolution finish line. No product code. |
-| `choose-cursor-workflow` | Walk the 101 or 201 track and pick the mode or model. |
-| `stage-linear` | Reconcile Fieldnote issues on the private `ce-field-demos` Linear project. |
-| `standard-bug-fix` | Pull one ce-field-demos Linear issue, then fix only that bug. |
-| `dispatch-subagents` | Parallel Task launches. |
-| `hand-to-cloud-agent` | Hand durable work to a Cloud Agent. |
-| `autopilot` (built in) | Current PR-to-merge-ready skill; formerly `/babysit`. |
-| `automate` (built in) | Draft a scheduled or event-triggered Grok Build Automation. |
 
 ## Notes
 
-- Prices and customer names only from `lib/plans.ts`, `prisma/seed.ts`, and `prisma/extra-accounts.ts`.
+- Filers come only from `prisma/seed.ts` and `prisma/extra-filers.ts`. Limits and deadlines come only from `lib/tax-year.ts`.
 - Port 43173 busy: stop the old `npm run dev`. Empty dashboard: `npm run db:reset`.
+- `npm run demo:reset` refuses to run unless `origin` is the `intuit-cursor-301` repository.

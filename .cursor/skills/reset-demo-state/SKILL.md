@@ -1,6 +1,6 @@
 ---
 name: reset-demo-state
-description: Run the scripted Ledgerly demo reset first, then complete only the MCP cleanup it reports.
+description: Run the scripted TurboTax Expert Ops demo reset first, then complete only the cleanup it reports. Use when a demo just ended, the data looks wrong, tests are unexpectedly red, or the dev server will not start.
 ---
 
 # Reset the demo state
@@ -11,7 +11,9 @@ Run the script first. It is the source of truth for local cleanup.
 npm run demo:reset
 ```
 
-The command restores tracked files with `git reset --hard HEAD`, switches to `main`, removes recorded demo rules, skills, Canvas files, and demo branches, reseeds SQLite, restarts port 43173, and confirms **1 failed / 33 passed**. It leaves the suggested-credit client on v1 and filter pills writing `state=`. It never runs `git clean`, removes an unrecorded personal skill, or deletes the private Linear team.
+The command restores tracked files with `git reset --hard HEAD`, removes untracked files that demo beats create under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/plans/`, switches to `main`, removes recorded personal rules, skills, Canvas files, and demo branches, reseeds SQLite, restarts port 43173, and confirms **0 failed / 34 passed**. It never runs a repo-wide `git clean` and never removes an unrecorded personal skill.
+
+Add `--dry-run` first if you want to see the list before anything is removed.
 
 ## Session events
 
@@ -20,27 +22,20 @@ Start each demo session and record artifacts as they are created:
 ```bash
 npm run demo:session -- start
 npm run demo:session -- record skill "$HOME/.cursor/skills/<created-skill>"
-npm run demo:session -- record branch <linear-gitBranchName> --remote
+npm run demo:session -- record branch <branch-name> --remote
 ```
 
-The ignored `.cursor/demo-session-events.json` stores recorded paths, branches, Figma file keys, and Linear identifiers. Use `npm run demo:session -- status` to inspect it. One reset clears everything it knows about — there is no per-track reset. Without the file the command still resets tracked files and the known demo paths, and says so in `skipped`. When a demo beat creates a new leftover, update `scripts/demo-reset.ts` and its event record in the same change.
-
-## Demo-beat git branches
-
-The script switches to main (`git checkout main` equivalent), then uses `git branch -D` and, for recorded remotes, `git push origin --delete`. It restores `app/invoices/page.tsx` and `app/disputes/page.tsx` along with every other tracked change. Do not repeat those commands after the script succeeds.
+The ignored `.cursor/demo-session-events.json` stores recorded paths and branches. Use `npm run demo:session -- status` to inspect it. One reset clears everything it knows about. Without the file, the command still resets tracked files and the demo output folders, and says so in `skipped`. When a demo beat creates a new kind of leftover, update `scripts/demo-reset.ts` and its event record in the same change.
 
 ## Remaining actions
 
 Read the JSON report printed by `demo:reset`. Only complete its `remaining` actions:
 
-- **Figma:** for each recorded Slides `fileKey`, load `figma-use` and `figma-use-slides`, then remove every slide with `slide.remove()`.
-- **Cursor user rule:** use `cursor_dialog` only for a recorded rule ID with no filesystem path. Do not remove unrelated user rules.
-- **Linear:** offer teardown whenever the Linear MCP is connected, but act only when the report lists a recorded `ce-field-demos` board. Confirm the exact private team before any write: present its name, key, and `https://linear.app/<workspace>/settings/teams/<KEY>`. Never assume or guess a team. Cancel each recorded issue with `save_issue` (`state`: `Canceled`) and then the project with `save_project` (`state`: `Canceled`). The catalog is `FIELD_DEMO_ISSUES` plus `COLLECTIONS_COMMAND_CENTER_ISSUES`; the recorded board lists all twelve. Leave the issue linked, leave the team-scoped `Collections Command Center` label in place, and retain the private team. `stage-linear` reactivates the board. The script uses the Linear API only with both `LINEAR_API_KEY` and explicit `--confirm-linear`.
-
-If the event file is missing or a beat predates this script, use the old discovery flow cautiously: list candidates, do not guess a private team, and never touch public/shared work.
+- **Worktrees:** Build in Parallel leaves worktrees behind. The report lists any worktree other than this checkout. Remove each one with `git worktree remove <path>` after confirming it holds nothing you want.
+- **Cursor user rule:** use the Cursor settings UI only for a recorded rule ID with no filesystem path. Do not remove unrelated user rules.
 
 ## Never
 
-- Never edit `tests/suggested-credit-api.test.ts`, either suggested-credit API route, or the seed to make the shipped red test green.
+- Never edit a test, the seed, or `lib/tax-year.ts` to make the suite green.
 - Never delete a path outside the script's allowlist.
-- Never cancel Linear issues on a public or shared team, or delete the private team.
+- Never run the reset in a checkout whose `origin` is not this demo's repository.
