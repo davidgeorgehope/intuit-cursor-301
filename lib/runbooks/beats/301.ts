@@ -52,30 +52,66 @@ export const RUNBOOK_SECTIONS_301 = [
         id: "open-plan-mode",
         title: "Open a new agent in Plan mode",
         promptType: "none",
-        detail: "Open a new agent. Switch to Plan mode and pick a frontier model for planning.",
+        detail: "Open a new local agent. Press Shift+Tab to switch to Plan mode, on a frontier model for planning.",
       },
       {
-        id: "decompose-export",
-        title: "Decompose the tax summary export",
+        id: "plan-prompt",
+        title: "Plan the tax summary export",
         promptType: "reusable",
         detail:
-          "The decompose-feature skill turns one feature into scoped sessions, each with inputs and a done-when line.",
-        example:
-          "/plan Use the decompose-feature skill. Feature: on the return page, a labeled link downloads the filer's tax summary for one tax year as CSV. The year comes from ?year=. Unknown filer is 404; a bad year is 400. Do not write code yet.",
+          "While it researches, narrate what it reads: lib/data.ts, the Prisma schema, the demo clock in lib/clock.ts, and the repo rules.",
+        example: [
+          "Plan a tax summary export for TurboTax Expert Ops: a tax expert downloads a CSV of one filer's forms and federal withholding for one tax year, through a read-only API at GET /api/filers/[id]/tax-summary?year=YYYY and a control on the return page, with targeted tests.",
+          "",
+          "Split it into exactly four sessions: 1) data model, 2) API, 3) frontend, 4) tests.",
+          "For each session, give: a one-sentence goal, inputs (files to @ and patterns to copy), files likely touched, acceptance criteria I can check, what's out of scope, and what it depends on.",
+          "",
+          "Draw the dependency graph. The data model comes first. The API and frontend can run in parallel because the route path and query string are fixed above. Tests come after the API.",
+          "Follow AGENTS.md and the repo rules. Don't write code yet.",
+        ].join("\n"),
       },
       {
-        id: "review-session-cards",
-        title: "Review the session cards",
+        id: "review-plan",
+        title: "Review the plan",
         promptType: "none",
         detail:
-          "Check each card: inputs are @-pointers, the done-when line is something you can run or click, and each session owns its own files. Data model first; API and frontend after it; tests last.",
+          "Walk the four sessions, their inputs, acceptance criteria, and the dependency graph. Edit one criterion live — for example, year must be a four-digit tax year no later than 2025, otherwise 400. Review happens here, on one page, before any code exists.",
       },
       {
         id: "save-plan",
         title: "Save the plan",
         promptType: "none",
         detail:
-          "Save the plan to the workspace. If the live plan goes sideways, open .cursor/plans/tax-summary-export.fallback.md — the same four sessions.",
+          "Select Save to workspace so the plan lands in .cursor/plans/. If Plan mode goes off script, review .cursor/plans/tax-summary-export.fallback.md instead.",
+      },
+      {
+        id: "data-model-session",
+        title: "Start the data model session",
+        promptType: "reusable",
+        detail: "Start a new chat. This runs while you talk about orchestration; the next demo comes back to it.",
+        example: [
+          "Implement only Session 1 (data model) from the plan in .cursor/plans/.",
+          "Stop when its acceptance criteria are met. Don't touch routes, pages, or tests.",
+          "Finish with a checklist of each acceptance criterion: PASS or FAIL, with the file or command that shows it.",
+        ].join("\n"),
+      },
+      {
+        id: "everything-at-once",
+        title: "Show, don't run: everything at once",
+        promptType: "adaptable",
+        detail:
+          "Put this on screen without running it. It maximizes tokens, turns, and surprises; scoped sessions give you reviewable progress.",
+        example:
+          "Build the whole tax summary feature end to end, add tests and docs, and clean up anything messy you find along the way.",
+      },
+      {
+        id: "decompose-skill",
+        title: "Optional: decomposition as a team skill",
+        promptType: "reusable",
+        detail:
+          "The same decomposition, encoded once in .cursor/skills/decompose-feature/SKILL.md so the prompt shrinks.",
+        example:
+          "/plan Use the decompose-feature skill. Feature: on the return page, a labeled link downloads the filer's tax summary for one tax year as CSV from GET /api/filers/[id]/tax-summary?year=YYYY. Unknown filer is 404; a bad year is 400. Do not write code yet.",
       },
     ],
   },
@@ -84,47 +120,70 @@ export const RUNBOOK_SECTIONS_301 = [
     title: "How do you orchestrate the work?",
     beats: [
       {
-        id: "approve-gate",
-        title: "Approve at the gate",
+        id: "read-session-1",
+        title: "Read the data model checklist",
         promptType: "none",
-        detail: "The plan is the contract. Approving it is the single gate — nothing writes code before it.",
+        detail:
+          "Go back to the chat where Session 1 ran and read its PASS/FAIL checklist out loud. If it isn't finished, check out the demo/session-1-done branch.",
       },
       {
         id: "build-in-parallel",
         title: "Build in parallel",
         promptType: "none",
         detail:
-          "Select Build in Parallel. The data model runs first; the API and frontend sessions run side by side in their own worktrees; tests run last.",
+          "Open the saved plan and select Build in Parallel. Approving the plan is the gate — nothing else gets written until you click.",
+      },
+      {
+        id: "parallel-build-prompt",
+        title: "Fallback: the parallel build prompt",
+        promptType: "reusable",
+        detail: "Only if the Build in Parallel button is missing.",
+        example: [
+          "/multitask Build Sessions 2, 3, and 4 from the plan in .cursor/plans/.",
+          "Run Sessions 2 and 3 in parallel. Start Session 4 after Session 2 is done.",
+          "Each worker stays inside its session and stops at its acceptance criteria.",
+          "When all three finish, give me one table: session, files changed, model used, PASS or FAIL.",
+        ].join("\n"),
       },
       {
         id: "watch-task-cards",
         title: "Watch the task cards",
         promptType: "none",
         detail:
-          "Open each subagent's task card. Note the model and the files each one touched. Sibling sessions should not overlap.",
+          "The API and frontend sessions run at the same time, each with its own task card, context, and model. Tests wait for the API. Two agents at once cost about twice the tokens.",
       },
       {
-        id: "verify-acceptance",
+        id: "verify-prompt",
         title: "Verify against acceptance criteria",
         promptType: "reusable",
-        detail: "The verifier writes no code. It runs each done-when line and reports PASS, PARTIAL, or FAIL with evidence.",
+        detail: "Read the PASS / PARTIAL / FAIL table against the plan's acceptance criteria.",
+        example: [
+          "/turbotax-reviewer Review the combined diff against the plan in .cursor/plans/.",
+          'Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025".',
+          "Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.",
+        ].join("\n"),
+      },
+      {
+        id: "download-csv",
+        title: "Download the CSV",
+        promptType: "none",
+        detail:
+          "If time allows, open TY25-1043 for Ellis Marlow at /returns/ret_1043 and select the new download control.",
+      },
+      {
+        id: "light-verifier",
+        title: "Optional: a lighter verifier",
+        promptType: "reusable",
+        detail: "acceptance-verifier writes no code and runs on a cheaper model — slide 25's light verifier.",
         example:
           "Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.",
       },
       {
-        id: "review-diff",
-        title: "Run the reviewer",
-        promptType: "reusable",
-        detail: "A read-only critic checks the combined diff against the repo's high-risk list.",
-        example: "turbotax-reviewer check my work",
-      },
-      {
-        id: "fallback-multitask",
-        title: "Fallback: /multitask the plan",
-        promptType: "adaptable",
+        id: "fallback-branch",
+        title: "Fallback: the finished branch",
+        promptType: "none",
         detail:
-          "If Build in Parallel is not available, the coordinator launches one worker per session from the plan file.",
-        example: "/multitask @tax-summary-export.fallback.md",
+          "If it is still building near the end of the slot, check out demo/all-sessions-done and walk the diff, the task cards, and the reviewer's report.",
       },
       {
         id: "resolve-review",

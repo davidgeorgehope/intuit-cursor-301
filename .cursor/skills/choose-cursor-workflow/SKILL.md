@@ -18,8 +18,8 @@ Start a demo session with `npm run demo:session -- start` and record any rule, s
 ## Sections and beats
 
 1. **How do you engineer context?** — open AGENTS.md and `app/api/AGENTS.md`, ask what rides every turn, personal and team skills, trigger the SSN hook, read the context ring.
-2. **How do you decompose a feature?** — Plan mode, the `decompose-feature` skill on the tax summary export, review the session cards, save the plan.
-3. **How do you orchestrate the work?** — approve at the gate, Build in Parallel, watch the task cards, `acceptance-verifier`, `turbotax-reviewer`, the `/multitask` fallback, and the optional credit-review stub.
+2. **How do you decompose a feature?** — Plan mode, the plan prompt for the tax summary export, review and edit the plan, save it, start the data model session, show the everything-at-once prompt, and the optional `decompose-feature` skill.
+3. **How do you orchestrate the work?** — read the data model checklist, Build in Parallel (or the `/multitask` fallback), watch the task cards, verify with `turbotax-reviewer`, download the CSV, the optional `acceptance-verifier`, the `demo/all-sessions-done` fallback branch, and the optional credit-review stub.
 4. **How do you spend tokens on purpose?** — the model per role, the usage dashboard, a fresh chat per task.
 
 ## Choose the mode

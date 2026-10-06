@@ -50,27 +50,36 @@ describe("runbook catalog", () => {
       "hook-hard-stop",
       "context-ring",
       "open-plan-mode",
-      "decompose-export",
-      "review-session-cards",
+      "plan-prompt",
+      "review-plan",
       "save-plan",
-      "approve-gate",
+      "data-model-session",
+      "everything-at-once",
+      "decompose-skill",
+      "read-session-1",
       "build-in-parallel",
+      "parallel-build-prompt",
       "watch-task-cards",
-      "verify-acceptance",
-      "review-diff",
-      "fallback-multitask",
+      "verify-prompt",
+      "download-csv",
+      "light-verifier",
+      "fallback-branch",
       "resolve-review",
       "models-per-role",
       "usage-dashboard",
       "fresh-chat",
     ]);
 
-    expect(beat("decompose-export")?.example).toMatch(/^\/plan Use the decompose-feature skill\./);
-    expect(beat("decompose-export")?.example).toContain("?year=");
-    expect(beat("verify-acceptance")?.example).toContain("acceptance-verifier");
-    expect(beat("verify-acceptance")?.example).toContain("PASS, PARTIAL, or FAIL");
-    expect(beat("review-diff")?.example).toBe("turbotax-reviewer check my work");
-    expect(beat("fallback-multitask")?.example).toBe("/multitask @tax-summary-export.fallback.md");
+    expect(beat("plan-prompt")?.example).toMatch(/^Plan a tax summary export for TurboTax Expert Ops/);
+    expect(beat("plan-prompt")?.example).toContain("GET /api/filers/[id]/tax-summary?year=YYYY");
+    expect(beat("plan-prompt")?.example).toContain("exactly four sessions");
+    expect(beat("data-model-session")?.example).toMatch(/^Implement only Session 1 \(data model\)/);
+    expect(beat("parallel-build-prompt")?.example).toMatch(/^\/multitask Build Sessions 2, 3, and 4/);
+    expect(beat("verify-prompt")?.example).toMatch(/^\/turbotax-reviewer /);
+    expect(beat("verify-prompt")?.example).toContain("/api/filers/fil_marlow/tax-summary?year=2025");
+    expect(beat("verify-prompt")?.example).toContain("PASS, PARTIAL, or FAIL");
+    expect(beat("decompose-skill")?.example).toMatch(/^\/plan Use the decompose-feature skill\./);
+    expect(beat("light-verifier")?.example).toContain("acceptance-verifier");
     expect(beat("resolve-review")?.example).toBe("/multitask @resolve-review.md");
 
     for (const entry of beats301) {

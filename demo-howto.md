@@ -10,8 +10,10 @@ The app is a demo console for TurboTax tax experts during extension season. The 
 | --- | --- | --- |
 | 01 The cultural shift | 3–6 | Talk only |
 | 02 Context engineering | 7–11 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
-| 03 Decompose & scope | 12–14 | **Live demo A** — Plan mode, `decompose-feature`, four session cards, save the plan |
-| 04 Orchestrating at scale | 15–19 | **Live demo B** — approve at the gate, Build in Parallel, `acceptance-verifier`, `turbotax-reviewer` |
+| 03 Decompose & scope | 12–14 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
+| 04 Orchestrating at scale | 15–19 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV |
+
+The pastes below and on `/runbooks/301` match the speaker notes on slides 14 and 19. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
 | 05 Cost engineering | 20–24 | Model per role, usage dashboard, fresh chat per task |
 
 ---
@@ -95,17 +97,38 @@ Create a test for Jordan Hale that uses SSN 123-45-6789 and the email jordan.hal
 
 ## 03 · Decompose & scope — live demo A (slide 14)
 
-**Open:** a new agent in **Plan** mode on a frontier model.
+**Why:** One feature, four reviewable slices. **Benefit:** each session has inputs and acceptance criteria, so the work can be checked. **Why it matters:** mergeable PRs, not hero diffs.
 
-**Why:** One feature, four reviewable slices. **Benefit:** each session has inputs and a done-when line, so the work can be checked. **Why it matters:** mergeable PRs, not hero diffs.
-
-**Paste:**
+1. **(0:30)** Open a new local agent. Press Shift+Tab to switch to **Plan** mode, on a frontier model. Paste the plan prompt:
 
 ```text
-/plan Use the decompose-feature skill. Feature: on the return page, a labeled link downloads the filer's tax summary for one tax year as CSV. The year comes from ?year=. Unknown filer is 404; a bad year is 400. Do not write code yet.
+Plan a tax summary export for TurboTax Expert Ops: a tax expert downloads a CSV of one filer's forms and federal withholding for one tax year, through a read-only API at GET /api/filers/[id]/tax-summary?year=YYYY and a control on the return page, with targeted tests.
+
+Split it into exactly four sessions: 1) data model, 2) API, 3) frontend, 4) tests.
+For each session, give: a one-sentence goal, inputs (files to @ and patterns to copy), files likely touched, acceptance criteria I can check, what's out of scope, and what it depends on.
+
+Draw the dependency graph. The data model comes first. The API and frontend can run in parallel because the route path and query string are fixed above. Tests come after the API.
+Follow AGENTS.md and the repo rules. Don't write code yet.
 ```
 
-**Look for:** four session cards that match slide 13:
+2. **(2:00)** While it researches, narrate what it reads: `lib/data.ts`, the Prisma schema, the demo clock in `lib/clock.ts`, and the repo rules.
+3. **(2:00)** Walk the plan: four sessions, inputs, acceptance criteria, and the dependency graph. **Edit one criterion live** — for example, "year must be a four-digit tax year no later than 2025, otherwise 400." Say: *Review happens here, on one page, before any code exists.*
+4. **(0:30)** Select **Save to workspace** so the plan lands in `.cursor/plans/`.
+5. **(1:30)** Start a **new chat** and paste the data model prompt. Say: *This runs while we talk about orchestration, and we'll come back to it in the next demo.*
+
+```text
+Implement only Session 1 (data model) from the plan in .cursor/plans/.
+Stop when its acceptance criteria are met. Don't touch routes, pages, or tests.
+Finish with a checklist of each acceptance criterion: PASS or FAIL, with the file or command that shows it.
+```
+
+6. **(1:00)** Show the everything-at-once prompt without running it. Say: *This one maximizes tokens, turns, and surprises. Scoped sessions give you reviewable progress.*
+
+```text
+Build the whole tax summary feature end to end, add tests and docs, and clean up anything messy you find along the way.
+```
+
+**Look for:** four sessions that match slide 13:
 
 | Session | Inputs | Done when |
 | --- | --- | --- |
@@ -114,36 +137,54 @@ Create a test for Jordan Hale that uses SSN 123-45-6789 and the email jordan.hal
 | 3 · Frontend | Return page, Button component | Labeled link downloads the CSV |
 | 4 · Tests | Handler-test pattern, seeded DB | 3 cases pass; `npm test` green |
 
-API and frontend should be marked as parallel after the data model. Each card owns its own files.
+**If it goes wrong:**
 
-**Do:** Save the plan to the workspace.
+- Plan mode is slow or off script: review `.cursor/plans/tax-summary-export.fallback.md` instead.
+- It merges sessions: reply "Keep exactly four sessions. Don't merge them."
+- Session 1 drifts into routes or pages: stop it, restore the checkpoint, and restate "data model only."
+- Session 1 isn't finished by demo B: `git checkout demo/session-1-done`.
 
-**Fallback:** if the live plan goes sideways, open `.cursor/plans/tax-summary-export.fallback.md` — the same four sessions with a shared contract.
+**Optional:** the same decomposition is encoded as a team skill in `.cursor/skills/decompose-feature/SKILL.md` — the "encode one playbook" point on slide 25.
 
 ---
 
 ## 04 · Orchestrating at scale — live demo B (slide 19)
 
-**Say:** "Three rungs, one question: does the work actually split? Here only API and frontend do. The data model goes first; tests go last."
+**Say:** "Three rungs, one question: does the work actually split? Here only the API and frontend do."
 
-1. **Approve at the gate.** The plan is the contract. Nothing writes code before it.
-2. **Build in Parallel.** The data model runs first; the API and frontend sessions run side by side in their own worktrees; tests run last.
-3. **Watch the task cards.** Each card names its model and the files it touched. Sibling sessions should not overlap.
-4. **Verify.** Paste:
+1. **(0:30)** Go back to the chat where Session 1 ran and read its PASS/FAIL checklist out loud.
+2. **(1:00)** Open the saved plan and select **Build in Parallel**. Say: *Approving the plan is the gate. Nothing else gets written until I click.* If the button isn't there, paste:
+
+```text
+/multitask Build Sessions 2, 3, and 4 from the plan in .cursor/plans/.
+Run Sessions 2 and 3 in parallel. Start Session 4 after Session 2 is done.
+Each worker stays inside its session and stops at its acceptance criteria.
+When all three finish, give me one table: session, files changed, model used, PASS or FAIL.
+```
+
+3. **(3:00)** Watch the API and frontend sessions run at the same time. Each has its own task card, its own context, and the model it ran on. Tests wait for the API.
+4. **(1:00)** Say: *Two agents running at once costs about twice the tokens. That's why we only parallelize the parts that split.*
+5. **(3:30)** Paste the verify prompt and read the PASS / PARTIAL / FAIL table against the plan's acceptance criteria. If time allows, open [TY25-1043](http://127.0.0.1:43173/returns/ret_1043) for Ellis Marlow and download the CSV.
+
+```text
+/turbotax-reviewer Review the combined diff against the plan in .cursor/plans/.
+Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025".
+Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.
+```
+
+6. **(0:30)** Say: *That's the 301 loop: a plan as the contract, parallel workers on the parts that split, and a check against acceptance criteria.*
+
+**If it goes wrong:**
+
+- Two workers collide on a file: reply "Serialize: finish Session 2, then 3, then 4."
+- `tests/runbooks.test.ts` fails: the repo's test-count rule is doing its job. Reply "Update the test-count references the repo rule lists."
+- It's still building near the end of the slot: `git checkout demo/all-sessions-done` and walk the diff, the task cards, and the reviewer's report.
+
+**Optional lighter verifier:** `acceptance-verifier` writes no code and runs on a cheaper model:
 
 ```text
 Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.
 ```
-
-5. **Review.** Paste:
-
-```text
-turbotax-reviewer check my work
-```
-
-**Look for:** four PASS lines with commands and evidence, a green `npm test`, and the link on [ret_1043](http://127.0.0.1:43173/returns/ret_1043) downloading `tax-summary-fil_marlow-2025.csv` (or the name the plan chose). The reviewer should report no SSN in the CSV.
-
-**Fallback:** if Build in Parallel is not available, paste `/multitask @tax-summary-export.fallback.md`.
 
 **Optional second orchestration:** `/multitask @resolve-review.md` finishes the credit-review stub with three disjoint workers (helper, API, UI). On approve, `rev_1043` must store $2,500, not $4,000.
 

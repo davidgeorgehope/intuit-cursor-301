@@ -31,7 +31,7 @@ describe("runbooks API", () => {
     expect(response.status).toBe(200);
     expect(body.id).toBe("301");
     expect(body.sections[0].beats[0].id).toBe("open-agents-md");
-    expect(body.sections[1].beats.map((beat: { id: string }) => beat.id)).toContain("decompose-export");
+    expect(body.sections[1].beats.map((beat: { id: string }) => beat.id)).toContain("plan-prompt");
   });
 
   it.each(["bogus", "101", "201"])("returns 404 for track %s", async (track) => {

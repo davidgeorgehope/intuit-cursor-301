@@ -63,17 +63,19 @@ Ask:
 /ask What does this application do, and which seeded returns were rejected? Cite lib/rejects.ts and prisma/seed.ts. Do not edit any files.
 ```
 
-Decompose (live demo A):
+Plan (live demo A, Plan mode):
 
 ```text
-/plan Use the decompose-feature skill. Feature: on the return page, a labeled link downloads the filer's tax summary for one tax year as CSV. The year comes from ?year=. Unknown filer is 404; a bad year is 400. Do not write code yet.
+Plan a tax summary export for TurboTax Expert Ops: a tax expert downloads a CSV of one filer's forms and federal withholding for one tax year, through a read-only API at GET /api/filers/[id]/tax-summary?year=YYYY and a control on the return page, with targeted tests. Split it into exactly four sessions: 1) data model, 2) API, 3) frontend, 4) tests. Don't write code yet.
 ```
 
 Verify (live demo B):
 
 ```text
-Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.
+/turbotax-reviewer Review the combined diff against the plan in .cursor/plans/. Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025". Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.
 ```
+
+Fallback branches for the live demos: `demo/session-1-done` and `demo/all-sessions-done`.
 
 ## Notes
 
