@@ -129,6 +129,43 @@ export async function getOpenReviewNotices() {
   }));
 }
 
+export type TaxSummaryRow = {
+  formType: string;
+  issuer: string;
+  amountCents: number;
+  withheldCents: number;
+};
+
+export async function getTaxSummary(
+  filerId: string,
+  taxYear: number,
+): Promise<{ filerId: string; filerName: string; taxYear: number; rows: TaxSummaryRow[] } | null> {
+  const filer = await prisma.filer.findUnique({
+    where: { id: filerId },
+    include: {
+      returns: {
+        where: { taxYear },
+        include: { forms: { orderBy: { id: "asc" } } },
+      },
+    },
+  });
+  if (!filer) return null;
+
+  return {
+    filerId: filer.id,
+    filerName: filer.name,
+    taxYear,
+    rows: filer.returns.flatMap((taxReturn) =>
+      taxReturn.forms.map((form) => ({
+        formType: form.formType,
+        issuer: form.issuer,
+        amountCents: form.amountCents,
+        withheldCents: form.withheldCents,
+      })),
+    ),
+  };
+}
+
 export async function getWorkspace() {
   return prisma.workspace.findUniqueOrThrow({ where: { id: "ws_expertops" } });
 }
