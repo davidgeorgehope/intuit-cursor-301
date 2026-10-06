@@ -1,91 +1,71 @@
 import { prisma } from "@/lib/prisma";
 import {
   DASHBOARD_WINDOWS,
-  catalogMrrCents,
-  collectedCents,
-  disputeBreakdown,
-  disputeCentsAt,
-  openCentsAt,
+  isAcceptedInWindow,
   percentChange,
-  revenueSeries,
+  refundSeries,
+  refundsAcceptedCents,
+  reviewBreakdown,
 } from "@/lib/dashboard";
-import type { DisputeStatus, InvoiceStatus } from "@/lib/status";
+import { OPEN_REVIEW_STATUSES, isOpenReviewStatus } from "@/lib/status";
 
-const invoiceInclude = {
-  customer: true,
-  lines: true,
-  disputes: true,
+const returnInclude = {
+  filer: true,
+  forms: true,
+  reviews: true,
 } as const;
 
-const disputeInclude = {
-  invoice: {
+const reviewInclude = {
+  taxReturn: {
     include: {
-      customer: true,
-      lines: true,
+      filer: true,
+      forms: true,
     },
   },
 } as const;
 
 export async function getDashboard() {
-  const [invoices, disputes, customers] = await Promise.all([
-    prisma.invoice.findMany({ include: invoiceInclude, orderBy: { issuedOn: "desc" } }),
-    prisma.dispute.findMany({ include: disputeInclude, orderBy: { openedOn: "desc" } }),
-    prisma.customer.findMany(),
+  const [returns, reviews, filerCount] = await Promise.all([
+    prisma.taxReturn.findMany({ include: returnInclude, orderBy: { lastActivityOn: "desc" } }),
+    prisma.creditReview.findMany({ orderBy: { openedOn: "desc" } }),
+    prisma.filer.count(),
   ]);
 
   const { currentStart, currentEnd, priorStart, priorEnd } = DASHBOARD_WINDOWS;
-  const collectedCurrent = collectedCents(invoices, currentStart, currentEnd);
-  const collectedPrior = collectedCents(invoices, priorStart, priorEnd);
-  const openCurrent = openCentsAt(invoices, currentEnd);
-  const openPrior = openCentsAt(invoices, priorEnd);
-  const disputeCurrent = disputeCentsAt(disputes, currentEnd);
-  const disputePrior = disputeCentsAt(disputes, priorEnd);
-  const openNow = invoices.filter((invoice) => invoice.status === "OPEN" || invoice.status === "OVERDUE");
-  const needsReview = disputes.filter((dispute) => dispute.status === "NEEDS_REVIEW");
-  const openDisputes = disputes.filter(
-    (dispute) => dispute.status === "OPEN" || dispute.status === "NEEDS_REVIEW",
-  );
+  const refundsCurrent = refundsAcceptedCents(returns, currentStart, currentEnd);
+  const refundsPrior = refundsAcceptedCents(returns, priorStart, priorEnd);
 
   return {
-    invoices,
-    disputes,
-    series: revenueSeries(invoices, currentStart, currentEnd),
-    breakdown: disputeBreakdown(disputes),
+    returns,
+    series: refundSeries(returns, currentStart, currentEnd),
+    breakdown: reviewBreakdown(reviews),
     kpis: {
-      mrrCents: catalogMrrCents(customers),
-      accountCount: customers.length,
-      openCount: openNow.length,
-      openCents: openCurrent,
-      openChange: percentChange(openCurrent, openPrior),
-      collectedAugustCents: collectedCurrent,
-      collectedAugustCount: invoices.filter(
-        (invoice) =>
-          invoice.status === "PAID" &&
-          invoice.paidOn &&
-          invoice.paidOn >= currentStart &&
-          invoice.paidOn <= currentEnd,
+      filerCount,
+      refundsAcceptedCents: refundsCurrent,
+      refundsChange: percentChange(refundsCurrent, refundsPrior),
+      acceptedCount: returns.filter((taxReturn) =>
+        isAcceptedInWindow(taxReturn, currentStart, currentEnd),
       ).length,
-      collectedChange: percentChange(collectedCurrent, collectedPrior),
-      disputeCents: disputeCurrent,
-      disputeChange: percentChange(disputeCurrent, disputePrior),
-      reviewCount: needsReview.length,
-      openDisputeCount: openDisputes.length,
+      extendedCount: returns.filter((taxReturn) => taxReturn.status === "EXTENDED").length,
+      rejectedCount: returns.filter((taxReturn) => taxReturn.status === "REJECTED").length,
+      openReviewCount: reviews.filter((review) => isOpenReviewStatus(review.status)).length,
+      needsReviewCount: reviews.filter((review) => review.status === "NEEDS_REVIEW").length,
     },
   };
 }
 
-export async function getInvoices(filters?: { status?: string; q?: string }) {
-  const invoices = await prisma.invoice.findMany({
-    include: invoiceInclude,
-    orderBy: { issuedOn: "desc" },
+export async function getReturns(filters?: { status?: string; q?: string }) {
+  const returns = await prisma.taxReturn.findMany({
+    include: returnInclude,
+    orderBy: { lastActivityOn: "desc" },
   });
 
-  return invoices.filter((invoice) => {
-    if (filters?.status && filters.status !== "ALL" && invoice.status !== filters.status) {
+  return returns.filter((taxReturn) => {
+    if (filters?.status && filters.status !== "ALL" && taxReturn.status !== filters.status) {
       return false;
     }
     if (filters?.q) {
-      const haystack = `${invoice.number} ${invoice.customer.name} ${invoice.plan}`.toLowerCase();
+      const haystack = `${taxReturn.number} ${taxReturn.filer.name} ${taxReturn.filer.state}`.toLowerCase();
       if (!haystack.includes(filters.q.toLowerCase().trim())) {
         return false;
       }
@@ -94,61 +74,61 @@ export async function getInvoices(filters?: { status?: string; q?: string }) {
   });
 }
 
-export async function getInvoice(id: string) {
-  return prisma.invoice.findUnique({
+export async function getReturn(id: string) {
+  return prisma.taxReturn.findUnique({
     where: { id },
-    include: invoiceInclude,
+    include: returnInclude,
   });
 }
 
-export async function getDisputes(filters?: { status?: string }) {
-  const disputes = await prisma.dispute.findMany({
-    include: disputeInclude,
+export async function getRejectedReturns() {
+  return prisma.taxReturn.findMany({
+    where: { status: "REJECTED" },
+    include: returnInclude,
+    orderBy: { rejectedOn: "asc" },
+  });
+}
+
+export async function getReviews(filters?: { status?: string }) {
+  const reviews = await prisma.creditReview.findMany({
+    include: reviewInclude,
     orderBy: { openedOn: "desc" },
   });
 
   if (!filters?.status || filters.status === "ALL") {
-    return disputes;
+    return reviews;
   }
-  return disputes.filter((dispute) => dispute.status === filters.status);
+  return reviews.filter((review) => review.status === filters.status);
 }
 
-export async function getDispute(id: string) {
-  return prisma.dispute.findUnique({
+export async function getReview(id: string) {
+  return prisma.creditReview.findUnique({
     where: { id },
-    include: disputeInclude,
+    include: reviewInclude,
   });
 }
 
-export async function getOpenDisputeCount() {
-  return prisma.dispute.count({
-    where: { status: { in: ["OPEN", "NEEDS_REVIEW"] satisfies DisputeStatus[] } },
+export async function getOpenReviewCount() {
+  return prisma.creditReview.count({
+    where: { status: { in: [...OPEN_REVIEW_STATUSES] } },
   });
 }
 
-export async function getOpenDisputeNotices() {
-  const disputes = await prisma.dispute.findMany({
-    where: { status: { in: ["OPEN", "NEEDS_REVIEW"] satisfies DisputeStatus[] } },
-    include: { invoice: { include: { customer: true } } },
+export async function getOpenReviewNotices() {
+  const reviews = await prisma.creditReview.findMany({
+    where: { status: { in: [...OPEN_REVIEW_STATUSES] } },
+    include: { taxReturn: { include: { filer: true } } },
     orderBy: { openedOn: "desc" },
     take: 8,
   });
-  return disputes.map((dispute) => ({
-    id: dispute.id,
-    customerName: dispute.invoice.customer.name,
-    invoiceNumber: dispute.invoice.number,
-    status: dispute.status,
+  return reviews.map((review) => ({
+    id: review.id,
+    filerName: review.taxReturn.filer.name,
+    returnNumber: review.taxReturn.number,
+    status: review.status,
   }));
 }
 
 export async function getWorkspace() {
-  return prisma.workspace.findUniqueOrThrow({ where: { id: "ws_fieldnote" } });
-}
-
-export function isInvoiceStatus(value: string): value is InvoiceStatus {
-  return ["DRAFT", "OPEN", "PAID", "OVERDUE", "VOID"].includes(value);
-}
-
-export function isDisputeStatus(value: string): value is DisputeStatus {
-  return ["OPEN", "NEEDS_REVIEW", "ACCEPTED", "DECLINED"].includes(value);
+  return prisma.workspace.findUniqueOrThrow({ where: { id: "ws_expertops" } });
 }

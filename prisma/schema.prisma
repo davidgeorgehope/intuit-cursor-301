@@ -8,68 +8,74 @@ datasource db {
 }
 
 model Workspace {
-  id        String     @id
+  id        String         @id
   name      String
-  slug      String     @unique
-  createdAt DateTime   @default(now())
-  customers Customer[]
-  invoices  Invoice[]
-  disputes  Dispute[]
+  slug      String         @unique
+  createdAt DateTime       @default(now())
+  filers    Filer[]
+  returns   TaxReturn[]
+  reviews   CreditReview[]
 }
 
-model Customer {
-  id          String    @id
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  name        String
-  contactName String
-  email       String
-  plan        String
-  createdAt   DateTime  @default(now())
-  invoices    Invoice[]
+model Filer {
+  id           String      @id
+  workspaceId  String
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id])
+  name         String
+  email        String
+  filingStatus String
+  /// Only the last four digits are stored. Full SSNs never enter this database.
+  ssnLast4     String
+  state        String
+  createdAt    DateTime    @default(now())
+  returns      TaxReturn[]
 }
 
-model Invoice {
-  id              String        @id
-  number          String        @unique
-  workspaceId     String
-  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
-  customerId      String
-  customer        Customer      @relation(fields: [customerId], references: [id])
-  plan            String
-  status          String
-  issuedOn        DateTime
-  dueOn           DateTime
-  paidOn          DateTime?
-  subtotalCents   Int
-  taxCents        Int           @default(0)
-  totalCents      Int
-  memo            String?
-  collectionNote  String?
-  lines           InvoiceLine[]
-  disputes        Dispute[]
+model TaxReturn {
+  id             String         @id
+  number         String         @unique
+  workspaceId    String
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id])
+  filerId        String
+  filer          Filer          @relation(fields: [filerId], references: [id])
+  taxYear        Int
+  status         String
+  dueOn          DateTime
+  extendedOn     DateTime?
+  transmittedOn  DateTime?
+  acceptedOn     DateTime?
+  rejectedOn     DateTime?
+  rejectCode     String?
+  lastActivityOn DateTime
+  /// Positive is a refund; negative is a balance due.
+  refundCents    Int
+  memo           String?
+  forms          TaxForm[]
+  reviews        CreditReview[]
 }
 
-model InvoiceLine {
-  id             String  @id
-  invoiceId      String
-  invoice        Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  description    String
-  quantity       Int
-  unitPriceCents Int
-  amountCents    Int
+model TaxForm {
+  id            String    @id
+  returnId      String
+  taxReturn     TaxReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  formType      String
+  issuer        String
+  amountCents   Int
+  withheldCents Int       @default(0)
 }
 
-model Dispute {
-  id                   String    @id
-  invoiceId            String
-  invoice              Invoice   @relation(fields: [invoiceId], references: [id])
-  workspaceId          String
-  workspace            Workspace @relation(fields: [workspaceId], references: [id])
-  status               String
-  reason               String
-  openedOn             DateTime
-  disputedAmountCents  Int
-  suggestedCreditCents Int
-  reviewerNote         String?
+model CreditReview {
+  id                     String    @id
+  returnId               String
+  taxReturn              TaxReturn @relation(fields: [returnId], references: [id])
+  workspaceId            String
+  workspace              Workspace @relation(fields: [workspaceId], references: [id])
+  credit                 String
+  status                 String
+  reason                 String
+  openedOn               DateTime
+  qualifiedExpensesCents Int
+  claimedCents           Int
+  allowedCreditCents     Int
+  expertNote             String?
 }
