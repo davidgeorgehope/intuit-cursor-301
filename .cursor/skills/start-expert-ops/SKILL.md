@@ -26,16 +26,20 @@ The database needs a seed when `prisma/dev.db` is missing, Prisma cannot query `
 npx tsx -e '
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-try {
-  const n = await prisma.taxReturn.count();
-  console.log(n > 0 ? "seeded" : "empty");
-} catch {
-  console.log("missing");
-} finally {
-  await prisma.$disconnect();
-}
+(async () => {
+  try {
+    const n = await prisma.taxReturn.count();
+    console.log(n > 0 ? "seeded" : "empty");
+  } catch {
+    console.log("missing");
+  } finally {
+    await prisma.$disconnect();
+  }
+})();
 '
 ```
+
+`tsx -e` compiles to CommonJS, so the check runs inside an async function; top-level `await` fails there.
 
 - `seeded` — do not seed.
 - `empty` or `missing` — run `npx prisma db seed`.
