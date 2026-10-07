@@ -198,7 +198,7 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Optional: the same work as a Project",
         promptType: "adaptable",
         detail:
-          "Rung three. Before the session, select New Project in the Agents Window, pick this repository as the workspace and a frontier model for the coordinator, and paste this starter. Live, open the Project and show the coordinator's plan, the agents it started, and the PRs it brought back.",
+          "Rung three, the day before. In the Agents Window, select Projects > New Project. Name it TurboTax Expert Ops, pick this repository under Workspace and a frontier model under Model, select Create Project, and paste this starter.",
         example: [
           "You're the coordinator for TurboTax Expert Ops, the demo console in this repository. Read AGENTS.md first, and hold every agent to it and to .cursor/rules.",
           "",
@@ -214,22 +214,31 @@ export const RUNBOOK_SECTIONS_301 = [
         ].join("\n"),
       },
       {
-        id: "project-notes",
-        title: "Optional: read the shared context",
-        promptType: "reusable",
-        detail:
-          "Project files sync to every agent the coordinator runs. What one agent learns about this repo, the next one starts with.",
-        example:
-          "Show me the project notes: what agents have recorded about setting up, seeding, and testing this repo.",
-      },
-      {
         id: "project-subscription",
         title: "Optional: give the Project a subscription",
         promptType: "reusable",
         detail:
-          "Subscriptions wake the coordinator without a prompt. The Listening pill above the chat shows what it watches.",
+          "Before the session, once both PRs are open. Then leave a test comment such as \"Test: no change needed\" on one PR to confirm it fires.",
         example:
-          "Follow pull requests in this repository. When one opens, have an agent run the turbotax-reviewer subagent on it and bring the findings back here. Don't merge anything.",
+          "Follow pull requests in this repository. When one of your two PRs gets a review comment, have the agent that owns those files make the fix, rerun turbotax-reviewer and acceptance-verifier, and report back here with the new verdicts. Don't merge anything.",
+      },
+      {
+        id: "project-gate-review",
+        title: "Optional: the gate review",
+        promptType: "reusable",
+        detail:
+          "Live, in the Project. Read one table: each session, its model, its done-when line, and the verifier's verdict. The gate moved to the PR; you review verdicts, not every turn.",
+        example:
+          "Gate review, one table per PR: the link, each session, the model its agent ran on, its done-when line, and acceptance-verifier's PASS, PARTIAL, or FAIL with the evidence. Under each table, list any High findings from turbotax-reviewer. End with what you need from me before I review the diffs. Don't merge or change anything.",
+      },
+      {
+        id: "project-review-comment",
+        title: "Optional: wake it with a review comment",
+        promptType: "adaptable",
+        pasteLabel: "Paste as a comment on the CSV export PR",
+        detail:
+          "Leave this on the CSV export PR, then point at the Listening pill. The coordinator wakes on the comment and hands the fix to the agent that owns the file.",
+        example: "Add a one-line hint under the download link: One row per form on file, plus a totals row.",
       },
     ],
   },
