@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" fill="none" role="img" aria-labelledby="emptyReturnsTitle">
+  <title id="emptyReturnsTitle">No returns</title>
+  <rect width="360" height="240" rx="16" fill="#EEF2FF"/>
+  <rect x="118" y="58" width="124" height="132" rx="14" fill="#ffffff" stroke="#C7D2FE"/>
+  <rect x="138" y="82" width="84" height="8" rx="4" fill="#C7D2FE"/>
+  <rect x="138" y="100" width="64" height="8" rx="4" fill="#E0E7FF"/>
+  <rect x="138" y="118" width="84" height="8" rx="4" fill="#E0E7FF"/>
+  <path d="M148 168h64c3 0 5 2.5 4.4 5.4L212 196H148l-4.4-22.6C142.9 170.5 145 168 148 168z" fill="#4F46E5"/>
+</svg>

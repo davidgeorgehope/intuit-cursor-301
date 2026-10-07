@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### In progress
+### Changed
 
-- **201 track** — Runbooks track `201` / `RUNBOOK_SECTIONS_201` is on main for CE workshop demos (Outline Show beats, Linear staging, disk plugin) but is not a formal release in this cut.
+- **Intuit 301 copy** — Rebuilt as TurboTax Expert Ops for the Intuit × Cursor 301 session on October 8, 2026: synthetic filers, tax year 2025 returns with W-2, 1099-INT, and 1098-T forms, an e-file reject queue, and education-credit reviews capped at the 2025 limits. One `301` runbook track follows the session deck. The `decompose-feature` and `create-api` project skills, `turbotax-reviewer`, and `acceptance-verifier` back the two live demos. The shipped suite is green.
+
+### Removed
+
+- The Ledgerly billing domain, the 101 and 201 tracks, Linear staging, the standard-bug-fix disk plugin, and the Collections Command Center PRD.
 
 ## [1.0.0] - 2026-09-15
 

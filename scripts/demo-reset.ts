@@ -21,7 +21,7 @@ type SessionEvent = {
   };
 };
 
-type RemainingAction = { kind: "cursor-rule" | "figma" | "linear"; detail: string };
+type RemainingAction = { kind: "cursor-rule" | "figma" | "linear" | "worktree"; detail: string };
 type Report = {
   completed: string[];
   skipped: string[];
@@ -38,10 +38,22 @@ const skipServer = args.includes("--skip-server");
 const skipVerify = args.includes("--skip-verify");
 const keepBranch = args.includes("--keep-branch");
 const confirmLinear = args.includes("--confirm-linear");
-const knownProjectPaths = new Set([
-  ".cursor/rules/suggested-credit-api-v2.mdc",
-  ".cursor/skills/create-api",
-]);
+const anyOrigin = args.includes("--any-origin");
+const knownProjectPaths = new Set<string>();
+const EXPECTED_ORIGIN = "intuit-cursor-301";
+/** Shipped suite on a clean tree: 0 failed / 34 passed. */
+const EXPECTED_PASSED = 34;
+/** Demo beats write new files here. Untracked files under these paths are removed on reset. */
+const DEMO_OUTPUT_PATHS = [
+  "app",
+  "components",
+  "lib",
+  "tests",
+  ".cursor/plans",
+  ".cursor/rules",
+  ".cursor/skills",
+  ".cursor/agents",
+];
 
 function command(command: string, commandArgs: string[], options: { allowFailure?: boolean } = {}) {
   try {
@@ -120,20 +132,15 @@ function canvasRoot() {
 }
 
 function validateRemovablePaths(event: SessionEvent) {
-  const projectRulesRoot = resolve(root, ".cursor/rules");
   const userRulesRoot = resolve(sandboxHome, ".cursor/rules");
   const userSkillsRoot = resolve(sandboxHome, ".cursor/skills");
-  const projectRule = resolve(root, ".cursor/rules/suggested-credit-api-v2.mdc");
 
   for (const path of event.projectPaths) {
     if (!knownProjectPaths.has(path)) throw new Error(`Unsupported demo project path: ${path}`);
   }
   for (const rule of event.userRules) {
     if (!rule.path) continue;
-    const path = assertAllowedPath(rule.path, [userRulesRoot, projectRulesRoot]);
-    if (path !== projectRule && !path.startsWith(`${userRulesRoot}/`)) {
-      throw new Error(`Unsupported demo user-rule path: ${path}`);
-    }
+    assertAllowedPath(rule.path, [userRulesRoot]);
   }
   for (const skill of event.personalSkills) {
     const path = assertAllowedPath(skill.path, [userSkillsRoot]);
@@ -151,12 +158,7 @@ function record(event: SessionEvent) {
 
   if (kind === "rule") {
     const path = resolve(value);
-    const userRulesRoot = resolve(sandboxHome, ".cursor/rules");
-    const projectRule = resolve(root, ".cursor/rules/suggested-credit-api-v2.mdc");
-    assertAllowedPath(path, [userRulesRoot, resolve(root, ".cursor/rules")]);
-    if (path !== projectRule && !path.startsWith(`${userRulesRoot}/`)) {
-      throw new Error(`Only user rules or ${projectRule} can be recorded.`);
-    }
+    assertAllowedPath(path, [resolve(sandboxHome, ".cursor/rules")]);
     event.userRules.push({ path, title: args[3] });
   } else if (kind === "rule-id") {
     event.userRules.push({ id: value, title: args[3] });
@@ -205,11 +207,7 @@ function removeLocalArtifacts(event: SessionEvent, report: Report) {
 
   for (const rule of event.userRules) {
     if (rule.path) {
-      const path = assertAllowedPath(rule.path, [userRulesRoot, projectRulesRoot]);
-      if (path !== resolve(root, ".cursor/rules/suggested-credit-api-v2.mdc") && !path.startsWith(`${userRulesRoot}/`)) {
-        throw new Error(`Unsupported demo user-rule path: ${path}`);
-      }
-      removePath(path, report);
+      removePath(assertAllowedPath(rule.path, [userRulesRoot]), report);
     } else if (rule.id) {
       report.remaining.push({ kind: "cursor-rule", detail: `Remove Cursor user rule ${rule.id}${rule.title ? ` (${rule.title})` : ""}.` });
     }
@@ -294,13 +292,48 @@ function reseedAndStart(report: Report) {
   report.completed.push("Started the dev server on port 43173.");
 }
 
+function assertDemoOrigin() {
+  if (anyOrigin) return;
+  const origin = command("git", ["remote", "get-url", "origin"], { allowFailure: true }).trim();
+  if (!origin.includes(EXPECTED_ORIGIN)) {
+    throw new Error(
+      `Refusing to reset: origin is "${origin || "missing"}", not the ${EXPECTED_ORIGIN} demo repo. Pass --any-origin to override.`,
+    );
+  }
+}
+
+function removeDemoOutputs(report: Report) {
+  const untracked = command("git", ["ls-files", "--others", "--exclude-standard", "--", ...DEMO_OUTPUT_PATHS])
+    .split("\n")
+    .filter(Boolean);
+  if (untracked.length === 0) {
+    report.skipped.push("No untracked demo output files.");
+    return;
+  }
+  for (const relativePath of untracked) {
+    removePath(resolve(root, relativePath), report);
+  }
+}
+
+function reportWorktrees(report: Report) {
+  const worktrees = command("git", ["worktree", "list", "--porcelain"], { allowFailure: true })
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => line.slice("worktree ".length))
+    .filter((path) => resolve(path) !== root);
+  for (const path of worktrees) {
+    report.remaining.push({ kind: "worktree", detail: `Remove demo worktree ${path} with git worktree remove.` });
+  }
+}
+
 function verifyTests(report: Report) {
   if (skipVerify || dryRun) return;
   const output = command("npm", ["test"], { allowFailure: true });
-  if (!/1 failed[\s\S]*33 passed|33 passed[\s\S]*1 failed/i.test(output)) {
-    throw new Error("The reset suite did not report the expected 1 failed / 33 passed result.");
+  const summary = output.match(/Tests\s+(?:(\d+) failed \| )?(\d+) passed/);
+  if (!summary || summary[1] !== undefined || Number(summary[2]) !== EXPECTED_PASSED) {
+    throw new Error(`The reset suite did not report the expected 0 failed / ${EXPECTED_PASSED} passed result.`);
   }
-  report.completed.push("Confirmed the expected 1 failed / 33 passed test result.");
+  report.completed.push(`Confirmed the expected 0 failed / ${EXPECTED_PASSED} passed test result.`);
 }
 
 async function cancelWithLinearApi(event: SessionEvent, report: Report) {
@@ -377,16 +410,19 @@ function remainingExternalActions(event: SessionEvent, report: Report) {
 }
 
 async function reset() {
+  assertDemoOrigin();
   const event = readEvent(false);
   const report: Report = { completed: [], skipped: [], remaining: [] };
   validateRemovablePaths(event);
   if (!existsSync(eventFile)) {
     report.skipped.push(
-      `No session event file at ${eventFile}. Reset tracked files and known demo paths only; unrecorded personal rules, skills, Canvas files, and branches need manual cleanup.`,
+      `No session event file at ${eventFile}. Reset tracked files and demo output folders only; unrecorded personal rules, skills, Canvas files, and branches need manual cleanup.`,
     );
   }
   resetGit(event, report);
+  removeDemoOutputs(report);
   removeLocalArtifacts(event, report);
+  reportWorktrees(report);
   reseedAndStart(report);
   await cancelWithLinearApi(event, report);
   remainingExternalActions(event, report);

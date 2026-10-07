@@ -51,7 +51,7 @@ function Growth({ change, suffix }: { change: number | null; suffix: string }) {
     return <span>{suffix}</span>;
   }
   const rounded = Math.round(change * 10) / 10;
-  // A 10-invoice book produces wild lifts. Don't put 351% on stage.
+  // A 24-return book produces wild lifts. Don't put 351% on stage.
   if (Math.abs(rounded) > 80) {
     return <span>{suffix}</span>;
   }

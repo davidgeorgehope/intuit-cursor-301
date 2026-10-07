@@ -5,10 +5,9 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 
 describe("project MCP map", () => {
-  it("does not ship ledgerly-db or any other project MCP server", () => {
+  it("ships no project MCP servers and no database MCP", () => {
     const mcp = JSON.parse(readFileSync(join(root, ".cursor/mcp.json"), "utf8"));
     expect(mcp.mcpServers).toEqual({});
-    expect(mcp.mcpServers["ledgerly-db"]).toBeUndefined();
     expect(existsSync(join(root, "mcp"))).toBe(false);
   });
 });

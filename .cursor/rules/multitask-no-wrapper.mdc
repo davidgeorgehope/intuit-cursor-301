@@ -1,5 +1,5 @@
 ---
-description: Do not wrap Ledgerly /multitask in a single implementer Task
+description: Do not wrap /multitask in a single implementer Task
 alwaysApply: true
 ---
 
@@ -7,7 +7,7 @@ alwaysApply: true
 
 The parent chat **is** the coordinator. Do not launch a Task whose job is “implement this plan,” “execute the runbook,” or “dispatch the workers.” That wrapper is not an implementer.
 
-Launch mechanics live in `.cursor/skills/dispatch-subagents/SKILL.md`. Slice-specific workers, files, and verify steps live in the plan (e.g. `.cursor/plans/resolve-dispute.md`).
+Launch mechanics live in `.cursor/skills/dispatch-subagents/SKILL.md`. Slice-specific workers, files, and verify steps live in the plan (e.g. `.cursor/plans/tax-summary-export.fallback.md`).
 
 ## Dispatch
 
@@ -25,4 +25,4 @@ Task: owns <file A> only
 Task: owns <file B> only
 ```
 
-A typed worker (`api-instrumenter`, `ledgerly-reviewer`, `dispute-verifier`) is still one named job. It is not a stand-in for “do the whole plan.”
+A typed worker (`api-instrumenter`, `turbotax-reviewer`, `acceptance-verifier`) is still one named job. It is not a stand-in for “do the whole plan.”

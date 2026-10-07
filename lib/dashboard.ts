@@ -1,39 +1,32 @@
 import { DEMO_AS_OF, DEMO_PRIOR_END, DEMO_PRIOR_START, DEMO_WINDOW_START } from "@/lib/clock";
 import { sumCents } from "@/lib/money";
-import { planPriceCents } from "@/lib/plans";
 
-type InvoiceLike = {
+type ReturnLike = {
   status: string;
-  issuedOn: Date;
-  paidOn: Date | null;
-  totalCents: number;
+  acceptedOn: Date | null;
+  refundCents: number;
 };
 
-type DisputeLike = {
+type ReviewLike = {
   status: string;
-  openedOn: Date;
-  disputedAmountCents: number;
 };
 
-export function isPaidInWindow(invoice: InvoiceLike, start: Date, end: Date) {
+export function isAcceptedInWindow(taxReturn: ReturnLike, start: Date, end: Date) {
   return Boolean(
-    invoice.status === "PAID" &&
-      invoice.paidOn &&
-      invoice.paidOn >= start &&
-      invoice.paidOn <= end,
+    taxReturn.status === "ACCEPTED" &&
+      taxReturn.acceptedOn &&
+      taxReturn.acceptedOn >= start &&
+      taxReturn.acceptedOn <= end,
   );
 }
 
-export function isOpenAt(invoice: InvoiceLike, asOf: Date) {
-  if (invoice.status === "VOID" || invoice.status === "DRAFT") return false;
-  if (invoice.issuedOn > asOf) return false;
-  if (invoice.paidOn && invoice.paidOn <= asOf) return false;
-  return invoice.status === "OPEN" || invoice.status === "OVERDUE" || invoice.status === "PAID";
-}
-
-export function isActiveDisputeAt(dispute: DisputeLike, asOf: Date) {
-  if (dispute.openedOn > asOf) return false;
-  return dispute.status === "OPEN" || dispute.status === "NEEDS_REVIEW";
+/** Balance-due returns are not refunds and never reduce the total. */
+export function refundsAcceptedCents(returns: ReturnLike[], start: Date, end: Date) {
+  return sumCents(
+    returns
+      .filter((taxReturn) => isAcceptedInWindow(taxReturn, start, end) && taxReturn.refundCents > 0)
+      .map((taxReturn) => taxReturn.refundCents),
+  );
 }
 
 export function percentChange(current: number, prior: number): number | null {
@@ -41,38 +34,21 @@ export function percentChange(current: number, prior: number): number | null {
   return ((current - prior) / prior) * 100;
 }
 
-export function catalogMrrCents(customers: { plan: string }[]) {
-  return sumCents(customers.map((customer) => planPriceCents(customer.plan)));
-}
-
-export function collectedCents(invoices: InvoiceLike[], start: Date, end: Date) {
-  return sumCents(
-    invoices.filter((invoice) => isPaidInWindow(invoice, start, end)).map((invoice) => invoice.totalCents),
-  );
-}
-
-export function openCentsAt(invoices: InvoiceLike[], asOf: Date) {
-  return sumCents(invoices.filter((invoice) => isOpenAt(invoice, asOf)).map((invoice) => invoice.totalCents));
-}
-
-export function disputeCentsAt(disputes: DisputeLike[], asOf: Date) {
-  return sumCents(
-    disputes.filter((dispute) => isActiveDisputeAt(dispute, asOf)).map((dispute) => dispute.disputedAmountCents),
-  );
-}
-
-export function revenueSeries(invoices: InvoiceLike[], start: Date, end: Date) {
+export function refundSeries(returns: ReturnLike[], start: Date, end: Date) {
   const points: { date: string; cents: number }[] = [];
   const cursor = new Date(start);
   let running = 0;
-  const paid = invoices
-    .filter((invoice) => isPaidInWindow(invoice, start, end) && invoice.paidOn)
-    .sort((a, b) => a.paidOn!.getTime() - b.paidOn!.getTime());
+  const accepted = returns
+    .filter(
+      (taxReturn) =>
+        isAcceptedInWindow(taxReturn, start, end) && taxReturn.acceptedOn && taxReturn.refundCents > 0,
+    )
+    .sort((a, b) => a.acceptedOn!.getTime() - b.acceptedOn!.getTime());
   let index = 0;
 
   while (cursor <= end) {
-    while (index < paid.length && paid[index].paidOn! <= cursor) {
-      running += paid[index].totalCents;
+    while (index < accepted.length && accepted[index].acceptedOn! <= cursor) {
+      running += accepted[index].refundCents;
       index += 1;
     }
     points.push({ date: cursor.toISOString().slice(0, 10), cents: running });
@@ -82,16 +58,16 @@ export function revenueSeries(invoices: InvoiceLike[], start: Date, end: Date) {
   return points;
 }
 
-export function disputeBreakdown(disputes: DisputeLike[]) {
-  const needsResponse = disputes.filter((dispute) => dispute.status === "NEEDS_REVIEW").length;
-  const inReview = disputes.filter((dispute) => dispute.status === "OPEN").length;
-  const resolved = disputes.filter(
-    (dispute) => dispute.status === "ACCEPTED" || dispute.status === "DECLINED",
+export function reviewBreakdown(reviews: ReviewLike[]) {
+  const needsReview = reviews.filter((review) => review.status === "NEEDS_REVIEW").length;
+  const open = reviews.filter((review) => review.status === "OPEN").length;
+  const resolved = reviews.filter(
+    (review) => review.status === "APPROVED" || review.status === "DECLINED",
   ).length;
   return [
-    { id: "needs", label: "Needs response", count: needsResponse, color: "#dc2626" },
-    { id: "review", label: "In review", count: inReview, color: "#d97706" },
-    { id: "resolved", label: "Resolved", color: "#4f46e5", count: resolved },
+    { id: "needs", label: "Needs review", count: needsReview, color: "#dc2626" },
+    { id: "open", label: "Open", count: open, color: "#d97706" },
+    { id: "resolved", label: "Resolved", count: resolved, color: "#4f46e5" },
   ] as const;
 }
 

@@ -1,8 +1,8 @@
 /** Fake signed-in operator. No auth, no real people. */
 export const DEMO_OPERATOR = {
   name: "Avery Quinn",
-  role: "Billing ops",
+  role: "Tax expert",
   initials: "AQ",
-  workspace: "Fieldnote Workspace",
-  email: "avery.quinn@fieldnote.example",
+  workspace: "TurboTax Expert Ops",
+  email: "avery.quinn@expertops.example",
 } as const;

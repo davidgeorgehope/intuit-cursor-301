@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
-const STORAGE_KEY = "ledgerly-theme";
+const STORAGE_KEY = "expert-ops-theme";
 
 function applyTheme(theme: "light" | "dark") {
   const root = document.documentElement;
@@ -21,10 +21,10 @@ function readTheme(): "light" | "dark" {
 
 function subscribe(onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
-  window.addEventListener("ledgerly-theme", onStoreChange);
+  window.addEventListener("expert-ops-theme", onStoreChange);
   return () => {
     window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener("ledgerly-theme", onStoreChange);
+    window.removeEventListener("expert-ops-theme", onStoreChange);
   };
 }
 
@@ -34,7 +34,7 @@ export function ThemeToggle() {
     const next = theme === "dark" ? "light" : "dark";
     window.localStorage.setItem(STORAGE_KEY, next);
     applyTheme(next);
-    window.dispatchEvent(new Event("ledgerly-theme"));
+    window.dispatchEvent(new Event("expert-ops-theme"));
   }, [theme]);
 
   return (

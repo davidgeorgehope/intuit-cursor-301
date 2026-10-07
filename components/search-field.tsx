@@ -22,7 +22,7 @@ export function SearchField({
     const params = new URLSearchParams();
     if (status && status !== "ALL") params.set("status", status);
     if (next.trim()) params.set("q", next.trim());
-    const href = params.toString() ? `/invoices?${params}` : "/invoices";
+    const href = params.toString() ? `/returns?${params}` : "/returns";
     startTransition(() => {
       router.push(href);
     });

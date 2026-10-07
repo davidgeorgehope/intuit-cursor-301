@@ -1,44 +1,20 @@
-# Ledgerly demo howto
+# TurboTax Expert Ops demo howto
 
-Presenter run-of-show for the **101** and **201** tracks, not a course. Every step stands on its own, so you can start anywhere. You still review each result before it ships.
+Presenter run-of-show for **Intuit × Cursor 301 — Orchestrating how you work** (Intuit Tech Learning, October 8, 2026). The deck carries the talk; this file carries the live beats. Every beat stands on its own, so you can start anywhere. You still review each result before it ships.
 
-Ledgerly is a small, fictional demo app. It exists to give Grok Build enablement steps a visible surface: code to read, a UI to inspect, a scoped error to fix, and tests to verify. The data is synthetic. Avery Quinn is the operator, the only plan prices are Starter **$49**, Growth **$99**, and Scale **$249**, and the clock is frozen at **23 August 2026** so every run is repeatable.
+The app is a demo console for TurboTax tax experts during extension season. The data is synthetic: 24 filers, tax year 2025, and a clock frozen on **8 October 2026** — one week before the Oct 15 extension deadline. The pastes below match the copy-paste blocks on `/runbooks/301`.
 
-The pastes below match the copy-paste blocks on `/runbooks/101` and `/runbooks/201`. Each beat is independent; jump directly to any step.
+## Deck map
 
-## Jump menu
+| Deck section | Slides | Live beats on `/runbooks/301` |
+| --- | --- | --- |
+| 01 The cultural shift | 3–6 | Talk only |
+| 02 Context engineering | 7–11 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
+| 03 Decompose & scope | 12–14 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
+| 04 Orchestrating at scale | 15–19 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV |
 
-The 101 track has three sections. Open `/runbooks/101` and copy a card for any beat.
-
-1. **What is Grok Build?** — [Ask](#ask), [Plan](#plan), [Build in Agent mode](#build-in-agent-mode), [Debug](#debug), check the models
-2. **How do you work with an agent?** — allowlist, verify the email feature, redact, stop, interrupt and steer, continue to the end, review diffs, restore from a checkpoint
-3. **How do you govern an agent?** — [create a rule](#create-a-rule), create a skill, [Canvas](#canvas), [MCP / Figma](#mcp--figma)
-
-The 201 track has four sections. Open `/runbooks/201` and copy a card for any beat.
-
-1. **How do you manage context?** — rename agents, Ask DDD, check context usage, compare agents, ask across chats
-2. **How do you standardize agent behavior?** — [create-api skill](#create-api-skill), promote it
-3. **How do you connect an agent to external tools?** — [private Linear team](#create-the-private-linear-team-manual), Linear MCP, list open issues, import plugin from disk
-4. **How do you parallelize a task?** — [open a new agent](#open-the-plan), resolve-dispute plan, `/multitask`, Canvas subagent progress, ledgerly-reviewer check
-
----
-
-## How to narrate
-
-For a novice audience, narrate each step in this order:
-
-- **Before:** "Here is the task and the boundary I am giving Grok Build."
-- **During:** "Grok Build is reading, editing, or checking. I can inspect each action."
-- **After:** "Here is the evidence. I decide whether the result ships."
-
-Then add the engineering point: why the task is hard, what Grok Build takes on, and why the evidence matters. Do not read prompts aloud. State the intent, paste from the card, then narrate what changed in plain language.
-
-Use these definitions when the audience is new:
-
-- **Ask:** reads and explains; it does not edit.
-- **Agent:** can inspect, edit, and run checks within the boundary you give it.
-- **Rule:** an always-on project guardrail.
-- **Skill:** a reusable set of instructions for a kind of task.
+The pastes below and on `/runbooks/301` match the speaker notes on slides 14 and 19. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
+| 05 Cost engineering | 20–24 | Model per role, usage dashboard, fresh chat per task |
 
 ---
 
@@ -49,189 +25,182 @@ npm i
 npx prisma generate
 npx prisma db seed
 npm run dev
+npm run demo:session -- start
 ```
 
-Open **http://localhost:43173**. Or ask an agent to run the `start-ledgerly` skill — it starts on 43173 and seeds only when the database is empty.
+Open **http://localhost:43173**, or ask an agent to run the `start-expert-ops` skill.
 
 Check shipped state:
 
-- `npm test` is **1 failed / 33 passed**; the sole failure is `tests/suggested-credit-api.test.ts`
-- [http://127.0.0.1:43173/disputes/dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) shows **Suggested credit $400.00** in red, above the Scale price of **$249**
-- The deprecated v1 route returns the $400 claim; v2, the domain helper, and the seed store the correct $249 credit
-- Accept credit / Decline are disabled — that unfinished resolution UI is separate from the planted API-version error
-- Invoice and dispute status pills write `?state=` while the pages read `status` — clicking Overdue / Needs review does not filter. That is a planted UI seam, not a second red test. Restore it with the scripted reset.
+- `npm test` is **0 failed / 34 passed**.
+- The dashboard shows **Refunds Accepted $5,723.00** (up 37.9% on the prior 30 days), **6** extended returns not yet filed, **3** e-file rejects, and **4** open credit reviews.
+- [rev_1043](http://127.0.0.1:43173/reviews/rev_1043) shows **Allowed credit $2,500.00** in red under a **$4,000** claim, with Approve and Decline disabled.
+- [ret_1043](http://127.0.0.1:43173/returns/ret_1043) has no "Download tax summary (CSV)" link yet. Live demo B adds it.
+- The project hook is on: Customize > Hooks lists `.cursor/hooks/synthetic-prompt.mjs`.
+- Models are picked: a frontier model for Plan mode (slide 22 uses Claude Opus 5.5) and Auto or Grok 4.7 for the build.
 
-If the credit reads $249.00 or the suite is all green, a prior run switched the client to v2. If status pills filter the list, a prior run renamed `state` to `status`. Run:
-
-```bash
-npm run demo:reset
-```
-
-Then complete only the remaining MCP cleanup reported by the script. Empty dashboard: `npm run db:reset`.
-
-### Create the private Linear team (manual)
-
-Linear MCP cannot create teams. Do this in the Linear UI **before** the 201 MCP section, on the presenter’s account only.
-
-1. Open Linear → **Settings → Teams → New team**.
-2. Name it for this operator only (example: `{displayName}-field-demos`).
-3. Turn on **Make team private**. Team key can be **LY**. Confirm it at `https://linear.app/<workspace>/settings/teams/LY`.
-4. Members: **only you**. Do not add any other team.
-5. In Grok Build, run `stage-linear`. That skill creates or reconciles project `ce-field-demos` on this team with the three Fieldnote issues plus the nine Collections Command Center slices, tagged as that feature.
-
-`stage-linear` never guesses the team — it lists your private teams and asks you to **confirm the exact one** before writing, so any team name works. `reset-demo-state` uses the same confirmation, then cancels the recorded issues and cancels the project (issues stay linked; the team is retained).
-
-Do not skip the private-team step. A project on a public team is visible to that team.
+If the CSV link already exists or the suite count is off, a prior run left work behind. Run `npm run demo:reset`.
 
 ---
 
-## The demo error (2 min)
+## How to narrate
 
-**Open:** [dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043). The dashboard and Collections page are optional context.
+For each beat:
 
-**Do:** Point at **Suggested credit $400.00**, then **Scale catalog price $249.00**.
+- **Before:** "Here is the task and the boundary I am giving the agent."
+- **During:** "It is reading, editing, or checking. I can inspect each action."
+- **After:** "Here is the evidence. I decide whether the result ships."
 
-**Why:** One concrete error keeps the demo easy to follow. **Benefit:** Every enablement step can use the same visible example. **Why it matters:** The audience can focus on how Grok Build works instead of learning a product.
+Do not read prompts aloud. State the intent, paste from the card, then narrate what changed in plain language. The audience builds tax software every day — let the domain carry itself and keep the focus on how the work is shaped.
 
-**Say — novice version:**
+---
 
-> Ledgerly is a fictional billing app we use for this demo. It contains one known error on purpose. This invoice costs $249, but the dispute claims $400. The current v2 API caps the suggested credit at $249. The page still calls deprecated v1, which returns the $400 claim. That is why the page shows a red warning and one test is red.
+## 02 · Context engineering (slides 7–11)
 
-**How the error correlates:**
+### Open AGENTS.md
 
-| Layer | File | What it proves |
+**Do:** Open `AGENTS.md`, then `app/api/AGENTS.md`.
+
+**Say:** "About 40 lines — commands, data rules, and a definition of done. Pointers, not novels. The nested file wins for anything under `app/api`."
+
+### Ask what rides every turn
+
+**Paste:**
+
+```text
+/ask Which rules, skills, hooks, and MCP servers load on every turn in this repo? Cite each file and say which ones cost context on every turn.
+```
+
+**Look for:** the two always-on rules (`.cursor/rules/turbotax.mdc`, `.cursor/rules/multitask-no-wrapper.mdc`), skills loaded by description until used, the hook running outside the model, and an empty `.cursor/mcp.json`.
+
+### Personal and team skills
+
+**Do:** Customize > Skills. Personal skills live in `~/.cursor/skills`; team skills live in `.cursor/skills` and are reviewed like code. Open `.cursor/skills/create-api/SKILL.md`.
+
+### Trigger the hook
+
+**Paste:**
+
+```text
+Create a test for Jordan Hale that uses SSN 123-45-6789 and the email jordan.hale@intuit.com.
+```
+
+**Look for:** the prompt never sends. The message names the address and "an SSN-shaped number" without echoing the number.
+
+**Say:** "A hard stop outside the model. No prompt can talk its way past it — a script decides before anything reaches the model."
+
+### Read the context ring
+
+**Do:** Select the context usage indicator below the chat. Point at rules, MCP tools, and the conversation. "Fix the source, not the symptom."
+
+---
+
+## 03 · Decompose & scope — live demo A (slide 14)
+
+**Why:** One feature, four reviewable slices. **Benefit:** each session has inputs and acceptance criteria, so the work can be checked. **Why it matters:** mergeable PRs, not hero diffs.
+
+1. **(0:30)** Open a new local agent. Press Shift+Tab to switch to **Plan** mode, on a frontier model. Paste the plan prompt:
+
+```text
+Plan a tax summary export for TurboTax Expert Ops: a tax expert downloads a CSV of one filer's forms and federal withholding for one tax year, through a read-only API at GET /api/filers/[id]/tax-summary?year=YYYY and a control on the return page, with targeted tests.
+
+Split it into exactly four sessions: 1) data model, 2) API, 3) frontend, 4) tests.
+For each session, give: a one-sentence goal, inputs (files to @ and patterns to copy), files likely touched, acceptance criteria I can check, what's out of scope, and what it depends on.
+
+Draw the dependency graph. The data model comes first. The API and frontend can run in parallel because the route path and query string are fixed above. Tests come after the API.
+Follow AGENTS.md and the repo rules. Don't write code yet.
+```
+
+2. **(2:00)** While it researches, narrate what it reads: `lib/data.ts`, the Prisma schema, the demo clock in `lib/clock.ts`, and the repo rules.
+3. **(2:00)** Walk the plan: four sessions, inputs, acceptance criteria, and the dependency graph. **Edit one criterion live** — for example, "year must be a four-digit tax year no later than 2025, otherwise 400." Say: *Review happens here, on one page, before any code exists.*
+4. **(0:30)** Select **Save to workspace** so the plan lands in `.cursor/plans/`.
+5. **(1:30)** Start a **new chat** and paste the data model prompt. Say: *This runs while we talk about orchestration, and we'll come back to it in the next demo.*
+
+```text
+Implement only Session 1 (data model) from the plan in .cursor/plans/.
+Stop when its acceptance criteria are met. Don't touch routes, pages, or tests.
+Finish with a checklist of each acceptance criterion: PASS or FAIL, with the file or command that shows it.
+```
+
+6. **(1:00)** Show the everything-at-once prompt without running it. Say: *This one maximizes tokens, turns, and surprises. Scoped sessions give you reviewable progress.*
+
+```text
+Build the whole tax summary feature end to end, add tests and docs, and clean up anything messy you find along the way.
+```
+
+**Look for:** four sessions that match slide 13:
+
+| Session | Inputs | Done when |
 | --- | --- | --- |
-| Demo data | `prisma/seed.ts` | `dsp_1043` claims $400 against `inv_1043`, a $249 Scale invoice |
-| Correct domain logic | `lib/dispute-credit.ts` | Caps suggested credit at the catalog plan price |
-| Versioned APIs | `app/api/v1/disputes/[id]/suggested-credit/route.ts`, `app/api/v2/disputes/[id]/suggested-credit/route.ts` | v1 returns the $400 claim for compatibility; v2 returns $249 |
-| Faulty client selection | `lib/disputes/suggested-credit-api.ts` | Selects deprecated v1, so the UI displays $400 |
-| Expected behavior | `tests/suggested-credit-api.test.ts` | Expects the client to select v2 |
+| 1 · Data model | `lib/data.ts`, schema, demo clock | Typed rows in integer cents |
+| 2 · API | Returns route, `create-api` skill | CSV 200, 404 unknown, 400 bad year |
+| 3 · Frontend | Return page, Button component | Labeled link downloads the CSV |
+| 4 · Tests | Handler-test pattern, seeded DB | 3 cases pass; `npm test` green |
 
-**Look for:** Red **Suggested credit $400.00**, copy stating it came from v1 and is above **$249.00**, and disabled Accept / Decline buttons. Those buttons are a separate unfinished seam; do not confuse them with the API-version error. Status pills on `/invoices` and `/disputes` are a third seam: they write `state=` so a click does not filter.
+**If it goes wrong:**
+
+- Plan mode is slow or off script: review `.cursor/plans/tax-summary-export.fallback.md` instead.
+- It merges sessions: reply "Keep exactly four sessions. Don't merge them."
+- Session 1 drifts into routes or pages: stop it, restore the checkpoint, and restate "data model only."
+- Session 1 isn't finished by demo B: `git checkout demo/session-1-done`.
+
+**Optional:** the same decomposition is encoded as a team skill in `.cursor/skills/decompose-feature/SKILL.md` — the "encode one playbook" point on slide 25.
 
 ---
 
-## Ask
+## 04 · Orchestrating at scale — live demo B (slide 19)
 
-**Open:** Grok Build chat in **Ask** mode. Leave the app on the dashboard or the dispute.
+**Say:** "Three rungs, one question: does the work actually split? Here only the API and frontend do."
 
-**Why:** Unfamiliar repos are expensive to learn. **Benefit:** Ask explains from source without editing. **Why it matters:** Engineers build confidence before acting.
-
-**Paste** (same block as the first-prompt card):
+1. **(0:30)** Go back to the chat where Session 1 ran and read its PASS/FAIL checklist out loud.
+2. **(1:00)** Open the saved plan and select **Build in Parallel**. Say: *Approving the plan is the gate. Nothing else gets written until I click.* If the button isn't there, paste:
 
 ```text
-What are Ledgerly's only plan prices, and which seeded invoices are overdue? Cite lib/plans.ts, prisma/seed.ts, and prisma/extra-accounts.ts.
-
-Explain the dispute flow end to end. What is intentionally unfinished? Cite the resolve helper, the resolve API route, and the dispute page. Do not edit any files.
+/multitask Build Sessions 2, 3, and 4 from the plan in .cursor/plans/.
+Run Sessions 2 and 3 in parallel. Start Session 4 after Session 2 is done.
+Each worker stays inside its session and stops at its acceptance criteria.
+When all three finish, give me one table: session, files changed, model used, PASS or FAIL.
 ```
 
-**Look for:** Citations to `lib/plans.ts`, `prisma/seed.ts`, and `prisma/extra-accounts.ts`; the resolve stub named separately from the API-version error; no edits.
+3. **(3:00)** Watch the API and frontend sessions run at the same time. Each has its own task card, its own context, and the model it ran on. Tests wait for the API.
+4. **(1:00)** Say: *Two agents running at once costs about twice the tokens. That's why we only parallelize the parts that split.*
+5. **(3:30)** Paste the verify prompt and read the PASS / PARTIAL / FAIL table against the plan's acceptance criteria. If time allows, open [TY25-1043](http://127.0.0.1:43173/returns/ret_1043) for Ellis Marlow and download the CSV.
+
+```text
+/turbotax-reviewer Review the combined diff against the plan in .cursor/plans/.
+Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025".
+Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.
+```
+
+6. **(0:30)** Say: *That's the 301 loop: a plan as the contract, parallel workers on the parts that split, and a check against acceptance criteria.*
+
+**If it goes wrong:**
+
+- Two workers collide on a file: reply "Serialize: finish Session 2, then 3, then 4."
+- `tests/runbooks.test.ts` fails: the repo's test-count rule is doing its job. Reply "Update the test-count references the repo rule lists."
+- It's still building near the end of the slot: `git checkout demo/all-sessions-done` and walk the diff, the task cards, and the reviewer's report.
+
+**Optional lighter verifier:** `acceptance-verifier` writes no code and runs on a cheaper model:
+
+```text
+Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.
+```
+
+**Optional second orchestration:** `/multitask @resolve-review.md` finishes the credit-review stub with three disjoint workers (helper, API, UI). On approve, `rev_1043` must store $2,500, not $4,000.
 
 ---
 
-## Plan
-
-**Open:** Plan mode. **Why:** Mapping the approach first keeps the change scoped.
+## 05 · Cost engineering (slides 20–24)
 
 **Paste:**
 
 ```text
-/plan I want a new feature to update the customer email in the invoice detail customer card. Don’t implement email validation.
+List the model that ran the plan, each subagent, and the verifier in this session. For each one, say whether a cheaper model would have done the same job, and why.
 ```
 
-**Look for:** A short plan that names the files it would touch and defers validation.
+**Do:** Open the usage dashboard and find this session's requests and their cost by model. Then start a fresh chat for the next task — carry the plan forward, not the transcript.
 
----
-
-## Build in Agent mode
-
-**Open:** Agent (the default). Keep [dsp_1043](http://127.0.0.1:43173/disputes/dsp_1043) visible.
-
-**Why:** End-to-end work crosses layers. **Benefit:** Agent traces, edits, and verifies the path. **Why it matters:** Explicit boundaries keep it reviewable.
-
-**Paste:**
-
-```text
-Diagnose why dsp_1043 shows a $400 suggested credit even though v2 caps it at $249. Switch lib/disputes/suggested-credit-api.ts from v1 to v2. Preserve both API routes, the $400 dispute claim, and tests/suggested-credit-api.test.ts. Run the relevant tests and verify the page shows $249 from v2.
-```
-
-**Look for:** One client-version edit. Both v1 and v2 route tests still pass. `tests/suggested-credit-api.test.ts` turns green. The page shows **$249** from v2.
-
----
-
-## Debug
-
-**Open:** Debug mode. **Why:** Verify a change and investigate any failure with runtime evidence.
-
-**Paste:**
-
-```text
-/debug the failing test
-```
-
-**Look for:** A hypothesis, an instrumented check, and a fix grounded in the actual failure.
-
----
-
-## Create a rule
-
-**Why:** Repeating standards in prompts is fragile. **Benefit:** A rule is always on for this project.
-
-**Paste:**
-
-```text
-/create-rule Future code must never call /api/v1/disputes/*/suggested-credit. It must use /api/v2/disputes/*/suggested-credit. Create the project rule at .cursor/rules/suggested-credit-api-v2.mdc and show me the file before I keep it.
-```
-
-**Look for:** A proposed project rule under `.cursor/rules/`. This is a live manual beat; do not add the rule to the shipped repository.
-
-Record it for reset:
-
-```bash
-npm run demo:session -- record project-path .cursor/rules/suggested-credit-api-v2.mdc
-```
-
----
-
-## Canvas
-
-**Why:** Some results are easier to show than tell. **Benefit:** Canvas renders an interactive artifact next to the chat.
-
-**Paste:**
-
-```text
-Create a canvas explaining what we did today.
-```
-
----
-
-## MCP / Figma
-
-**Why:** Grok Build can drive external tools through MCP. **Benefit:** Generate slides for a showcase without leaving the editor.
-
-Enable a Figma MCP server: **Customize > MCP > Figma**, then:
-
-```text
-Create three slides in Figma Slides outlining how I used Grok Build to develop a new feature. I want to use this as part of my demo showcase.
-```
-
----
-
-## Verify
-
-**Paste:**
-
-```text
-Run npm test and report which tests passed and which failed. Do not edit any files.
-
-On a clean tree, npm test is 1 failed / 33 passed. The sole red test is tests/suggested-credit-api.test.ts because the client intentionally selects deprecated v1. Do not change the test, either route, or the seed.
-```
-
-**If the client migration ran:** `tests/suggested-credit-api.test.ts` should be green and dsp_1043 should show **$249** from v2, with both routes intact.
-
-**If no migration ran:** `npm test` should remain **1 failed / 33 passed**. That is shipped state, not failed setup.
-
-**Land:** A green check is evidence, not permission to merge. The presenter remains accountable.
+**Say:** "Five parallel subagents cost roughly five times one agent. Parallel is a spend call."
 
 ---
 
@@ -239,104 +208,21 @@ On a clean tree, npm test is 1 failed / 33 passed. The sole red test is tests/su
 
 **Say:**
 
-> I reviewed the result. Now I am resetting the demo app so the next session starts with the same planted v1 client, the same $400 UI result, the same expected red test, and status pills that still write `state=`.
+> I reviewed the result. Now I reset the app so the next run starts with no export link, a green suite, and the same $4,000 claim on rev_1043.
 
-**Do:** Ask the agent to run `reset-demo-state`, or:
+**Do:**
 
 ```bash
 npm run demo:reset
 ```
 
-**Then:** complete only the script's reported Figma, Cursor user-rule, or Linear MCP actions. The script resets files, recorded rules/skills, Canvas, branches, SQLite, and port 43173.
-
-**Shipped state again:** suggested credit **$400.00** from v1 on dsp_1043, v2 and stored credit **$249.00**, suite **1 failed / 33 passed**, status pills still writing `state=`.
-
----
-
-## The 201 track
-
-Open `/runbooks/201`. Four section tabs match the Outline Show headings. Copy a card; Do text and prompts are on the card.
-
-### How do you manage context?
-
-Rename two agents (`/rename-chat Agent 1 All`, `/rename-chat Agent 2 Target`). Ask each for domain-driven design (whole app vs `@invoice-table.tsx`). Go to Agent 1 All chat. Select the Context Usage indicator below the chat. Go to Agent 2 Target. Select the Context Usage indicator below the chat. Compare agents: Agent 1 maps all the domains in the whole codebase. Agent 2 maps half of the domains based on the targeted context. Then ask across chats:
-
-```text
-/ask what is the domain driven design of the application.
-```
-
-```text
-/ask what is the domain driven design of the @invoice-table.tsx
-```
-
-```text
-/ask @Agent 1 All Does refactoring the table change anything across all contexts?
-```
-
-### How do you standardize agent behavior?
-
-#### Create-api skill
-
-```text
-/create-skill for how to create a new API. Follow the standards in this repo. This is a personal skill named create-api.
-```
-
-Open the skill in `~/.cursor/skills`, then promote it:
-
-```text
-Promote the create-api skill to this project.
-```
-
-Open the project skill in `.cursor/skills`. Explore the other project skills for this repository, such as add-dashboard-widget, draft-collection-email, or write-prisma-query.
-
-Record both leftovers for reset:
-
-```bash
-npm run demo:session -- record skill "$HOME/.cursor/skills/create-api"
-npm run demo:session -- record project-path .cursor/skills/create-api
-```
-
-### How do you connect an agent to external tools?
-
-Create the private Linear team by hand first ([steps above](#create-the-private-linear-team-manual)): Settings → Teams → New team, **Make team private**, members = you only. Then run `stage-linear`.
-
-Review MCP servers in Customize → MCPs. Enable the Linear MCP server. Check the MCP allowlist under Settings → Agents → Execution and Approvals. Then:
-
-```text
-List the open issues from our issue tracker.
-```
-
-Add the plugin from the local repository (Customize → Plugins → Add → From Local Repository, then `plugins/standard-bug-fix`). Go to Customize → Plugins → Personal. Select Add to enable the “Standard bug fix” plugin. Show that the plugin has skills, rules, and MCP server. Then:
-
-```text
-Work on a standard bug fix for the issue where clicking overdue does not filter.
-```
-
-### How do you parallelize a task?
-
-#### Open the plan
-
-Open a new agent. Then open `.cursor/plans/resolve-dispute.md`, `.cursor/agents/ledgerly-reviewer.md`, and `.cursor/skills/dispatch-subagents/SKILL.md`. Then:
-
-```text
-/multitask @resolve-dispute.md
-```
-
-```text
-Update Canvas with subagent progress and models used. Make a list of worktree conflicts as you encounter them.
-```
-
-```text
-ledgerly-reviewer check my work
-```
+The reset restores tracked files, removes untracked demo output under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/`, reseeds SQLite, restarts port 43173, and confirms **0 failed / 34 passed**. It lists any Build in Parallel worktrees for you to remove.
 
 ---
 
 ## Do not
 
-- Invent a fourth price, ARR, or a real customer
-- "Correct" the $400 claim on dsp_1043 or the seed
-- Touch `tests/suggested-credit-api.test.ts` to make the migration pass
-- Delete or change either suggested-credit API route
-- Commit a KPI restyle to `main`
-- Treat a green test as a ship decision
+- Paste a real SSN, EIN, or customer email into a prompt. The hook blocks it, and it should.
+- "Correct" the $4,000 claim on `rev_1043` or any seeded amount.
+- Finish the credit-review stub outside the optional beat.
+- Treat a green verifier as a ship decision.

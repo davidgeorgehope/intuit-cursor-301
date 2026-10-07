@@ -1,11 +1,11 @@
 {
-  "name": "ce-field-demos",
+  "name": "intuit-cursor-301",
   "version": "1.0.0",
   "private": true,
-  "description": "Ledgerly — fictional B2B billing and collections ops SaaS for Grok Build demos.",
+  "description": "TurboTax Expert Ops — demo console for the Intuit × Cursor 301 session. Synthetic filers only.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/joatmon08x/ce-field-demos.git"
+    "url": "https://github.com/davidgeorgehope/intuit-cursor-301.git"
   },
   "scripts": {
     "dev": "next dev --port 43173",

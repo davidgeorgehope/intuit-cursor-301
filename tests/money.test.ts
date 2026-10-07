@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 import { formatUsd, sumCents } from "@/lib/money";
 
 describe("formatUsd", () => {
-  it("formats catalog prices from cents", () => {
-    expect(formatUsd(4900)).toBe("$49.00");
-    expect(formatUsd(9900)).toBe("$99.00");
-    expect(formatUsd(24900)).toBe("$249.00");
+  it("formats refunds and credit limits from cents", () => {
+    expect(formatUsd(138_100)).toBe("$1,381.00");
+    expect(formatUsd(250_000)).toBe("$2,500.00");
+    expect(formatUsd(-110_900)).toBe("-$1,109.00");
   });
 });
 
 describe("sumCents", () => {
-  it("adds invoice totals without inventing a unit", () => {
-    expect(sumCents([4900, 9900, 24900])).toBe(39700);
+  it("adds amounts without inventing a unit", () => {
+    expect(sumCents([684_000, 31_000])).toBe(715_000);
   });
 });

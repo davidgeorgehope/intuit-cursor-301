@@ -1,334 +1,325 @@
 import { execSync } from "node:child_process";
 import { PrismaClient } from "@prisma/client";
 import { demoDay } from "../lib/clock";
-import { suggestDisputeCredit } from "../lib/dispute-credit";
-import { planPriceCents } from "../lib/plans";
-import { EXTRA_ACCOUNTS } from "./extra-accounts";
+import { allowedEducationCreditCents } from "../lib/education-credit";
+import { EXTENSION_DEADLINE, FILING_DEADLINE, TAX_YEAR, type EducationCredit } from "../lib/tax-year";
+import { EXTRA_FILINGS, type SeedFiling } from "./extra-filers";
 
 const prisma = new PrismaClient();
+const WORKSPACE_ID = "ws_expertops";
 
-/** Invoice shape for the extra book accounts: issued Aug 1, due Aug 31 — OPEN
- * on the frozen clock — except three exception states that give the collections
- * views something to chew on without touching the original demo beats. */
-function extraInvoiceState(index: number) {
-  if (index === 2 || index === 8) {
-    // Alder BioSystems, Blue Harbor Bank — overdue from the July cycle.
-    return { status: "OVERDUE", issuedOn: "2026-07-05", dueOn: "2026-08-04" };
-  }
-  if (index % 3 === 0) {
-    return { status: "PAID", issuedOn: "2026-07-20", dueOn: "2026-08-19", paidOn: "2026-08-17" };
-  }
-  return { status: "OPEN", issuedOn: "2026-08-01", dueOn: "2026-08-31" };
-}
+const dollars = (amount: number) => amount * 100;
+const day = (isoDate: string | undefined) => (isoDate ? demoDay(isoDate) : null);
 
-type SeedCustomer = {
+const REFUND_EXCLUDES_CREDIT = "Refund estimate excludes the education credit until the review closes.";
+
+const CORE_FILINGS: SeedFiling[] = [
+  {
+    filer: {
+      id: "fil_hale",
+      name: "Jordan Hale",
+      email: "jordan.hale@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "4821",
+      state: "CA",
+    },
+    taxReturn: {
+      id: "ret_1041",
+      number: "TY25-1041",
+      status: "ACCEPTED",
+      transmittedOn: "2026-04-02",
+      acceptedOn: "2026-04-03",
+      lastActivityOn: "2026-04-03",
+      refund: 1_381,
+      forms: [
+        { formType: "W-2", issuer: "Acme North", amount: 68_400, withheld: 7_950 },
+        { formType: "1099-INT", issuer: "Blue Harbor Bank", amount: 310 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_sato",
+      name: "Remy & Ana Sato",
+      email: "remy.sato@mail.example",
+      filingStatus: "MFJ",
+      ssnLast4: "3307",
+      state: "OR",
+    },
+    taxReturn: {
+      id: "ret_1042",
+      number: "TY25-1042",
+      status: "REJECTED",
+      extendedOn: "2026-04-13",
+      transmittedOn: "2026-10-05",
+      rejectedOn: "2026-10-06",
+      rejectCode: "IND-032-04",
+      lastActivityOn: "2026-10-06",
+      refund: -1_109,
+      memo: "Ana's 2024 AGI was entered from a draft of last year's return.",
+      forms: [
+        { formType: "W-2", issuer: "Riverstone Labs", amount: 92_300, withheld: 9_850 },
+        { formType: "W-2", issuer: "Fieldnote Press", amount: 54_100, withheld: 4_420 },
+        { formType: "1099-INT", issuer: "Blue Harbor Bank", amount: 1_240 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_marlow",
+      name: "Ellis Marlow",
+      email: "ellis.marlow@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "6142",
+      state: "CO",
+    },
+    taxReturn: {
+      id: "ret_1043",
+      number: "TY25-1043",
+      status: "EXTENDED",
+      extendedOn: "2026-04-14",
+      lastActivityOn: "2026-10-01",
+      refund: 1_069,
+      memo: REFUND_EXCLUDES_CREDIT,
+      forms: [
+        { formType: "W-2", issuer: "Cobalt Goods", amount: 41_800, withheld: 3_960 },
+        { formType: "1098-T", issuer: "Lumen Education", amount: 4_000 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_nader",
+      name: "Priya Nader",
+      email: "priya.nader@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "2290",
+      state: "TX",
+    },
+    taxReturn: {
+      id: "ret_1044",
+      number: "TY25-1044",
+      status: "EXTENDED",
+      extendedOn: "2026-04-10",
+      lastActivityOn: "2026-10-05",
+      refund: 593,
+      memo: REFUND_EXCLUDES_CREDIT,
+      forms: [
+        { formType: "W-2", issuer: "Brightwell Labs", amount: 38_600, withheld: 3_100 },
+        { formType: "1098-T", issuer: "Lumen Education", amount: 1_800 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_bellamy",
+      name: "Chris Bellamy",
+      email: "chris.bellamy@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "7718",
+      state: "OH",
+    },
+    taxReturn: {
+      id: "ret_1045",
+      number: "TY25-1045",
+      status: "REJECTED",
+      extendedOn: "2026-04-15",
+      transmittedOn: "2026-10-01",
+      rejectedOn: "2026-10-02",
+      rejectCode: "IND-181-01",
+      lastActivityOn: "2026-10-02",
+      refund: 1_275,
+      memo: "Filer enrolled in the IP PIN program in January.",
+      forms: [{ formType: "W-2", issuer: "Oakiron Supply", amount: 57_250, withheld: 6_020 }],
+    },
+  },
+  {
+    filer: {
+      id: "fil_ortez",
+      name: "Sam & Jo Ortez",
+      email: "sam.ortez@mail.example",
+      filingStatus: "MFJ",
+      ssnLast4: "5034",
+      state: "WA",
+    },
+    taxReturn: {
+      id: "ret_1046",
+      number: "TY25-1046",
+      status: "ACCEPTED",
+      extendedOn: "2026-04-12",
+      transmittedOn: "2026-09-29",
+      acceptedOn: "2026-09-30",
+      lastActivityOn: "2026-09-30",
+      refund: 441,
+      forms: [
+        { formType: "W-2", issuer: "Fieldnote Press", amount: 78_900, withheld: 7_400 },
+        { formType: "W-2", issuer: "Tidewatch Logistics", amount: 61_200, withheld: 6_950 },
+        { formType: "1099-INT", issuer: "Blue Harbor Bank", amount: 860 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_voss",
+      name: "Noor Voss",
+      email: "noor.voss@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "8463",
+      state: "NY",
+    },
+    taxReturn: {
+      id: "ret_1047",
+      number: "TY25-1047",
+      status: "EXTENDED",
+      extendedOn: "2026-04-14",
+      lastActivityOn: "2026-09-28",
+      refund: 1_375,
+      memo: REFUND_EXCLUDES_CREDIT,
+      forms: [
+        { formType: "W-2", issuer: "Silverpine Outfitters", amount: 83_500, withheld: 11_200 },
+        { formType: "1098-T", issuer: "Lumen Education", amount: 12_000 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_ruiz",
+      name: "Dana Ruiz",
+      email: "dana.ruiz@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "1956",
+      state: "AZ",
+    },
+    taxReturn: {
+      id: "ret_1048",
+      number: "TY25-1048",
+      status: "EXTENDED",
+      extendedOn: "2026-04-15",
+      lastActivityOn: "2026-09-22",
+      refund: 571,
+      memo: "Waiting on a corrected W-2 (W-2c) from Maple & Ember Co.",
+      forms: [{ formType: "W-2", issuer: "Maple & Ember Co", amount: 46_700, withheld: 4_050 }],
+    },
+  },
+  {
+    filer: {
+      id: "fil_anand",
+      name: "Keir & Mina Anand",
+      email: "keir.anand@mail.example",
+      filingStatus: "MFJ",
+      ssnLast4: "6620",
+      state: "IL",
+    },
+    taxReturn: {
+      id: "ret_1049",
+      number: "TY25-1049",
+      status: "EXTENDED",
+      extendedOn: "2026-04-11",
+      lastActivityOn: "2026-10-03",
+      refund: -112,
+      memo: REFUND_EXCLUDES_CREDIT,
+      forms: [
+        { formType: "W-2", issuer: "Tidewatch Logistics", amount: 88_400, withheld: 8_900 },
+        { formType: "W-2", issuer: "Summit Aero", amount: 49_300, withheld: 4_180 },
+        { formType: "1098-T", issuer: "Lumen Education", amount: 2_600 },
+      ],
+    },
+  },
+  {
+    filer: {
+      id: "fil_shore",
+      name: "Lila Shore",
+      email: "lila.shore@mail.example",
+      filingStatus: "SINGLE",
+      ssnLast4: "3871",
+      state: "MA",
+    },
+    taxReturn: {
+      id: "ret_1050",
+      number: "TY25-1050",
+      status: "ACCEPTED",
+      extendedOn: "2026-04-14",
+      transmittedOn: "2026-09-14",
+      acceptedOn: "2026-09-15",
+      lastActivityOn: "2026-09-15",
+      refund: 2_549,
+      memo: "Includes the approved lifetime learning credit.",
+      forms: [
+        { formType: "W-2", issuer: "Copperleaf Atelier", amount: 59_800, withheld: 6_300 },
+        { formType: "1098-T", issuer: "Lumen Education", amount: 6_500 },
+      ],
+    },
+  },
+];
+
+type SeedReview = {
   id: string;
-  name: string;
-  contactName: string;
-  email: string;
-  plan: "STARTER" | "GROWTH" | "SCALE";
+  returnId: string;
+  credit: EducationCredit;
+  status: "OPEN" | "NEEDS_REVIEW" | "APPROVED" | "DECLINED";
+  reason: string;
+  openedOn: string;
+  /** Whole dollars. */
+  qualifiedExpenses: number;
+  claimed: number;
+  expertNote?: string;
 };
 
-const CUSTOMERS: SeedCustomer[] = [
+const REVIEWS: SeedReview[] = [
   {
-    id: "cus_harborline",
-    name: "Acme North",
-    contactName: "Jordan Hale",
-    email: "billing@acmenorth.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_cedarwell",
-    name: "Riverstone Labs",
-    contactName: "Remy Sato",
-    email: "hello@riverstone.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_quarrypine",
-    name: "Cobalt Goods",
-    contactName: "Ellis Marlow",
-    email: "accounts@cobaltgoods.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_brightwell",
-    name: "Brightwell Labs",
-    contactName: "Priya Nader",
-    email: "ops@brightwell.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_oakiron",
-    name: "Oakiron Supply",
-    contactName: "Chris Bellamy",
-    email: "billing@oakiron.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_fieldnote",
-    name: "Fieldnote Press",
-    contactName: "Sam Ortez",
-    email: "ledger@fieldnote.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_silverpine",
-    name: "Silverpine Outfitters",
-    contactName: "Noor Voss",
-    email: "pay@silverpine.example",
-    plan: "GROWTH",
-  },
-  {
-    id: "cus_mapleember",
-    name: "Maple & Ember Co",
-    contactName: "Dana Ruiz",
-    email: "hello@mapleember.example",
-    plan: "STARTER",
-  },
-  {
-    id: "cus_tidewatch",
-    name: "Tidewatch Logistics",
-    contactName: "Keir Anand",
-    email: "billing@tidewatch.example",
-    plan: "SCALE",
-  },
-  {
-    id: "cus_copperleaf",
-    name: "Copperleaf Atelier",
-    contactName: "Lila Shore",
-    email: "studio@copperleaf.example",
-    plan: "GROWTH",
-  },
-];
-
-const INVOICES = [
-  {
-    id: "inv_1041",
-    number: "INV-1041",
-    customerId: "cus_harborline",
-    plan: "GROWTH" as const,
-    status: "OPEN",
-    issuedOn: "2026-08-07",
-    dueOn: "2026-09-06",
-    memo: "Monthly Growth seat for Acme North.",
-  },
-  {
-    id: "inv_1042",
-    number: "INV-1042",
-    customerId: "cus_cedarwell",
-    plan: "STARTER" as const,
-    status: "PAID",
-    issuedOn: "2026-07-08",
-    dueOn: "2026-08-07",
-    paidOn: "2026-08-04",
-    memo: "Starter plan — July cycle.",
-  },
-  {
-    id: "inv_1043",
-    number: "INV-1043",
-    customerId: "cus_quarrypine",
-    plan: "SCALE" as const,
-    status: "OVERDUE",
-    issuedOn: "2026-07-10",
-    dueOn: "2026-08-09",
-    memo: "Scale plan. Customer opened a plan-mismatch dispute.",
-    collectionNote: "",
-  },
-  {
-    id: "inv_1044",
-    number: "INV-1044",
-    customerId: "cus_brightwell",
-    plan: "GROWTH" as const,
-    status: "PAID",
-    issuedOn: "2026-07-12",
-    dueOn: "2026-08-11",
-    paidOn: "2026-08-09",
-    memo: "Growth plan — July cycle.",
-  },
-  {
-    id: "inv_1045",
-    number: "INV-1045",
-    customerId: "cus_oakiron",
-    plan: "STARTER" as const,
-    status: "OPEN",
-    issuedOn: "2026-08-02",
-    dueOn: "2026-09-01",
-    memo: "Starter plan for Oakiron Supply.",
-  },
-  {
-    id: "inv_1046",
-    number: "INV-1046",
-    customerId: "cus_fieldnote",
-    plan: "SCALE" as const,
-    status: "PAID",
-    issuedOn: "2026-07-14",
-    dueOn: "2026-08-13",
-    paidOn: "2026-08-12",
-    memo: "Scale plan — July cycle.",
-  },
-  {
-    id: "inv_1047",
-    number: "INV-1047",
-    customerId: "cus_silverpine",
-    plan: "GROWTH" as const,
-    status: "OVERDUE",
-    issuedOn: "2026-07-13",
-    dueOn: "2026-08-12",
-    memo: "Growth plan. Duplicate-charge dispute is open.",
-  },
-  {
-    id: "inv_1048",
-    number: "INV-1048",
-    customerId: "cus_mapleember",
-    plan: "STARTER" as const,
-    status: "DRAFT",
-    issuedOn: "2026-08-22",
-    dueOn: "2026-09-21",
-    memo: "Draft — waiting on a purchase order number.",
-  },
-  {
-    id: "inv_1049",
-    number: "INV-1049",
-    customerId: "cus_tidewatch",
-    plan: "SCALE" as const,
-    status: "OPEN",
-    issuedOn: "2026-08-13",
-    dueOn: "2026-09-12",
-    memo: "Scale plan. Service-window dispute needs review.",
-  },
-  {
-    id: "inv_1050",
-    number: "INV-1050",
-    customerId: "cus_copperleaf",
-    plan: "GROWTH" as const,
-    status: "PAID",
-    issuedOn: "2026-06-16",
-    dueOn: "2026-07-16",
-    paidOn: "2026-07-18",
-    memo: "Growth plan. Historical dispute was accepted.",
-  },
-  {
-    id: "inv_1051",
-    number: "INV-1051",
-    customerId: "cus_harborline",
-    plan: "STARTER" as const,
-    status: "VOID",
-    issuedOn: "2026-06-07",
-    dueOn: "2026-07-07",
-    memo: "Voided — upgraded to Growth the same week.",
-  },
-  {
-    id: "inv_1053",
-    number: "INV-1053",
-    customerId: "cus_harborline",
-    plan: "GROWTH" as const,
-    status: "PAID",
-    issuedOn: "2026-07-07",
-    dueOn: "2026-08-06",
-    paidOn: "2026-07-28",
-    memo: "Growth plan — prior cycle for Acme North.",
-  },
-  {
-    id: "inv_1054",
-    number: "INV-1054",
-    customerId: "cus_cedarwell",
-    plan: "STARTER" as const,
-    status: "PAID",
-    issuedOn: "2026-07-01",
-    dueOn: "2026-07-31",
-    paidOn: "2026-07-25",
-    memo: "Starter plan — July cycle for Riverstone Labs.",
-  },
-  {
-    id: "inv_1055",
-    number: "INV-1055",
-    customerId: "cus_tidewatch",
-    plan: "SCALE" as const,
-    status: "PAID",
-    issuedOn: "2026-07-18",
-    dueOn: "2026-08-17",
-    paidOn: "2026-08-15",
-    memo: "Scale plan — paid mid-August.",
-  },
-  {
-    id: "inv_1056",
-    number: "INV-1056",
-    customerId: "cus_harborline",
-    plan: "GROWTH" as const,
-    status: "PAID",
-    issuedOn: "2026-06-07",
-    dueOn: "2026-07-07",
-    paidOn: "2026-07-02",
-    memo: "Growth plan — June cycle for Acme North.",
-  },
-  {
-    id: "inv_1057",
-    number: "INV-1057",
-    customerId: "cus_brightwell",
-    plan: "GROWTH" as const,
-    status: "PAID",
-    issuedOn: "2026-08-10",
-    dueOn: "2026-09-09",
-    paidOn: "2026-08-18",
-    memo: "Growth plan — August cycle, paid early.",
-  },
-  {
-    id: "inv_1052",
-    number: "INV-1052",
-    customerId: "cus_cedarwell",
-    plan: "GROWTH" as const,
-    status: "OPEN",
-    issuedOn: "2026-08-01",
-    dueOn: "2026-08-30",
-    memo: "Mid-cycle upgrade from Starter to Growth.",
-  },
-];
-
-const DISPUTES = [
-  {
-    // The $400 claim is valid input for testing the catalog cap. The deprecated
-    // v1 suggested-credit API returns this claim uncapped.
-    id: "dsp_1043",
-    invoiceId: "inv_1043",
+    // The $4,000 claim is valid input for the $2,500 per-student cap. Do not "correct" it.
+    id: "rev_1043",
+    returnId: "ret_1043",
+    credit: "AOTC",
     status: "NEEDS_REVIEW",
     reason:
-      "Billed on Scale. The signed order is Growth. Customer is claiming back more than this invoice charges.",
-    openedOn: "2026-08-11",
-    disputedAmountCents: 40000,
+      "Filer entered the full $4,000 of tuition from the 1098-T as the credit. One student, first year at Lumen Education.",
+    openedOn: "2026-10-01",
+    qualifiedExpenses: 4_000,
+    claimed: 4_000,
   },
   {
-    id: "dsp_1047",
-    invoiceId: "inv_1047",
+    id: "rev_1044",
+    returnId: "ret_1044",
+    credit: "AOTC",
     status: "OPEN",
-    reason: "Duplicate charge for the same service period.",
-    openedOn: "2026-08-14",
-    disputedAmountCents: 9900,
+    reason:
+      "Expenses are under $2,000, so all of it counts toward the credit. Confirm the student was enrolled at least half-time.",
+    openedOn: "2026-10-05",
+    qualifiedExpenses: 1_800,
+    claimed: 1_800,
   },
   {
-    id: "dsp_1049",
-    invoiceId: "inv_1049",
+    id: "rev_1047",
+    returnId: "ret_1047",
+    credit: "LLC",
+    status: "OPEN",
+    reason:
+      "Graduate courses. Filer applied 20% to all $12,000 of expenses. The lifetime learning credit counts only the first $10,000.",
+    openedOn: "2026-09-28",
+    qualifiedExpenses: 12_000,
+    claimed: 2_400,
+  },
+  {
+    id: "rev_1049",
+    returnId: "ret_1049",
+    credit: "AOTC",
     status: "NEEDS_REVIEW",
-    reason: "Service window has not started. Asking to hold the invoice.",
-    openedOn: "2026-08-18",
-    disputedAmountCents: 24900,
+    reason: "Second-year student. Filer entered the $2,600 of expenses as the credit.",
+    openedOn: "2026-10-03",
+    qualifiedExpenses: 2_600,
+    claimed: 2_600,
   },
   {
-    id: "dsp_1041",
-    invoiceId: "inv_1041",
-    status: "OPEN",
-    reason: "Tax-exempt certificate is on file. Please confirm the line.",
-    openedOn: "2026-08-19",
-    disputedAmountCents: 9900,
-  },
-  {
-    id: "dsp_1050",
-    invoiceId: "inv_1050",
-    status: "ACCEPTED",
-    reason: "Wrong plan last cycle. Credit issued at the Growth price.",
-    openedOn: "2026-07-02",
-    disputedAmountCents: 9900,
-    reviewerNote: "Accepted. Credit equals the Growth catalog price of $99.",
+    id: "rev_1050",
+    returnId: "ret_1050",
+    credit: "LLC",
+    status: "APPROVED",
+    reason: "Professional certificate courses. Filer claimed 20% of $6,500 in expenses.",
+    openedOn: "2026-09-08",
+    qualifiedExpenses: 6_500,
+    claimed: 1_300,
+    expertNote: "Approved at 20% of $6,500 in qualified expenses.",
   },
 ];
 
@@ -337,139 +328,89 @@ async function main() {
     stdio: "inherit",
   });
 
-  await prisma.dispute.deleteMany();
-  await prisma.invoiceLine.deleteMany();
-  await prisma.invoice.deleteMany();
-  await prisma.customer.deleteMany();
+  await prisma.creditReview.deleteMany();
+  await prisma.taxForm.deleteMany();
+  await prisma.taxReturn.deleteMany();
+  await prisma.filer.deleteMany();
   await prisma.workspace.deleteMany();
 
   await prisma.workspace.create({
     data: {
-      id: "ws_fieldnote",
-      name: "Fieldnote Workspace",
-      slug: "fieldnote",
+      id: WORKSPACE_ID,
+      name: "TurboTax Expert Ops",
+      slug: "expert-ops",
       createdAt: demoDay("2025-11-04"),
     },
   });
 
-  for (const customer of CUSTOMERS) {
-    await prisma.customer.create({
+  for (const { filer, taxReturn } of [...CORE_FILINGS, ...EXTRA_FILINGS]) {
+    await prisma.filer.create({
       data: {
-        ...customer,
-        workspaceId: "ws_fieldnote",
-        createdAt: demoDay("2026-01-15"),
+        ...filer,
+        workspaceId: WORKSPACE_ID,
+        createdAt: demoDay("2026-01-20"),
       },
     });
-  }
 
-  for (const invoice of INVOICES) {
-    const totalCents = planPriceCents(invoice.plan);
-    await prisma.invoice.create({
+    await prisma.taxReturn.create({
       data: {
-        id: invoice.id,
-        number: invoice.number,
-        workspaceId: "ws_fieldnote",
-        customerId: invoice.customerId,
-        plan: invoice.plan,
-        status: invoice.status,
-        issuedOn: demoDay(invoice.issuedOn),
-        dueOn: demoDay(invoice.dueOn),
-        paidOn: invoice.paidOn ? demoDay(invoice.paidOn) : null,
-        subtotalCents: totalCents,
-        taxCents: 0,
-        totalCents,
-        memo: invoice.memo,
-        collectionNote: invoice.collectionNote ?? null,
-        lines: {
-          create: [
-            {
-              id: `line_${invoice.id}`,
-              description: `${invoice.plan.charAt(0)}${invoice.plan.slice(1).toLowerCase()} plan · monthly`,
-              quantity: 1,
-              unitPriceCents: totalCents,
-              amountCents: totalCents,
-            },
-          ],
+        id: taxReturn.id,
+        number: taxReturn.number,
+        workspaceId: WORKSPACE_ID,
+        filerId: filer.id,
+        taxYear: TAX_YEAR,
+        status: taxReturn.status,
+        dueOn: taxReturn.extendedOn ? EXTENSION_DEADLINE : FILING_DEADLINE,
+        extendedOn: day(taxReturn.extendedOn),
+        transmittedOn: day(taxReturn.transmittedOn),
+        acceptedOn: day(taxReturn.acceptedOn),
+        rejectedOn: day(taxReturn.rejectedOn),
+        rejectCode: taxReturn.rejectCode ?? null,
+        lastActivityOn: demoDay(taxReturn.lastActivityOn),
+        refundCents: dollars(taxReturn.refund),
+        memo: taxReturn.memo ?? null,
+        forms: {
+          create: taxReturn.forms.map((form, index) => ({
+            id: `frm_${taxReturn.id.slice(4)}_${index + 1}`,
+            formType: form.formType,
+            issuer: form.issuer,
+            amountCents: dollars(form.amount),
+            withheldCents: dollars(form.withheld ?? 0),
+          })),
         },
       },
     });
   }
 
-  for (const dispute of DISPUTES) {
-    const invoice = INVOICES.find((row) => row.id === dispute.invoiceId);
-    if (!invoice) {
-      throw new Error(`Seed dispute ${dispute.id} points at a missing invoice.`);
-    }
-    await prisma.dispute.create({
+  for (const review of REVIEWS) {
+    const qualifiedExpensesCents = dollars(review.qualifiedExpenses);
+    await prisma.creditReview.create({
       data: {
-        id: dispute.id,
-        invoiceId: dispute.invoiceId,
-        workspaceId: "ws_fieldnote",
-        status: dispute.status,
-        reason: dispute.reason,
-        openedOn: demoDay(dispute.openedOn),
-        disputedAmountCents: dispute.disputedAmountCents,
-        suggestedCreditCents: suggestDisputeCredit({
-          disputedAmountCents: dispute.disputedAmountCents,
-          planPriceCents: planPriceCents(invoice.plan),
+        id: review.id,
+        returnId: review.returnId,
+        workspaceId: WORKSPACE_ID,
+        credit: review.credit,
+        status: review.status,
+        reason: review.reason,
+        openedOn: demoDay(review.openedOn),
+        qualifiedExpensesCents,
+        claimedCents: dollars(review.claimed),
+        allowedCreditCents: allowedEducationCreditCents({
+          credit: review.credit,
+          qualifiedExpensesCents,
         }),
-        reviewerNote: dispute.reviewerNote ?? null,
+        expertNote: review.expertNote ?? null,
       },
     });
   }
 
-  // Extra book accounts — one customer + one invoice each.
-  for (const [index, account] of EXTRA_ACCOUNTS.entries()) {
-    await prisma.customer.create({
-      data: {
-        id: account.customerId,
-        workspaceId: "ws_fieldnote",
-        name: account.name,
-        contactName: account.contactName,
-        email: account.email,
-        plan: account.plan,
-        createdAt: demoDay("2026-02-02"),
-      },
-    });
-    const state = extraInvoiceState(index);
-    const totalCents = planPriceCents(account.plan);
-    await prisma.invoice.create({
-      data: {
-        id: account.invoiceId,
-        number: account.invoiceNumber,
-        workspaceId: "ws_fieldnote",
-        customerId: account.customerId,
-        plan: account.plan,
-        status: state.status,
-        issuedOn: demoDay(state.issuedOn),
-        dueOn: demoDay(state.dueOn),
-        paidOn: "paidOn" in state && state.paidOn ? demoDay(state.paidOn) : null,
-        subtotalCents: totalCents,
-        taxCents: 0,
-        totalCents,
-        memo: `${account.plan.charAt(0)}${account.plan.slice(1).toLowerCase()} plan — August cycle for ${account.name}.`,
-        lines: {
-          create: [
-            {
-              id: `line_${account.invoiceId}`,
-              description: `${account.plan.charAt(0)}${account.plan.slice(1).toLowerCase()} plan · monthly`,
-              quantity: 1,
-              unitPriceCents: totalCents,
-              amountCents: totalCents,
-            },
-          ],
-        },
-      },
-    });
-  }
-
-  const [customers, invoices, disputes] = await Promise.all([
-    prisma.customer.count(),
-    prisma.invoice.count(),
-    prisma.dispute.count(),
+  const [filers, returns, reviews] = await Promise.all([
+    prisma.filer.count(),
+    prisma.taxReturn.count(),
+    prisma.creditReview.count(),
   ]);
   console.log(
-    `Seeded Fieldnote Workspace · ${customers} customers (${EXTRA_ACCOUNTS.length} extra book accounts) · ${invoices} invoices · ${disputes} disputes`,
+    `Seeded TurboTax Expert Ops · ${filers} filers (${EXTRA_FILINGS.length} extra) · ${returns} returns · ${reviews} credit reviews`,
   );
 }
 

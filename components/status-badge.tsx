@@ -1,34 +1,30 @@
 import { Badge } from "@/components/ui/badge";
-import { disputeStatusLabel, invoiceStatusLabel } from "@/lib/status";
+import { returnStatusLabel, reviewStatusLabel } from "@/lib/status";
 
-export function InvoiceStatusBadge({ status }: { status: string }) {
-  if (status === "DISPUTED") {
-    return <Badge variant="danger">Disputed</Badge>;
-  }
-
+export function ReturnStatusBadge({ status }: { status: string }) {
   const variant =
-    status === "PAID"
+    status === "ACCEPTED"
       ? "success"
-      : status === "OVERDUE"
+      : status === "REJECTED" || status === "IN_REVIEW"
         ? "danger"
-        : status === "OPEN"
+        : status === "EXTENDED"
           ? "warning"
-          : status === "VOID"
+          : status === "TRANSMITTED"
             ? "muted"
             : "secondary";
 
-  return <Badge variant={variant}>{invoiceStatusLabel(status)}</Badge>;
+  return <Badge variant={variant}>{returnStatusLabel(status)}</Badge>;
 }
 
-export function DisputeStatusBadge({ status }: { status: string }) {
+export function ReviewStatusBadge({ status }: { status: string }) {
   const variant =
     status === "NEEDS_REVIEW"
       ? "danger"
-      : status === "ACCEPTED"
+      : status === "APPROVED"
         ? "success"
         : status === "DECLINED"
           ? "muted"
           : "warning";
 
-  return <Badge variant={variant}>{disputeStatusLabel(status)}</Badge>;
+  return <Badge variant={variant}>{reviewStatusLabel(status)}</Badge>;
 }

@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Ledgerly",
-    template: "%s · Ledgerly",
+    default: "TurboTax Expert Ops",
+    template: "%s · Expert Ops",
   },
   description:
-    "Fieldnote Workspace — fictional billing operations. Catalog prices are $49, $99, and $249.",
+    "Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic filers only.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{if(localStorage.getItem('ledgerly-theme')==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();",
+              "(function(){try{if(localStorage.getItem('expert-ops-theme')==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();",
           }}
         />
         <AppShell>{children}</AppShell>

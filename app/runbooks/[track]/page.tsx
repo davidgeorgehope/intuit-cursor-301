@@ -30,7 +30,7 @@ export default async function RunbookTrackPage({
       <PageHeader
         eyebrow="Demo catalog"
         title="Runbooks"
-        description="Choose a track, jump to a section, and copy the next beat into Grok Build."
+        description="Jump to a section and copy the next beat into Cursor."
       />
 
       <RunbookCatalogSelect

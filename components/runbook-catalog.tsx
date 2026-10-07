@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { runbookSectionHref, type DemoSection } from "@/lib/runbooks/meta";
 
-function PasteBlock({ text, label = "Paste in Grok Build" }: { text: string; label?: string }) {
+function PasteBlock({ text, label = "Paste in Cursor" }: { text: string; label?: string }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">

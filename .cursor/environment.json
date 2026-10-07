@@ -1,17 +1,17 @@
 {
-  "name": "Ledgerly",
+  "name": "TurboTax Expert Ops",
   "install": "npm i && npx prisma generate",
-  "start": "npx prisma db seed && npx vitest run tests/money.test.ts tests/plans.test.ts",
+  "start": "npx prisma db seed && npx vitest run tests/money.test.ts tests/tax-year.test.ts tests/education-credit.test.ts",
   "terminals": [
     {
       "name": "Dev server",
       "command": "npm run dev",
-      "description": "Next.js App Router for Ledgerly on port 43173"
+      "description": "Next.js App Router for TurboTax Expert Ops on port 43173"
     }
   ],
   "ports": [
     {
-      "name": "Ledgerly web",
+      "name": "Expert Ops web",
       "port": 43173
     }
   ]

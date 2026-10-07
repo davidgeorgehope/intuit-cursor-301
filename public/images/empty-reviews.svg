@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" fill="none" role="img" aria-labelledby="emptyReviewsTitle">
+  <title id="emptyReviewsTitle">No credit reviews</title>
+  <rect width="360" height="240" rx="16" fill="#EEF2FF"/>
+  <circle cx="180" cy="118" r="54" fill="#ffffff" stroke="#C7D2FE"/>
+  <path d="M180 78v40l28 16" stroke="#4F46E5" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="180" cy="118" r="6" fill="#4F46E5"/>
+</svg>
