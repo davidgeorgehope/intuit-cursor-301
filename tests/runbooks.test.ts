@@ -65,6 +65,9 @@ describe("runbook catalog", () => {
       "light-verifier",
       "fallback-branch",
       "resolve-review",
+      "project-starter",
+      "project-notes",
+      "project-subscription",
       "models-per-role",
       "usage-dashboard",
       "fresh-chat",
@@ -81,6 +84,10 @@ describe("runbook catalog", () => {
     expect(beat("decompose-skill")?.example).toMatch(/^\/plan Use the decompose-feature skill\./);
     expect(beat("light-verifier")?.example).toContain("acceptance-verifier");
     expect(beat("resolve-review")?.example).toBe("/multitask @resolve-review.md");
+    expect(beat("project-starter")?.example).toContain(".cursor/plans/tax-summary-export.fallback.md");
+    expect(beat("project-starter")?.example).toContain(".cursor/plans/resolve-review.md");
+    expect(beat("project-starter")?.example).toContain("Don't merge anything.");
+    expect(beat("project-subscription")?.example).toContain("turbotax-reviewer");
 
     for (const entry of beats301) {
       expect(entry.promptType, entry.id).toBeDefined();

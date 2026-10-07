@@ -77,6 +77,8 @@ Verify (live demo B):
 
 Fallback branches for the live demos: `demo/session-1-done` and `demo/all-sessions-done`.
 
+Run the same plans as a Cursor Project (rung three): create a Project on this repository, then paste the coordinator starter from "Rung three: Projects" in `demo-howto.md`. It delivers the tax summary export and credit-review resolution as two reviewed PRs.
+
 ## Notes
 
 - Filers come only from `prisma/seed.ts` and `prisma/extra-filers.ts`. Limits and deadlines come only from `lib/tax-year.ts`.

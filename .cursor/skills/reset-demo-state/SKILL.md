@@ -33,6 +33,7 @@ Read the JSON report printed by `demo:reset`. Only complete its `remaining` acti
 
 - **Worktrees:** Build in Parallel leaves worktrees behind. The report lists any worktree other than this checkout. Remove each one with `git worktree remove <path>` after confirming it holds nothing you want.
 - **Cursor user rule:** use the Cursor settings UI only for a recorded rule ID with no filesystem path. Do not remove unrelated user rules.
+- **Project:** the script never touches cloud work. If the session used a Project, close its PRs, delete their branches, and remove its subscriptions from the Listening pill.
 
 ## Never
 
