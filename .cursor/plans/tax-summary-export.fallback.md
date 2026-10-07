@@ -39,7 +39,7 @@ HTTP — `GET /api/filers/[id]/tax-summary?year=2025`
 - 200 with `Content-Type: text/csv; charset=utf-8` and `Content-Disposition: attachment; filename="tax-summary-<filerId>-<year>.csv"`.
 - Header row: `form_type,issuer,amount_usd,federal_withholding_usd`. Amounts are dollars with two decimals, converted from cents at the edge.
 - 404 `{ error: "Filer not found" }` for an unknown filer.
-- 400 `{ error: "year must be a four-digit tax year" }` when `year` is missing or not four digits.
+- 400 `{ error: "year must be a four-digit tax year no later than 2025" }` when `year` is missing, is not four digits, or is later than `TAX_YEAR` in `lib/tax-year.ts`. Build the bound and the message from `TAX_YEAR`; do not type 2025.
 
 No SSN in the CSV, not even the last four digits.
 
@@ -56,7 +56,7 @@ No SSN in the CSV, not even the last four digits.
 
 - **Inputs:** @app/api/returns/[id]/route.ts, @.cursor/skills/create-api/SKILL.md, @app/api/AGENTS.md
 - **Owns:** `app/api/filers/[id]/tax-summary/route.ts`, `lib/tax-summary-csv.ts`
-- **Done when:** CSV 200, 404 unknown, 400 bad year — `curl -i "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025"` returns 200 and the header row.
+- **Done when:** CSV 200, 404 unknown, 400 bad year — `curl -i "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025"` returns 200 and the header row, and `?year=2026` returns 400.
 - **Depends on:** 1
 
 ### 3 · Frontend
