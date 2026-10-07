@@ -35,11 +35,11 @@ Check shipped state:
 - `npm test` is **0 failed / 37 passed**.
 - The dashboard shows **Refunds Accepted $5,723.00** (up 37.9% on the prior 30 days), **6** extended returns not yet filed, **3** e-file rejects, and **4** open credit reviews.
 - [rev_1043](http://127.0.0.1:43173/reviews/rev_1043) shows **Allowed credit $2,500.00** in red under a **$4,000** claim, with Approve and Decline disabled.
-- [ret_1043](http://127.0.0.1:43173/returns/ret_1043) has no "Download tax summary (CSV)" link yet. Live demo B adds it.
+- [ret_1043](http://127.0.0.1:43173/returns/ret_1043) has "Download tax summary (CSV)" pointing at `/api/filers/fil_marlow/tax-summary?year=2025`.
 - The project hook is on: Customize > Hooks lists `.cursor/hooks/synthetic-prompt.mjs`.
 - Models are picked: a frontier model for Plan mode (slide 22 uses Claude Opus 5.5) and Auto or Grok 4.7 for the build.
 
-If the CSV link already exists or the suite count is off, a prior run left work behind. Run `npm run demo:reset`.
+If the suite count is off, a prior run left work behind. Run `npm run demo:reset`.
 
 ---
 
