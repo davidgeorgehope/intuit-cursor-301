@@ -193,6 +193,44 @@ export const RUNBOOK_SECTIONS_301 = [
           "The credit review stub splits cleanly: helper, API, and UI each own one file. Run it when the audience wants a second orchestration.",
         example: "/multitask @resolve-review.md",
       },
+      {
+        id: "project-starter",
+        title: "Optional: the same work as a Project",
+        promptType: "adaptable",
+        detail:
+          "Rung three. Before the session, select New Project in the Agents Window, pick this repository as the workspace and a frontier model for the coordinator, and paste this starter. Live, open the Project and show the coordinator's plan, the agents it started, and the PRs it brought back.",
+        example: [
+          "You're the coordinator for TurboTax Expert Ops, the demo console in this repository. Read AGENTS.md first, and hold every agent to it and to .cursor/rules.",
+          "",
+          "Deliver two features as separate, reviewable PRs:",
+          "1. The tax summary CSV export in .cursor/plans/tax-summary-export.fallback.md.",
+          "2. Credit-review resolution in .cursor/plans/resolve-review.md.",
+          "",
+          "Each plan is the contract. The two plans don't share files, so run them in parallel. Inside a plan, delegate sessions in the order it gives, and run sessions side by side only where it says they can. Give each agent its owned files, the shared contract, and its done-when line.",
+          "",
+          "Before a PR comes back to me, run turbotax-reviewer on its diff and acceptance-verifier on its plan, and attach both reports. Don't merge anything.",
+          "",
+          "Record what you learn about setting up, seeding, and testing this repo in the project notes, so the next agent starts with it.",
+        ].join("\n"),
+      },
+      {
+        id: "project-notes",
+        title: "Optional: read the shared context",
+        promptType: "reusable",
+        detail:
+          "Project files sync to every agent the coordinator runs. What one agent learns about this repo, the next one starts with.",
+        example:
+          "Show me the project notes: what agents have recorded about setting up, seeding, and testing this repo.",
+      },
+      {
+        id: "project-subscription",
+        title: "Optional: give the Project a subscription",
+        promptType: "reusable",
+        detail:
+          "Subscriptions wake the coordinator without a prompt. The Listening pill above the chat shows what it watches.",
+        example:
+          "Follow pull requests in this repository. When one opens, have an agent run the turbotax-reviewer subagent on it and bring the findings back here. Don't merge anything.",
+      },
     ],
   },
   {

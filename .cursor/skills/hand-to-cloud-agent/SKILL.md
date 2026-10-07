@@ -13,6 +13,10 @@ Local `/loop` lives inside this session and dies when the laptop closes. A Cloud
 - `/autopilot` — an open PR needs event-driven passes over conflicts, comments, and checks.
 - `/orchestrate` — a root planner decomposes the work; workers are isolated; verifiers check the result.
 
+## Projects
+
+A Project is the native home for work that outlives one chat. Its coordinator plans and delegates to Cloud Agents, keeps shared notes every agent reads, and acts on subscriptions (Slack, PRs, CI, or a schedule). The user creates it in the Agents Window under Projects > New Project with this repository as the workspace; an agent cannot create one. The coordinator starter, the shared-notes prompt, and a subscription example are the optional beats at the end of the orchestrate section on `/runbooks/301`.
+
 ## /goal in the cloud
 
 Scope the finish line so it is verifiable: every done-when line in the plan passes, `npm test` is green, and the changed page shows the feature on port 43173. The agent judges when the objective is met; you review.

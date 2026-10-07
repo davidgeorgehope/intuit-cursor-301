@@ -11,10 +11,10 @@ The app is a demo console for TurboTax tax experts during extension season. The 
 | 01 The cultural shift | 3–6 | Talk only |
 | 02 Context engineering | 7–11 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
 | 03 Decompose & scope | 12–14 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
-| 04 Orchestrating at scale | 15–19 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV |
+| 04 Orchestrating at scale | 15–20 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV. Then rung three: a Project on this repo (optional) |
+| 05 Cost engineering | 21–25 | Model per role, usage dashboard, fresh chat per task |
 
 The pastes below and on `/runbooks/301` match the speaker notes on slides 14 and 19. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
-| 05 Cost engineering | 20–24 | Model per role, usage dashboard, fresh chat per task |
 
 ---
 
@@ -188,9 +188,59 @@ Use the acceptance-verifier subagent on the tax summary export plan. Report PASS
 
 **Optional second orchestration:** `/multitask @resolve-review.md` finishes the credit-review stub with three disjoint workers (helper, API, UI). On approve, `rev_1043` must store $2,500, not $4,000.
 
+### Rung three: Projects (slide 20, optional)
+
+A Project is the dynamic-workflow rung. Its coordinator plans and delegates to Cloud Agents, keeps shared notes that every agent reads, and can wake on its own from a subscription. It writes no code itself. Create it the day before so there is history to show; a Project started live won't finish in the slot.
+
+**Before the session:**
+
+- Projects need a paid plan with Cloud Agents and don't run under legacy Privacy Mode. Enterprise teams need Cursor 3.21.9 or later.
+- Connect this repository to Cursor's GitHub app so it shows up under Workspace. `.cursor/environment.json` already installs dependencies, seeds SQLite, and starts the dev server for cloud agents.
+- In the Agents Window, select **Projects > New Project**. Name it TurboTax Expert Ops, pick this repository under **Workspace** and a frontier model under **Model**, select **Create Project**, and paste the starter:
+
+```text
+You're the coordinator for TurboTax Expert Ops, the demo console in this repository. Read AGENTS.md first, and hold every agent to it and to .cursor/rules.
+
+Deliver two features as separate, reviewable PRs:
+1. The tax summary CSV export in .cursor/plans/tax-summary-export.fallback.md.
+2. Credit-review resolution in .cursor/plans/resolve-review.md.
+
+Each plan is the contract. The two plans don't share files, so run them in parallel. Inside a plan, delegate sessions in the order it gives, and run sessions side by side only where it says they can. Give each agent its owned files, the shared contract, and its done-when line.
+
+Before a PR comes back to me, run turbotax-reviewer on its diff and acceptance-verifier on its plan, and attach both reports. Don't merge anything.
+
+Record what you learn about setting up, seeding, and testing this repo in the project notes, so the next agent starts with it.
+```
+
+- Give it a subscription so the Listening pill has something to show:
+
+```text
+Follow pull requests in this repository. When one opens, have an agent run the turbotax-reviewer subagent on it and bring the findings back here. Don't merge anything.
+```
+
+**Live (2:00):**
+
+1. Open the Project. Show the coordinator's plan: two plans, two PRs, run in parallel because they share no files.
+2. Open one of the agents it started. Say: *Same contract and done-when lines as demo B. The gate just moved to the PR.*
+3. Ask for the shared context:
+
+```text
+Show me the project notes: what agents have recorded about setting up, seeding, and testing this repo.
+```
+
+4. Point at the **Listening** pill. Say: *It wakes on a PR, a Slack message, CI, or a schedule, with no prompt from me.*
+
+**After the session:** close the Project's PRs, delete their branches, and remove its subscriptions from the Listening pill. `npm run demo:reset` doesn't touch cloud work.
+
+A schedule works too, for an extension-season flavor. Treat it as an illustration; the demo data never changes from day to day:
+
+```text
+Every weekday at 8:00 AM until Oct 15, have an agent draft a filer message for each rejected return with the draft-filer-message skill, and bring the drafts back to me. Don't send anything.
+```
+
 ---
 
-## 05 · Cost engineering (slides 20–24)
+## 05 · Cost engineering (slides 21–25)
 
 **Paste:**
 
