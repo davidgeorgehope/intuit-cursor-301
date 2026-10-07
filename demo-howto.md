@@ -14,7 +14,7 @@ The app is a demo console for TurboTax tax experts during extension season. The 
 | 04 Orchestrating at scale | 15–20 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV. Then rung three: a Project on this repo (optional) |
 | 05 Cost engineering | 21–25 | Model per role, usage dashboard, fresh chat per task |
 
-The pastes below and on `/runbooks/301` match the speaker notes on slides 14 and 19. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
+The pastes below and on `/runbooks/301` match the speaker notes on slides 14, 19, and 20. The deck is the source of truth; when a speaker note changes, update this file and `lib/runbooks/beats/301.ts` to match. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
 
 ---
 
@@ -190,13 +190,13 @@ Use the acceptance-verifier subagent on the tax summary export plan. Report PASS
 
 ### Rung three: Projects (slide 20, optional)
 
-A Project is the dynamic-workflow rung. Its coordinator plans and delegates to Cloud Agents, keeps shared notes that every agent reads, and can wake on its own from a subscription. It writes no code itself. Create it the day before so there is history to show; a Project started live won't finish in the slot.
+Time: 1:30 talk, plus 2:00 if you run the demo. A Project is the dynamic-workflow rung: its coordinator plans and delegates to Cloud Agents, keeps shared notes that every agent reads, and wakes on its own from a subscription. It writes no code itself.
 
 **Before the session:**
 
-- Projects need a paid plan with Cloud Agents and don't run under legacy Privacy Mode. Enterprise teams need Cursor 3.21.9 or later.
+- Projects run on Cloud Agents: paid plans only, not under legacy Privacy Mode, and Enterprise needs Cursor 3.21.9 or later.
 - Connect this repository to Cursor's GitHub app so it shows up under Workspace. `.cursor/environment.json` already installs dependencies, seeds SQLite, and starts the dev server for cloud agents.
-- In the Agents Window, select **Projects > New Project**. Name it TurboTax Expert Ops, pick this repository under **Workspace** and a frontier model under **Model**, select **Create Project**, and paste the starter:
+- Create the Project the day before so it has history to show. In the Agents Window, select **Projects > New Project**. Name it TurboTax Expert Ops, pick this repository under **Workspace** and a frontier model under **Model**, select **Create Project**, and paste the starter:
 
 ```text
 You're the coordinator for TurboTax Expert Ops, the demo console in this repository. Read AGENTS.md first, and hold every agent to it and to .cursor/rules.
@@ -212,31 +212,36 @@ Before a PR comes back to me, run turbotax-reviewer on its diff and acceptance-v
 Record what you learn about setting up, seeding, and testing this repo in the project notes, so the next agent starts with it.
 ```
 
-- Give it a subscription so the Listening pill has something to show:
+- Once both PRs are open, send the subscription, then leave a test comment such as "Test: no change needed" on one PR to confirm it fires:
 
 ```text
-Follow pull requests in this repository. When one opens, have an agent run the turbotax-reviewer subagent on it and bring the findings back here. Don't merge anything.
+Follow pull requests in this repository. When one of your two PRs gets a review comment, have the agent that owns those files make the fix, rerun turbotax-reviewer and acceptance-verifier, and report back here with the new verdicts. Don't merge anything.
 ```
 
 **Live (2:00):**
 
-1. Open the Project. Show the coordinator's plan: two plans, two PRs, run in parallel because they share no files.
-2. Open one of the agents it started. Say: *Same contract and done-when lines as demo B. The gate just moved to the PR.*
-3. Ask for the shared context:
+1. **(0:30)** Open the TurboTax Expert Ops Project. Show the coordinator's plan: two plans, two PRs, run in parallel because they share no files.
+2. **(0:45)** Paste the gate review and read one table: each session, its model, its done-when line, and the verifier's verdict. Say: *The gate moved to the PR. I review verdicts, not every turn.*
 
 ```text
-Show me the project notes: what agents have recorded about setting up, seeding, and testing this repo.
+Gate review, one table per PR: the link, each session, the model its agent ran on, its done-when line, and acceptance-verifier's PASS, PARTIAL, or FAIL with the evidence. Under each table, list any High findings from turbotax-reviewer. End with what you need from me before I review the diffs. Don't merge or change anything.
 ```
 
-4. Point at the **Listening** pill. Say: *It wakes on a PR, a Slack message, CI, or a schedule, with no prompt from me.*
+3. **(0:30)** Leave this review comment on the CSV export PR, then point at the **Listening** pill. Say: *I didn't prompt it. It woke on the comment and handed the fix to the agent that owns the file.*
+
+```text
+Add a one-line hint under the download link: One row per form on file, plus a totals row.
+```
+
+4. **(0:15)** Say: *Notice the model column. That's our next section: cost.*
+
+**If it goes wrong:**
+
+- The PRs aren't back yet: paste the gate review anyway; it shows what's still in flight.
+- The comment doesn't wake the coordinator within a minute: point at the Listening pill and move on.
+- Projects aren't available in your org: keep slide 20 as talk only.
 
 **After the session:** close the Project's PRs, delete their branches, and remove its subscriptions from the Listening pill. `npm run demo:reset` doesn't touch cloud work.
-
-A schedule works too, for an extension-season flavor. Treat it as an illustration; the demo data never changes from day to day:
-
-```text
-Every weekday at 8:00 AM until Oct 15, have an agent draft a filer message for each rejected return with the draft-filer-message skill, and bring the drafts back to me. Don't send anything.
-```
 
 ---
 

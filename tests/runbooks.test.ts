@@ -66,8 +66,9 @@ describe("runbook catalog", () => {
       "fallback-branch",
       "resolve-review",
       "project-starter",
-      "project-notes",
       "project-subscription",
+      "project-gate-review",
+      "project-review-comment",
       "models-per-role",
       "usage-dashboard",
       "fresh-chat",
@@ -87,7 +88,10 @@ describe("runbook catalog", () => {
     expect(beat("project-starter")?.example).toContain(".cursor/plans/tax-summary-export.fallback.md");
     expect(beat("project-starter")?.example).toContain(".cursor/plans/resolve-review.md");
     expect(beat("project-starter")?.example).toContain("Don't merge anything.");
-    expect(beat("project-subscription")?.example).toContain("turbotax-reviewer");
+    expect(beat("project-subscription")?.example).toContain("gets a review comment");
+    expect(beat("project-gate-review")?.example).toMatch(/^Gate review, one table per PR/);
+    expect(beat("project-gate-review")?.example).toContain("PASS, PARTIAL, or FAIL");
+    expect(beat("project-review-comment")?.pasteLabel).toBe("Paste as a comment on the CSV export PR");
 
     for (const entry of beats301) {
       expect(entry.promptType, entry.id).toBeDefined();
