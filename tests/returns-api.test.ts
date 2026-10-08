@@ -32,4 +32,38 @@ describe("returns API", () => {
       "IND-181-01",
     ]);
   });
+
+  it("filters the list by every status", async () => {
+    const seeded = { ALL: 24, EXTENDED: 6, READY: 1, TRANSMITTED: 1, ACCEPTED: 13, REJECTED: 3 };
+    for (const [status, count] of Object.entries(seeded)) {
+      const response = await getReturns(new Request(`http://localhost/api/returns?status=${status}`));
+      expect(response.status, status).toBe(200);
+      const { returns } = await response.json();
+      expect(returns, status).toHaveLength(count);
+      if (status !== "ALL") {
+        expect(returns.every((taxReturn: { status: string }) => taxReturn.status === status), status).toBe(true);
+      }
+    }
+
+    const unfiltered = await getReturns(new Request("http://localhost/api/returns"));
+    expect((await unfiltered.json()).returns).toHaveLength(24);
+  });
+
+  it("searches by return number, filer name, and state", async () => {
+    const search = async (q: string) => {
+      const response = await getReturns(new Request(`http://localhost/api/returns?q=${encodeURIComponent(q)}`));
+      const { returns } = await response.json();
+      return returns.map((taxReturn: { number: string }) => taxReturn.number).sort();
+    };
+
+    expect(await search("ty25-1043")).toEqual(["TY25-1043"]);
+    expect(await search(" MARLOW ")).toEqual(["TY25-1043"]);
+    expect(await search("tx")).toEqual(["TY25-1044", "TY25-2014"]);
+  });
+
+  it("answers an unknown status with an empty list", async () => {
+    const response = await getReturns(new Request("http://localhost/api/returns?status=BOGUS"));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ returns: [] });
+  });
 });
