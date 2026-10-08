@@ -4,7 +4,7 @@ import { REVIEW_STATUSES, isReviewStatusFilter } from "@/lib/status";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const status = url.searchParams.get("status") ?? "ALL";
+  const status = url.searchParams.get("status") || "ALL";
   if (!isReviewStatusFilter(status)) {
     return NextResponse.json(
       { error: `status must be one of ALL, ${REVIEW_STATUSES.join(", ")}` },

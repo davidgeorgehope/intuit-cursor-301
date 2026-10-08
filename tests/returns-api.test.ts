@@ -45,8 +45,11 @@ describe("returns API", () => {
       }
     }
 
-    const unfiltered = await getReturns(new Request("http://localhost/api/returns"));
-    expect((await unfiltered.json()).returns).toHaveLength(24);
+    for (const url of ["http://localhost/api/returns", "http://localhost/api/returns?status="]) {
+      const response = await getReturns(new Request(url));
+      expect(response.status, url).toBe(200);
+      expect((await response.json()).returns, url).toHaveLength(24);
+    }
   });
 
   it("searches by return number, filer name, and state", async () => {

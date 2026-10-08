@@ -48,6 +48,12 @@ describe("credit reviews API", () => {
         expect(reviews.every((review: { status: string }) => review.status === status), status).toBe(true);
       }
     }
+
+    for (const url of ["http://localhost/api/reviews", "http://localhost/api/reviews?status="]) {
+      const response = await getReviews(new Request(url));
+      expect(response.status, url).toBe(200);
+      expect((await response.json()).reviews, url).toHaveLength(5);
+    }
   });
 
   it("rejects an unknown status with 400", async () => {

@@ -1,5 +1,6 @@
 import { DEMO_AS_OF, DEMO_PRIOR_END, DEMO_PRIOR_START, DEMO_WINDOW_START } from "@/lib/clock";
 import { sumCents } from "@/lib/money";
+import { reviewStatusLabel } from "@/lib/status";
 
 type ReturnLike = {
   status: string;
@@ -65,8 +66,8 @@ export function reviewBreakdown(reviews: ReviewLike[]) {
     (review) => review.status === "APPROVED" || review.status === "DECLINED",
   ).length;
   return [
-    { id: "needs", label: "Needs review", count: needsReview, color: "#dc2626" },
-    { id: "open", label: "Open", count: open, color: "#d97706" },
+    { id: "needs", label: reviewStatusLabel("NEEDS_REVIEW"), count: needsReview, color: "#dc2626" },
+    { id: "open", label: reviewStatusLabel("OPEN"), count: open, color: "#d97706" },
     { id: "resolved", label: "Resolved", count: resolved, color: "#4f46e5" },
   ] as const;
 }

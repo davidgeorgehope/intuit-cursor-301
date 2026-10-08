@@ -21,7 +21,9 @@ export default async function ReviewsPage({
 }) {
   const params = await searchParams;
   const status = params.status ?? "ALL";
-  const reviews = isReviewStatusFilter(status) ? await getReviews({ status }) : [];
+  // An empty status lists everything, but no pill shows as selected for it.
+  const filter = status || "ALL";
+  const reviews = isReviewStatusFilter(filter) ? await getReviews({ status: filter }) : [];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">

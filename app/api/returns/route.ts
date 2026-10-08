@@ -4,7 +4,7 @@ import { RETURN_STATUSES, isReturnStatusFilter } from "@/lib/status";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const status = url.searchParams.get("status") ?? "ALL";
+  const status = url.searchParams.get("status") || "ALL";
   if (!isReturnStatusFilter(status)) {
     return NextResponse.json(
       { error: `status must be one of ALL, ${RETURN_STATUSES.join(", ")}` },

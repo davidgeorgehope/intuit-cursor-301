@@ -19,7 +19,9 @@ export default async function ReturnsPage({
   const params = await searchParams;
   const status = params.status ?? "ALL";
   const q = params.q ?? "";
-  const returns = isReturnStatusFilter(status) ? await getReturns({ status, q }) : [];
+  // An empty status lists everything, but no pill shows as selected for it.
+  const filter = status || "ALL";
+  const returns = isReturnStatusFilter(filter) ? await getReturns({ status: filter, q }) : [];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
