@@ -26,12 +26,14 @@ describe("runbook catalog", () => {
 
   it("follows the deck's agenda", () => {
     expect(RUNBOOK_SECTIONS_301.map((section) => section.id)).toEqual([
+      "cultural-shift",
       "context-engineering",
       "decompose-scope",
       "orchestrate",
       "cost-engineering",
     ]);
     expect(RUNBOOK_SECTIONS_301.map((section) => section.title)).toEqual([
+      "Where do you start?",
       "How do you engineer context?",
       "How do you decompose a feature?",
       "How do you orchestrate the work?",
@@ -44,6 +46,8 @@ describe("runbook catalog", () => {
 
   it("keeps the live-demo beats and their prompts", () => {
     expect(beats301.map((entry) => entry.id)).toEqual([
+      "refactor-check",
+      "refactor-done",
       "open-agents-md",
       "ask-what-loads",
       "personal-vs-team",
@@ -74,6 +78,11 @@ describe("runbook catalog", () => {
       "fresh-chat",
     ]);
 
+    expect(beat("refactor-check")?.example).toMatch(
+      /^We want an agent to refactor how this app handles return and review statuses/,
+    );
+    expect(beat("refactor-check")?.example).toContain("Don't change anything yet.");
+    expect(beat("refactor-done")?.detail).toContain("demo/status-refactor-done");
     expect(beat("plan-prompt")?.example).toMatch(/^Plan a tax summary export for TurboTax Expert Ops/);
     expect(beat("plan-prompt")?.example).toContain("GET /api/filers/[id]/tax-summary?year=YYYY");
     expect(beat("plan-prompt")?.example).toContain("exactly four sessions");

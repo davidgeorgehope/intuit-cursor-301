@@ -15,7 +15,7 @@ Local `/loop` lives inside this session and dies when the laptop closes. A Cloud
 
 ## Projects
 
-A Project is the native home for work that outlives one chat. Its coordinator plans and delegates to Cloud Agents, keeps shared notes every agent reads, and acts on subscriptions (Slack, PRs, CI, or a schedule). The user creates it in the Agents Window under Projects > New Project with this repository as the workspace; an agent cannot create one. The coordinator starter, the review-comment subscription, the gate review, and the live review comment are the optional beats at the end of the orchestrate section on `/runbooks/301`; slide 20's speaker notes carry the same prompts.
+A Project is the native home for work that outlives one chat. Its coordinator plans and delegates to Cloud Agents, keeps shared notes every agent reads, and acts on subscriptions (Slack, PRs, CI, or a schedule). The user creates it in the Agents Window under Projects > New Project with this repository as the workspace; an agent cannot create one. The coordinator starter, the review-comment subscription, the gate review, and the live review comment are the optional beats at the end of the orchestrate section on `/runbooks/301`; slide 21's speaker notes carry the same prompts.
 
 ## /goal in the cloud
 
