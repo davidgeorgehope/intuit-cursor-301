@@ -75,7 +75,7 @@ Verify (live demo B):
 /turbotax-reviewer Review the combined diff against the plan in .cursor/plans/. Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025". Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.
 ```
 
-Fallback branches for the live demos: `demo/session-1-done` and `demo/all-sessions-done`.
+Prepared branches for the live demos: `demo/status-refactor-done` (the finished status refactor), `demo/session-1-done`, and `demo/all-sessions-done`.
 
 Run the same plans as a Cursor Project (rung three): create a Project on this repository, then paste the coordinator starter from "Rung three: Projects" in `demo-howto.md`. It delivers the tax summary export and credit-review resolution as two reviewed PRs.
 

@@ -8,13 +8,13 @@ The app is a demo console for TurboTax tax experts during extension season. The 
 
 | Deck section | Slides | Live beats on `/runbooks/301` |
 | --- | --- | --- |
-| 01 The cultural shift | 3–6 | Talk only |
-| 02 Context engineering | 7–11 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
-| 03 Decompose & scope | 12–14 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
-| 04 Orchestrating at scale | 15–20 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV. Then rung three: a Project on this repo (optional) |
-| 05 Cost engineering | 21–25 | Model per role, usage dashboard, fresh chat per task |
+| 01 The cultural shift | 3–7 | Optional refactor check in Ask mode, then the finished refactor on `demo/status-refactor-done` |
+| 02 Context engineering | 8–12 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
+| 03 Decompose & scope | 13–15 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
+| 04 Orchestrating at scale | 16–21 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV. Then rung three: a Project on this repo (optional) |
+| 05 Cost engineering | 22–26 | Model per role, usage dashboard, fresh chat per task |
 
-The pastes below and on `/runbooks/301` match the speaker notes on slides 14, 19, and 20. The deck is the source of truth; when a speaker note changes, update this file and `lib/runbooks/beats/301.ts` to match. Two fallback branches are prepared in this repo: `demo/session-1-done` (Session 1 finished) and `demo/all-sessions-done` (all four sessions, reviewed).
+The pastes below and on `/runbooks/301` match the speaker notes on slides 7, 15, 20, and 21. The deck is the source of truth; when a speaker note changes, update this file and `lib/runbooks/beats/301.ts` to match. Three branches are prepared in this repo: `demo/status-refactor-done` (the status refactor, tests first), `demo/session-1-done` (Session 1 finished), and `demo/all-sessions-done` (all four sessions, reviewed).
 
 ---
 
@@ -37,7 +37,7 @@ Check shipped state:
 - [rev_1043](http://127.0.0.1:43173/reviews/rev_1043) shows **Allowed credit $2,500.00** in red under a **$4,000** claim, with Approve and Decline disabled.
 - [ret_1043](http://127.0.0.1:43173/returns/ret_1043) has no "Download tax summary (CSV)" link yet. Live demo B adds it.
 - The project hook is on: Customize > Hooks lists `.cursor/hooks/synthetic-prompt.mjs`.
-- Models are picked: a frontier model for Plan mode (slide 22 uses Claude Opus 5.5) and Auto or Grok 4.7 for the build.
+- Models are picked: a frontier model for Plan mode (slide 24 uses Claude Opus 5.5) and Auto or Grok 4.7 for the build.
 
 If the CSV link already exists or the suite count is off, a prior run left work behind. Run `npm run demo:reset`.
 
@@ -55,7 +55,29 @@ Do not read prompts aloud. State the intent, paste from the card, then narrate w
 
 ---
 
-## 02 · Context engineering (slides 7–11)
+## 01 · The cultural shift — optional refactor check (slide 7)
+
+Time: 1:30 talk, plus 2:00 if you run the demo. Refactoring pays twice: the code gets better, and it puts in place what agents need to change it safely — pinned behavior, measured speed, one obvious place for each change, and checks that hold as PRs land.
+
+1. **(0:15)** Open a new chat in this repo, switch to **Ask** mode, and paste the refactor check:
+
+```text
+We want an agent to refactor how this app handles return and review statuses: one source of truth for statuses and their labels, typed values instead of strings, and filtering in the database query. Don't change anything yet. Tell me what would stop us trusting the result: behavior no test pins down, anything you couldn't verify yourself, and anything that could get slower. Then list the tests you'd write before touching the code.
+```
+
+2. **(1:00)** Read the gaps as they come back. Say: *Every item here is a quality problem today, and a reason you couldn't trust an agent's refactor. That list is the work.*
+3. **(0:45)** Open the finished refactor in the [compare view](https://github.com/davidgeorgehope/intuit-cursor-301/compare/main...demo/status-refactor-done). Point at the commit order: tests that pin today's behavior come first, then the change. Show the one behavior change, a 400 for an unknown status, which `app/api/AGENTS.md` already promised. Say: *It didn't claim a speedup it couldn't measure.*
+
+**Look for:** status labels defined twice (`lib/status.ts` and the filter lists on the returns and reviews pages), statuses passed around as plain strings with labels that fall back to the raw code, `/api/returns?status=BOGUS` answering 200 with an empty list although `app/api/AGENTS.md` says bad input is 400, filtering in JavaScript after loading every return, and only one status filter under test.
+
+**If it goes wrong:**
+
+- The answer is slow or wanders: open the compare view anyway; the commit list makes the same point.
+- You're short on time: keep the slide and skip the demo.
+
+---
+
+## 02 · Context engineering (slides 8–12)
 
 ### Open AGENTS.md
 
@@ -95,7 +117,7 @@ Create a test for Jordan Hale that uses SSN 123-45-6789 and the email jordan.hal
 
 ---
 
-## 03 · Decompose & scope — live demo A (slide 14)
+## 03 · Decompose & scope — live demo A (slide 15)
 
 **Why:** One feature, four reviewable slices. **Benefit:** each session has inputs and acceptance criteria, so the work can be checked. **Why it matters:** mergeable PRs, not hero diffs.
 
@@ -128,7 +150,7 @@ Finish with a checklist of each acceptance criterion: PASS or FAIL, with the fil
 Build the whole tax summary feature end to end, add tests and docs, and clean up anything messy you find along the way.
 ```
 
-**Look for:** four sessions that match slide 13:
+**Look for:** four sessions that match slide 14:
 
 | Session | Inputs | Done when |
 | --- | --- | --- |
@@ -144,11 +166,11 @@ Build the whole tax summary feature end to end, add tests and docs, and clean up
 - Session 1 drifts into routes or pages: stop it, restore the checkpoint, and restate "data model only."
 - Session 1 isn't finished by demo B: `git checkout demo/session-1-done`.
 
-**Optional:** the same decomposition is encoded as a team skill in `.cursor/skills/decompose-feature/SKILL.md` — the "encode one playbook" point on slide 25.
+**Optional:** the same decomposition is encoded as a team skill in `.cursor/skills/decompose-feature/SKILL.md` — the "encode one playbook" point on slide 27.
 
 ---
 
-## 04 · Orchestrating at scale — live demo B (slide 19)
+## 04 · Orchestrating at scale — live demo B (slide 20)
 
 **Say:** "Three rungs, one question: does the work actually split? Here only the API and frontend do."
 
@@ -188,7 +210,7 @@ Use the acceptance-verifier subagent on the tax summary export plan. Report PASS
 
 **Optional second orchestration:** `/multitask @resolve-review.md` finishes the credit-review stub with three disjoint workers (helper, API, UI). On approve, `rev_1043` must store $2,500, not $4,000.
 
-### Rung three: Projects (slide 20, optional)
+### Rung three: Projects (slide 21, optional)
 
 Time: 1:30 talk, plus 2:00 if you run the demo. A Project is the dynamic-workflow rung: its coordinator plans and delegates to Cloud Agents, keeps shared notes that every agent reads, and wakes on its own from a subscription. It writes no code itself.
 
@@ -239,13 +261,13 @@ Add a one-line hint under the download link: One row per form on file, plus a to
 
 - The PRs aren't back yet: paste the gate review anyway; it shows what's still in flight.
 - The comment doesn't wake the coordinator within a minute: point at the Listening pill and move on.
-- Projects aren't available in your org: keep slide 20 as talk only.
+- Projects aren't available in your org: keep slide 21 as talk only.
 
 **After the session:** close the Project's PRs, delete their branches, and remove its subscriptions from the Listening pill. `npm run demo:reset` doesn't touch cloud work.
 
 ---
 
-## 05 · Cost engineering (slides 21–25)
+## 05 · Cost engineering (slides 22–26)
 
 **Paste:**
 
