@@ -19,7 +19,7 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Optional: the refactor, done",
         promptType: "none",
         detail:
-          "Open the compare view for demo/status-refactor-done on GitHub. Tests that pin today's behavior come first, then the change. The one behavior change is a 400 for an unknown status, which app/api/AGENTS.md already promised.",
+          "Open the compare view for demo/status-refactor-done on GitHub. Tests that pin today's behavior come first, then the change. The one behavior change is a 400 for an unknown status, which app/api/AGENTS.md already promised. The third commit is turbotax-reviewer's catch: an empty status used to mean All, and no test pinned it.",
       },
     ],
   },
