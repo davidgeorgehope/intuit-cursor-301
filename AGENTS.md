@@ -24,16 +24,16 @@ Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic file
 - Filers come only from `prisma/seed.ts` and `prisma/extra-filers.ts`. Emails end in `.example`.
 - Never write a full SSN anywhere. The database stores `ssnLast4`; fixtures use SSNs that start with `000`.
 - Money is integer cents. Format at the edge with `formatUsd` or `formatRefund` (`lib/money.ts`).
-- Limits and deadlines come from `lib/tax-year.ts`. Age anything against `lib/clock.ts` (Oct 8, 2026), never `Date.now()`.
+- Limits and deadlines come from `lib/tax-year.ts` only: AOTC $2,500 per student, LLC $2,000 per return, Apr 15 and Oct 15, 2026. Age dates with `lib/clock.ts` (Oct 8, 2026), never `Date.now()`.
 
 ## API
 
-- Conventions: `app/api/AGENTS.md` and `.cursor/skills/create-api/SKILL.md`.
+- Under `app/api/`, `app/api/AGENTS.md` wins. Handlers call `lib/data.ts` and never import `prisma`. New routes follow `.cursor/skills/create-api/SKILL.md`.
 
 ## Agent behavior
 
-- One scoped session per chat. Carry the plan forward, not the transcript.
-- Plans live in `.cursor/plans/`. Stop when the plan's done-when lines pass.
+- One plan per chat, in `.cursor/plans/`. Stop when its done-when lines pass.
+- Restyles use tokens in `app/globals.css` only — no new hex. UI copy says "return", "refund", and "credit".
 - `rev_1043` claims $4,000 against the $2,500 AOTC limit on purpose. Do not "correct" the claim.
 - `lib/reviews/resolve.ts`, its route, and the review page panel are unfinished on purpose. Leave them unless asked.
 - Review with `turbotax-reviewer`; verify a plan with `acceptance-verifier`.
@@ -41,5 +41,5 @@ Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic file
 
 ## Definition of done
 
-- `npm test` and `npm run lint` pass, and the changed page or route was exercised on port 43173.
+- `npm test` and `npm run lint` pass. Exercise the changed page in the browser, or curl the route, on port 43173.
 - If the suite count changed, every doc that cites it was updated (`tests/runbooks.test.ts` checks).
