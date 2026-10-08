@@ -10,7 +10,7 @@ import { formatDate } from "@/lib/dates";
 import { returnTotals } from "@/lib/forms";
 import { formatUsd } from "@/lib/money";
 import { rejectDetail } from "@/lib/rejects";
-import { filingStatusLabel } from "@/lib/status";
+import { filingStatusLabel, toReviewStatus } from "@/lib/status";
 import { educationCreditLabel } from "@/lib/tax-year";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -133,7 +133,7 @@ export default async function ReturnDetailPage({ params }: { params: Promise<{ i
                   <Link key={review.id} href={`/reviews/${review.id}`} className="block text-sm hover:underline">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-mono text-xs">{review.id}</span>
-                      <ReviewStatusBadge status={review.status} />
+                      <ReviewStatusBadge status={toReviewStatus(review.status)} />
                     </div>
                     <p className="mt-1 text-muted-foreground">{educationCreditLabel(review.credit)}</p>
                   </Link>

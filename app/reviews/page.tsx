@@ -7,19 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getReviews } from "@/lib/data";
 import { formatDate } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
+import { REVIEW_STATUS_FILTERS, isReviewStatusFilter, toReviewStatus } from "@/lib/status";
 import { educationCreditLabel } from "@/lib/tax-year";
 
 export const metadata = {
   title: "Credit reviews",
 };
-
-const FILTERS = [
-  { id: "ALL", label: "All" },
-  { id: "NEEDS_REVIEW", label: "Needs review" },
-  { id: "OPEN", label: "Open" },
-  { id: "APPROVED", label: "Approved" },
-  { id: "DECLINED", label: "Declined" },
-];
 
 export default async function ReviewsPage({
   searchParams,
@@ -28,7 +21,7 @@ export default async function ReviewsPage({
 }) {
   const params = await searchParams;
   const status = params.status ?? "ALL";
-  const reviews = await getReviews({ status });
+  const reviews = isReviewStatusFilter(status) ? await getReviews({ status }) : [];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -38,7 +31,7 @@ export default async function ReviewsPage({
         description="Claims an expert checks before the return is filed. The allowed credit never exceeds the tax-year limit, whatever the filer entered."
       />
 
-      <FilterPills pathname="/reviews" value={status} items={FILTERS} />
+      <FilterPills pathname="/reviews" value={status} items={REVIEW_STATUS_FILTERS} />
 
       {reviews.length === 0 ? (
         <EmptyState
@@ -60,7 +53,7 @@ export default async function ReviewsPage({
                         {review.taxReturn.number} · {review.id}
                       </p>
                     </div>
-                    <ReviewStatusBadge status={review.status} />
+                    <ReviewStatusBadge status={toReviewStatus(review.status)} />
                   </div>
                   <p className="text-sm leading-relaxed text-muted-foreground">{review.reason}</p>
                   <p className="text-xs text-muted-foreground">

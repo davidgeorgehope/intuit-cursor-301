@@ -7,7 +7,12 @@ import {
   refundsAcceptedCents,
   reviewBreakdown,
 } from "@/lib/dashboard";
-import { OPEN_REVIEW_STATUSES, isOpenReviewStatus } from "@/lib/status";
+import {
+  OPEN_REVIEW_STATUSES,
+  isOpenReviewStatus,
+  type ReturnStatusFilter,
+  type ReviewStatusFilter,
+} from "@/lib/status";
 
 const returnInclude = {
   filer: true,
@@ -54,24 +59,18 @@ export async function getDashboard() {
   };
 }
 
-export async function getReturns(filters?: { status?: string; q?: string }) {
+export async function getReturns(filters?: { status?: ReturnStatusFilter; q?: string }) {
   const returns = await prisma.taxReturn.findMany({
+    where: { status: filters?.status === "ALL" ? undefined : filters?.status },
     include: returnInclude,
     orderBy: { lastActivityOn: "desc" },
   });
 
-  return returns.filter((taxReturn) => {
-    if (filters?.status && filters.status !== "ALL" && taxReturn.status !== filters.status) {
-      return false;
-    }
-    if (filters?.q) {
-      const haystack = `${taxReturn.number} ${taxReturn.filer.name} ${taxReturn.filer.state}`.toLowerCase();
-      if (!haystack.includes(filters.q.toLowerCase().trim())) {
-        return false;
-      }
-    }
-    return true;
-  });
+  if (!filters?.q) return returns;
+  const q = filters.q.toLowerCase().trim();
+  return returns.filter((taxReturn) =>
+    `${taxReturn.number} ${taxReturn.filer.name} ${taxReturn.filer.state}`.toLowerCase().includes(q),
+  );
 }
 
 export async function getReturn(id: string) {
@@ -89,16 +88,12 @@ export async function getRejectedReturns() {
   });
 }
 
-export async function getReviews(filters?: { status?: string }) {
-  const reviews = await prisma.creditReview.findMany({
+export async function getReviews(filters?: { status?: ReviewStatusFilter }) {
+  return prisma.creditReview.findMany({
+    where: { status: filters?.status === "ALL" ? undefined : filters?.status },
     include: reviewInclude,
     orderBy: { openedOn: "desc" },
   });
-
-  if (!filters?.status || filters.status === "ALL") {
-    return reviews;
-  }
-  return reviews.filter((review) => review.status === filters.status);
 }
 
 export async function getReview(id: string) {

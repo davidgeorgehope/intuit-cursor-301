@@ -10,6 +10,7 @@ import { getReview } from "@/lib/data";
 import { formatDate } from "@/lib/dates";
 import { educationCreditRule } from "@/lib/education-credit";
 import { formatRefund, formatUsd } from "@/lib/money";
+import { toReturnStatus, toReviewStatus } from "@/lib/status";
 import { EDUCATION_CREDIT_MAX_CENTS, EDUCATION_CREDIT_SCOPE, educationCreditLabel, isEducationCredit } from "@/lib/tax-year";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
         eyebrow="Credit review"
         title={taxReturn.filer.name}
         description={`${taxReturn.number} · ${educationCreditLabel(review.credit)} · opened ${formatDate(review.openedOn)}`}
-        actions={<ReviewStatusBadge status={review.status} />}
+        actions={<ReviewStatusBadge status={toReviewStatus(review.status)} />}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -60,7 +61,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
           <CardHeader>
             <CardTitle>Return</CardTitle>
             <CardDescription className="flex items-center gap-2">
-              <ReturnStatusBadge status={taxReturn.status} />
+              <ReturnStatusBadge status={toReturnStatus(taxReturn.status)} />
               <span>{formatRefund(taxReturn.refundCents)}</span>
             </CardDescription>
           </CardHeader>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { ReviewStatusBadge } from "@/components/status-badge";
+import { toReviewStatus } from "@/lib/status";
 
 export type OpenReviewNotice = {
   id: string;
@@ -73,7 +74,7 @@ export function NoticeBell({
                         {review.returnNumber} · {review.id}
                       </span>
                     </span>
-                    <ReviewStatusBadge status={review.status} />
+                    <ReviewStatusBadge status={toReviewStatus(review.status)} />
                   </Link>
                 </li>
               ))}

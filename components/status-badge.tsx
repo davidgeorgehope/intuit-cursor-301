@@ -1,30 +1,29 @@
+import type { ComponentProps } from "react";
 import { Badge } from "@/components/ui/badge";
-import { returnStatusLabel, reviewStatusLabel } from "@/lib/status";
+import { returnStatusLabel, reviewStatusLabel, type ReturnDisplayStatus, type ReviewStatus } from "@/lib/status";
 
-export function ReturnStatusBadge({ status }: { status: string }) {
-  const variant =
-    status === "ACCEPTED"
-      ? "success"
-      : status === "REJECTED" || status === "IN_REVIEW"
-        ? "danger"
-        : status === "EXTENDED"
-          ? "warning"
-          : status === "TRANSMITTED"
-            ? "muted"
-            : "secondary";
+type BadgeVariant = NonNullable<ComponentProps<typeof Badge>["variant"]>;
 
-  return <Badge variant={variant}>{returnStatusLabel(status)}</Badge>;
+const RETURN_STATUS_VARIANTS = {
+  EXTENDED: "warning",
+  READY: "secondary",
+  TRANSMITTED: "muted",
+  ACCEPTED: "success",
+  REJECTED: "danger",
+  IN_REVIEW: "danger",
+} as const satisfies Record<ReturnDisplayStatus, BadgeVariant>;
+
+const REVIEW_STATUS_VARIANTS = {
+  NEEDS_REVIEW: "danger",
+  OPEN: "warning",
+  APPROVED: "success",
+  DECLINED: "muted",
+} as const satisfies Record<ReviewStatus, BadgeVariant>;
+
+export function ReturnStatusBadge({ status }: { status: ReturnDisplayStatus }) {
+  return <Badge variant={RETURN_STATUS_VARIANTS[status]}>{returnStatusLabel(status)}</Badge>;
 }
 
-export function ReviewStatusBadge({ status }: { status: string }) {
-  const variant =
-    status === "NEEDS_REVIEW"
-      ? "danger"
-      : status === "APPROVED"
-        ? "success"
-        : status === "DECLINED"
-          ? "muted"
-          : "warning";
-
-  return <Badge variant={variant}>{reviewStatusLabel(status)}</Badge>;
+export function ReviewStatusBadge({ status }: { status: ReviewStatus }) {
+  return <Badge variant={REVIEW_STATUS_VARIANTS[status]}>{reviewStatusLabel(status)}</Badge>;
 }

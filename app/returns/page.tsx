@@ -5,19 +5,11 @@ import { ReturnTable } from "@/components/return-table";
 import { SearchField } from "@/components/search-field";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReturns } from "@/lib/data";
+import { RETURN_STATUS_FILTERS, isReturnStatusFilter } from "@/lib/status";
 
 export const metadata = {
   title: "Returns",
 };
-
-const FILTERS = [
-  { id: "ALL", label: "All" },
-  { id: "EXTENDED", label: "Extended" },
-  { id: "READY", label: "Ready to file" },
-  { id: "TRANSMITTED", label: "Transmitted" },
-  { id: "ACCEPTED", label: "Accepted" },
-  { id: "REJECTED", label: "Rejected" },
-];
 
 export default async function ReturnsPage({
   searchParams,
@@ -27,7 +19,7 @@ export default async function ReturnsPage({
   const params = await searchParams;
   const status = params.status ?? "ALL";
   const q = params.q ?? "";
-  const returns = await getReturns({ status, q });
+  const returns = isReturnStatusFilter(status) ? await getReturns({ status, q }) : [];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -38,7 +30,7 @@ export default async function ReturnsPage({
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <FilterPills pathname="/returns" value={status} extra={{ q }} items={FILTERS} />
+        <FilterPills pathname="/returns" value={status} extra={{ q }} items={RETURN_STATUS_FILTERS} />
         <SearchField defaultValue={q} status={status} placeholder="Search filer, state, or TY25-…" />
       </div>
 

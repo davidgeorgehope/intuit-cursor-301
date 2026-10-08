@@ -61,9 +61,11 @@ describe("returns API", () => {
     expect(await search("tx")).toEqual(["TY25-1044", "TY25-2014"]);
   });
 
-  it("answers an unknown status with an empty list", async () => {
+  it("rejects an unknown status with 400", async () => {
     const response = await getReturns(new Request("http://localhost/api/returns?status=BOGUS"));
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ returns: [] });
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "status must be one of ALL, EXTENDED, READY, TRANSMITTED, ACCEPTED, REJECTED",
+    });
   });
 });

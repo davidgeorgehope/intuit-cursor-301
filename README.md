@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**, or ask an agent to run the `start-expert-ops` skill — it starts the app on 43173 and seeds only when the database is empty.
 
-`npm test` is **0 failed / 40 passed** on a clean tree. The prompt hook has its own tests: `node --test .cursor/hooks`. Reset after a session with `npm run demo:reset`.
+`npm test` is **0 failed / 42 passed** on a clean tree. The prompt hook has its own tests: `node --test .cursor/hooks`. Reset after a session with `npm run demo:reset`.
 
 ## App
 

@@ -50,9 +50,11 @@ describe("credit reviews API", () => {
     }
   });
 
-  it("answers an unknown status with an empty list", async () => {
+  it("rejects an unknown status with 400", async () => {
     const response = await getReviews(new Request("http://localhost/api/reviews?status=CLOSED"));
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ reviews: [] });
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "status must be one of ALL, NEEDS_REVIEW, OPEN, APPROVED, DECLINED",
+    });
   });
 });

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/dates";
 import { formatRefund } from "@/lib/money";
-import { filingStatusLabel, isOpenReviewStatus, type ReturnDisplayStatus } from "@/lib/status";
+import { filingStatusLabel, isOpenReviewStatus, toReturnStatus, type ReturnDisplayStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type ReturnRow = {
@@ -24,14 +24,13 @@ type ReturnRow = {
   reviews: { id: string; status: string }[];
 };
 
-export function displayReturnStatus(
-  taxReturn: Pick<ReturnRow, "status" | "reviews">,
-): ReturnDisplayStatus | string {
+export function displayReturnStatus(taxReturn: Pick<ReturnRow, "status" | "reviews">): ReturnDisplayStatus {
+  const status = toReturnStatus(taxReturn.status);
   const openReview = taxReturn.reviews.some((review) => isOpenReviewStatus(review.status));
-  if (openReview && (taxReturn.status === "EXTENDED" || taxReturn.status === "READY")) {
+  if (openReview && (status === "EXTENDED" || status === "READY")) {
     return "IN_REVIEW";
   }
-  return taxReturn.status;
+  return status;
 }
 
 export function ReturnTable({ returns }: { returns: ReturnRow[] }) {
