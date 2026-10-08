@@ -2,6 +2,28 @@ import type { DemoSection } from "@/lib/runbooks/types";
 
 export const RUNBOOK_SECTIONS_301 = [
   {
+    id: "cultural-shift",
+    title: "Where do you start?",
+    beats: [
+      {
+        id: "refactor-check",
+        title: "Optional: check a refactor before it starts",
+        promptType: "reusable",
+        detail:
+          "Use Ask mode; it changes nothing. Read the gaps as they come back: each one is a quality problem today and a reason you couldn't trust an agent's refactor. That list is the work.",
+        example:
+          "We want an agent to refactor how this app handles return and review statuses: one source of truth for statuses and their labels, typed values instead of strings, and filtering in the database query. Don't change anything yet. Tell me what would stop us trusting the result: behavior no test pins down, anything you couldn't verify yourself, and anything that could get slower. Then list the tests you'd write before touching the code.",
+      },
+      {
+        id: "refactor-done",
+        title: "Optional: the refactor, done",
+        promptType: "none",
+        detail:
+          "Open the compare view for demo/status-refactor-done on GitHub. Tests that pin today's behavior come first, then the change. The one behavior change is a 400 for an unknown status, which app/api/AGENTS.md already promised.",
+      },
+    ],
+  },
+  {
     id: "context-engineering",
     title: "How do you engineer context?",
     beats: [
@@ -174,7 +196,7 @@ export const RUNBOOK_SECTIONS_301 = [
         id: "light-verifier",
         title: "Optional: a lighter verifier",
         promptType: "reusable",
-        detail: "acceptance-verifier writes no code and runs on a cheaper model — slide 25's light verifier.",
+        detail: "acceptance-verifier writes no code and runs on a cheaper model — slide 27's light verifier.",
         example:
           "Use the acceptance-verifier subagent on the tax summary export plan. Report PASS, PARTIAL, or FAIL for each session's done-when line, with the command you ran and what it returned.",
       },
