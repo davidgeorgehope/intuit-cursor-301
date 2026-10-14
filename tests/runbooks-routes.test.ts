@@ -14,7 +14,7 @@ describe("runbooks API", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.tracks.map((track: { id: string }) => track.id)).toEqual(["301"]);
+    expect(body.tracks.map((track: { id: string }) => track.id)).toEqual(["301", "401"]);
     expect(body.tracks[0].href).toBe("/runbooks/301");
     expect(body.tracks[0].sections.map((section: { href: string }) => section.href)).toEqual([
       "/runbooks/301#cultural-shift",
@@ -60,6 +60,6 @@ describe("runbooks routing", () => {
   it("builds track and section-header links and prebuilds the 301 page", () => {
     expect(runbookTrackHref("301")).toBe("/runbooks/301");
     expect(runbookSectionHref("301", "orchestrate")).toBe("/runbooks/301#orchestrate");
-    expect(generateTrackParams()).toEqual([{ track: "301" }]);
+    expect(generateTrackParams()).toEqual([{ track: "301" }, { track: "401" }]);
   });
 });

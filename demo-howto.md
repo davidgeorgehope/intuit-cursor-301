@@ -32,7 +32,7 @@ Open **http://localhost:43173**, or ask an agent to run the `start-expert-ops` s
 
 Check shipped state:
 
-- `npm test` is **0 failed / 34 passed**.
+- `npm test` is **0 failed / 56 passed**.
 - The dashboard shows **Refunds Accepted $5,723.00** (up 37.9% on the prior 30 days), **6** extended returns not yet filed, **3** e-file rejects, and **4** open credit reviews.
 - [rev_1043](http://127.0.0.1:43173/reviews/rev_1043) shows **Allowed credit $2,500.00** in red under a **$4,000** claim, with Approve and Decline disabled.
 - [ret_1043](http://127.0.0.1:43173/returns/ret_1043) has no "Download tax summary (CSV)" link yet. Live demo B adds it.
@@ -293,7 +293,7 @@ List the model that ran the plan, each subagent, and the verifier in this sessio
 npm run demo:reset
 ```
 
-The reset restores tracked files, removes untracked demo output under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/`, reseeds SQLite, restarts port 43173, and confirms **0 failed / 34 passed**. It lists any Build in Parallel worktrees for you to remove.
+The reset restores tracked files, removes untracked demo output under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/`, reseeds SQLite, restarts port 43173, and confirms **0 failed / 56 passed**. It lists any Build in Parallel worktrees for you to remove.
 
 ---
 

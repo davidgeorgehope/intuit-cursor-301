@@ -8,6 +8,43 @@
         "timeout": 10,
         "failClosed": true
       }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/deny-dangerous-shell.mjs",
+        "timeout": 5
+      },
+      {
+        "command": ".cursor/hooks/fail-closed-probe.mjs",
+        "timeout": 5,
+        "failClosed": true
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": ".cursor/hooks/deny-protected-write.mjs",
+        "matcher": "Write|Delete|StrReplace|EditNotebook",
+        "timeout": 5
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/format-edited.mjs",
+        "timeout": 10
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": ".cursor/hooks/limit-subagent.mjs",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/mission-loop.mjs",
+        "loop_limit": 3,
+        "timeout": 120
+      }
     ]
   }
 }

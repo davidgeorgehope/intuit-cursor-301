@@ -14,6 +14,16 @@ export const PROJECT_AGENTS = [
     path: ".cursor/agents/api-instrumenter.md",
     when: "/multitask worker. Add the request-log helper to one named API route and nothing else.",
   },
+  {
+    name: "skill-judge",
+    path: ".cursor/agents/skill-judge.md",
+    when: "Read-only judge for a skill eval. Stronger model than the worker. Grades outputs, does not edit.",
+  },
+  {
+    name: "mission-worker",
+    path: ".cursor/agents/mission-worker.md",
+    when: "Implements one armed mission until its done-when command passes or the follow-up budget is spent.",
+  },
 ] as const;
 
 export const PROJECT_SKILLS = [
@@ -51,5 +61,10 @@ export const PROJECT_SKILLS = [
     name: "automate",
     path: "~/.cursor/skills-cursor/automate/SKILL.md",
     when: "Open the Cursor Automations editor with a reviewed event- or schedule-driven draft.",
+  },
+  {
+    name: "verify-expert-ops",
+    path: ".cursor/skills/verify-expert-ops/SKILL.md",
+    when: "Drive the running console on port 43173 and prove a feature from the map.",
   },
 ] as const;

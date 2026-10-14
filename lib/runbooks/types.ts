@@ -1,4 +1,4 @@
-export type DemoTrack = "301";
+export type DemoTrack = "301" | "401";
 
 export type BeatPromptType = "reusable" | "adaptable" | "none";
 

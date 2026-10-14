@@ -6,6 +6,7 @@ import {
   PROJECT_AGENTS,
   PROJECT_SKILLS,
   RUNBOOK_SECTIONS_301,
+  RUNBOOK_SECTIONS_401,
   RUNBOOK_TRACKS,
   runbookBeats,
 } from "@/lib/runbooks/meta";
@@ -16,8 +17,8 @@ const beats301 = runbookBeats("301");
 const beat = (id: string) => beats301.find((entry) => entry.id === id);
 
 describe("runbook catalog", () => {
-  it("ships only the 301 track", () => {
-    expect(RUNBOOK_TRACKS.map((track) => track.id)).toEqual(["301"]);
+  it("ships the 301 track and the 401 follow-on", () => {
+    expect(RUNBOOK_TRACKS.map((track) => track.id)).toEqual(["301", "401"]);
     expect(RUNBOOK_TRACKS[0].description).toBe(
       "You will engineer the context an agent sees, decompose one feature into scoped sessions, orchestrate the parts that split behind a single approval gate, and match each role to a model on purpose.",
     );
@@ -140,6 +141,39 @@ describe("runbook catalog", () => {
       if (skill.path.startsWith("~")) continue;
       expect(read(skill.path)).toMatch(new RegExp(`^---\\nname: ${skill.name}\\n`));
     }
+  });
+});
+
+describe("401 runbook", () => {
+  const beats401 = runbookBeats("401");
+
+  it("follows the 401 deck", () => {
+    expect(RUNBOOK_SECTIONS_401.map((section) => section.id)).toEqual([
+      "recap",
+      "verification",
+      "skill-evals",
+      "hooks-guardrails",
+      "missions-loops",
+      "harness-cost",
+    ]);
+    for (const entry of beats401) {
+      expect(entry.promptType, entry.id).toBeDefined();
+      if (entry.promptType === "none") expect(entry.example, entry.id).toBeUndefined();
+      else expect(entry.example, entry.id).toBeTruthy();
+    }
+  });
+
+  it("points beats at files that exist and does not trip the prompt hook", () => {
+    const pathPattern = /(?:^|[\s(`])((?:\.cursor|app|lib|components|tests|missions|evals)\/[\w./[\]-]+\.(?:mdc|tsx|ts|json|md))/g;
+    for (const entry of beats401) {
+      const text = `${entry.detail} ${entry.example ?? ""}`;
+      for (const [, path] of text.matchAll(pathPattern)) {
+        expect(existsSync(join(root, path)), `${entry.id} cites missing ${path}`).toBe(true);
+      }
+      if (!entry.example) continue;
+      expect(checkPrompt({ prompt: entry.example }).continue, entry.id).toBe(true);
+    }
+    expect(existsSync(join(root, "DEMO-401.md"))).toBe(true);
   });
 });
 
