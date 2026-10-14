@@ -50,6 +50,13 @@ next-env.d.ts
 # cloud agent scratch
 /agent-tools
 .cursor/demo-session-events.json
+.cursor/hook-logs/
+
+# 401 demo runtime state
+/artifacts/
+/missions/active.json
+/missions/escalation.md
+/missions/fail-closed-armed
 
 # facilitator screen recordings — artifact only, never git
 *.mp4

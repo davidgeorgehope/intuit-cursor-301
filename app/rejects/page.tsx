@@ -4,11 +4,10 @@ import { PageHeader } from "@/components/page-header";
 import { ReturnStatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DEMO_AS_OF } from "@/lib/clock";
 import { getRejectedReturns } from "@/lib/data";
-import { daysBetween, formatDate } from "@/lib/dates";
+import { formatDate } from "@/lib/dates";
+import { extensionDaysLeft } from "@/lib/extension-pace";
 import { rejectDetail } from "@/lib/rejects";
-import { EXTENSION_DEADLINE } from "@/lib/tax-year";
 
 export const metadata = {
   title: "E-file rejects",
@@ -18,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RejectsPage() {
   const rejected = await getRejectedReturns();
-  const daysLeft = daysBetween(EXTENSION_DEADLINE, DEMO_AS_OF);
+  const daysLeft = extensionDaysLeft();
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">

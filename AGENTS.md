@@ -10,13 +10,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # TurboTax Expert Ops
 
-Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic filers, operator Avery Quinn, no auth.
+Demo console for the Intuit × Cursor 301 session and the 401 follow-on. Tax year 2025, synthetic filers, operator Avery Quinn, no auth.
 
 ## Build & test
 
 - Setup: `npm i && npx prisma generate && npx prisma db seed` (the seed is safe to re-run).
 - Dev server: `npm run dev` on port **43173**.
-- Tests: `npm test`. Shipped suite on a clean tree: **0 failed / 34 passed**.
+- Tests: `npm test`. Shipped suite on a clean tree: **0 failed / 56 passed**. `npm run check` is typecheck, lint, and tests.
 - Lint: `npm run lint`. Reset after a demo: `npm run demo:reset`.
 
 ## Data
@@ -37,7 +37,7 @@ Demo console for the Intuit × Cursor 301 session. Tax year 2025, synthetic file
 - `rev_1043` claims $4,000 against the $2,500 AOTC limit on purpose. Do not "correct" the claim.
 - `lib/reviews/resolve.ts`, its route, and the review page panel are unfinished on purpose. Leave them unless asked.
 - Review with `turbotax-reviewer`; verify a plan with `acceptance-verifier`.
-- Runbook beats: `lib/runbooks/meta.ts` and `/runbooks/301`. Run-of-show: `demo-howto.md`.
+- 301 beats: `lib/runbooks/meta.ts` and `/runbooks/301`. Run-of-show: `demo-howto.md`. 401: `DEMO-401.md` and `/runbooks/401`.
 
 ## Definition of done
 

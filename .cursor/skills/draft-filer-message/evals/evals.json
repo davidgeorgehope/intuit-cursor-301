@@ -1,0 +1,28 @@
+{
+  "skill_name": "draft-filer-message",
+  "notes": "The prompt is what a person would type. Grade the output, not a claim that the skill was followed. The judge sees arm labels, not which model wrote them.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft the message Avery Quinn would send Remy and Ana Sato about return TY25-1042.",
+      "expected_output": "A short note that names TY25-1042 and IND-032-04, asks them to re-enter last year's AGI in the return, and does not ask them to email it. Signed Avery Quinn.",
+      "files": [],
+      "assertions": [
+        "Names return TY25-1042 and reject IND-032-04, and tells the filer to re-enter last year's AGI in the return rather than by email.",
+        "Signed Avery Quinn. Does not mention an SSN or a credential.",
+        "No exclamation mark, and the body stays under 140 words."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft the message Avery Quinn would send Ellis Marlow about the open American opportunity credit review on TY25-1043.",
+      "expected_output": "A short note that the allowed credit is $2,500.00 and the $4,000.00 figure is the claim, not the credit. Signed Avery Quinn.",
+      "files": [],
+      "assertions": [
+        "States the allowed credit is $2,500.00 and does not treat the $4,000.00 claim as the credit.",
+        "Signed Avery Quinn. Does not mention an SSN or a credential.",
+        "No exclamation mark, and the body stays under 140 words."
+      ]
+    }
+  ]
+}

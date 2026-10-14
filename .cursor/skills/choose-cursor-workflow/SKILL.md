@@ -5,7 +5,7 @@ description: Walk the 301 TurboTax Expert Ops track, then choose the mode, model
 
 # Walk the 301 track
 
-The demo ships one track: **301**. Every beat is independent — if the user names a beat, jump directly to it. You still review the result.
+The 301 track is the original workshop. The 401 follow-on is `/runbooks/401` and `DEMO-401.md`. If the user names a 401 beat, go there. Otherwise walk 301. Every beat is independent. You still review the result.
 
 ## The track
 
