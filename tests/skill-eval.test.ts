@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { formatBenchmark, listSkillEvals, loadSkillEval, planTriggerEvals, skillFilesForTrigger } from "@/lib/skill-eval";
+import {
+  formatBenchmark,
+  listSkillEvals,
+  LIVE_COST_WARNING,
+  loadSkillEval,
+  planTriggerEvals,
+  skillFilesForTrigger,
+  skillWasRead,
+} from "@/lib/skill-eval";
 
 describe("skill eval loader", () => {
   it("passes the with-skill arm and fails the without-skill arm", () => {
@@ -26,5 +34,8 @@ describe("skill eval loader", () => {
     expect(skillFilesForTrigger()).toEqual(["SKILL.md"]);
     expect(formatBenchmark(loadSkillEval(process.cwd()))).toContain("tokens: 0");
     expect(listSkillEvals(process.cwd())).toEqual(["draft-filer-message"]);
+    expect(LIVE_COST_WARNING).toContain("Token cost");
+    expect(skillWasRead('{"path":".cursor/skills/draft-filer-message/SKILL.md"}')).toBe(true);
+    expect(skillWasRead("no file here")).toBe(false);
   });
 });

@@ -14,6 +14,7 @@ describe("verify console", () => {
 
   it("requires 7 days left on the rejects page", () => {
     expect(checkRejectsPage(200, "Rejected returns 7 days left").pass).toBe(true);
+    expect(checkRejectsPage(200, "Rejected returns 7<!-- --> days<!-- --> left").pass).toBe(true);
     expect(checkRejectsPage(200, "Rejected returns 6 days left").pass).toBe(false);
   });
 

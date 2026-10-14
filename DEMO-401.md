@@ -6,6 +6,25 @@ Every demo runs in the local Cursor IDE or CLI. Intuit has Projects, Automations
 
 The deck is the talk. This file is the commands, the expected output, the timing, and the fallback.
 
+## Pre-flight
+
+Do this once on the laptop before anyone is in the room. The app does not fetch a font at runtime. `prisma generate` uses the JavaScript engine in `prisma.config.ts` and does not download `binaries.prisma.sh`. `npm install` still needs the npm registry, for `better-sqlite3` as well as the rest of the app.
+
+| Check | Command | Pass looks like |
+| --- | --- | --- |
+| Node 20 or newer | `node -v` | `v20` or `v22` |
+| Branch | `git checkout demo/401` | The 401 demos. 301 fallbacks stay on their own branches: `demo/status-refactor-done`, `demo/session-1-done`, `demo/all-sessions-done`. Do not reset those. |
+| Install | `npm install` | Finishes without a registry error |
+| Client | `npx prisma generate` | `Generated Prisma Client` |
+| Seed | `npx prisma db seed` | `24 filers` and `24 returns`. A warning that the schema `url` is unused is expected. The adapter path is `prisma/dev.db`. |
+| Suite | `npm test` | `0 failed / 56 passed` |
+| App | `npm run dev` | Ready on port 43173. Open http://127.0.0.1:43173/rejects and see `7 days left`. |
+| Hooks | Customize, Hooks, in a trusted window | `.cursor/hooks.json` is listed. If an edit does not show up, start a new chat, then restart Cursor. |
+
+Loop fallback, on this same branch, not a second checkout: `npm run mission:restore` and `npm run mission:disarm`. That puts `lib/extension-pace.ts` back. Do not leave `missions/fail-closed-armed` in place.
+
+Offline skill replay is `npm run eval:skills`. It cannot catch a prune that only fails when a model writes a new message. Use `npm run eval:skills -- --live` and `npm run eval:trigger -- --live` when you want that check. Both call `cursor-agent` and spend tokens. The CLI has to be logged in (`agent login` or `CURSOR_API_KEY`).
+
 ## Deck map
 
 | Deck | Demo | Time | Command |
@@ -19,15 +38,7 @@ The deck is the talk. This file is the commands, the expected output, the timing
 
 ## Before you start
 
-```bash
-npm i
-npx prisma generate
-npx prisma db seed
-npm run dev
-npm run check
-```
-
-`npm run check` is typecheck, lint, and unit tests. On a clean tree the suite is **0 failed / 56 passed**.
+The pre-flight table above is the checklist. `npm run check` is typecheck, lint, and the 56 tests.
 
 Leave the 301 hook in place. The 401 hooks are added beside it in `.cursor/hooks.json`. Hooks load when the workspace is trusted. If a hooks edit does not show up in Customize, start a new chat. The docs say `hooks.json` reloads on save; the Intuit incident needed a restart. Do both if the first is not enough.
 
@@ -71,7 +82,7 @@ The feature map is `.cursor/skills/verify-expert-ops/features/`. Each file has t
 
 ## 3. Evaluating skills
 
-**Say:** A skill earns its place when the same prompt does worse without it. Cut lines only when the pass rate holds. The judge, when you use one, is a different model family from the worker, and it sees arm labels only.
+**Say:** A skill earns its place when the same prompt does worse without it. Cut lines only when the pass rate holds. The offline replay grades recorded messages. It cannot catch a prune that only fails when a model writes a new one. The live command does that, and it spends tokens. The judge is a different model family from the worker, and it sees arm labels only.
 
 The shape follows the public pstack plugin (MIT): a skill directory, `evals/evals.json` with a prompt and assertions, and a grader. pstack itself ships the eval playbook, not a runner. This repo's runner is local and spends no tokens. Public cuts that used the same rule: [08bd59b](https://github.com/cursor/plugins/commit/08bd59b), [00b14f1](https://github.com/cursor/plugins/commit/00b14f1), [b0b9c7a](https://github.com/cursor/plugins/commit/b0b9c7a).
 
@@ -93,7 +104,16 @@ trigger evals: 4 queries, none executed
 
 Open `.cursor/skills/draft-filer-message/evals/evals.json` for the prompts, and `grader.md` for the judge. The recorded arms are `evals/runs/with-skill` and `evals/runs/without-skill`. The verbose skill is `evals/snapshots/verbose/SKILL.md`.
 
-**Trigger eval, spends tokens, do not run it on stage unless you mean to.** The script prints the headless command and writes `passed: null` for every query. A crash is not a "did not trigger."
+**When to use which.** Default `npm run eval:skills` on stage. It is the recorded arms. Use `--live` in a rehearsal when you changed the skill text and need a new model to write the messages. The worker model is `composer-2.5`. The judge model is `claude-opus-5`. Confirm both on the Intuit plan.
+
+```bash
+npm run eval:skills -- --live
+npm run eval:trigger -- --live
+```
+
+`--live` prints a token warning, then calls `cursor-agent -p`. It writes new arms under `artifacts/skill-evals/live/` and does not replace the recorded ones. A crash is `passed: null`, not a failure of the negative queries.
+
+**Trigger plan, no tokens.** `npm run eval:trigger` writes `passed: null` for every query.
 
 ```bash
 cursor-agent -p --output-format stream-json --trust --mode ask "Draft the message Avery Quinn would send Remy and Ana Sato about return TY25-1042."
@@ -226,6 +246,8 @@ Fetched 14 October 2026:
 - https://cursor.com/docs/agent/overview — `/goal` is rolling out. `/loop` is the recurring skill.
 - https://cursor.com/docs/cli/using — `-p` / `--print`, `--output-format`, `--mode`.
 - https://cursor.com/docs/sdk/typescript — local `Agent.create`, `disallowedTools`, `run.stream()`, `run.steer()`, `agent.getUsage()`.
+
+Rehearsed on this branch after the font and Prisma changes: `npx prisma generate` (no `binaries.prisma.sh` download), `npx prisma db seed` (24 filers), `npm test` and `npm run check` at 0 failed / 56 passed, `npm run verify` with three PASS lines, both pages HTTP 200, `npm run eval:skills`, `npm run eval:trigger`, both `--live` commands (they stop before a model call because `cursor-agent` is not installed here), hook smoke, failClosed exit 1 while armed, the planted stop-hook follow-up, restore, and both harness commands at costUsd 0.
 
 Not confirmed, because they need the IDE or a logged-in CLI:
 

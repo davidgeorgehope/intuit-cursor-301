@@ -2,7 +2,8 @@ import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 export function projectRoot() {
-  return process.env.CURSOR_PROJECT_DIR || dirname(dirname(fileURLToPath(import.meta.url)));
+  const file = fileURLToPath(import.meta.url);
+  return process.env.CURSOR_PROJECT_DIR || dirname(dirname(dirname(file)));
 }
 
 export async function readStdinJson() {

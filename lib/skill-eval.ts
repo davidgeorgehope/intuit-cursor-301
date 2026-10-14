@@ -213,8 +213,23 @@ export type TriggerResult = {
   reason: string;
 };
 
+export const WORKER_MODEL = "composer-2.5";
+export const JUDGE_MODEL = "claude-opus-5";
+
+export const LIVE_COST_WARNING = [
+  "Token cost: --live calls the model.",
+  `The worker is ${WORKER_MODEL} and writes each arm.`,
+  `The judge is ${JUDGE_MODEL}, a different family, and scores both arms under labels.`,
+  "Each trigger query is one more cursor-agent -p run.",
+  "The offline replay cannot catch a prune that only fails when a model writes a new message.",
+].join(" ");
+
 export function skillFilesForTrigger(): string[] {
   return ["SKILL.md"];
+}
+
+export function skillWasRead(stream: string): boolean {
+  return stream.includes("draft-filer-message/SKILL.md");
 }
 
 export function planTriggerEvals(queries: TriggerQuery[]): { command: string; results: TriggerResult[] } {

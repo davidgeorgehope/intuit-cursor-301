@@ -5,6 +5,7 @@ import { decideWrite } from "../.cursor/hooks/deny-protected-write.mjs";
 import { decideFailClosed } from "../.cursor/hooks/fail-closed-probe.mjs";
 import { stripTrailingWhitespace } from "../.cursor/hooks/format-edited.mjs";
 import { decideSubagent } from "../.cursor/hooks/limit-subagent.mjs";
+import { projectRoot } from "../.cursor/hooks/hook-io.mjs";
 import { decideFollowup } from "../.cursor/hooks/mission-loop.mjs";
 import { getMission } from "@/lib/missions";
 
@@ -82,5 +83,6 @@ describe("hook guardrails", () => {
     expect(hooks.hooks.stop[0].loop_limit).toBe(3);
     expect(hooks.hooks.beforeShellExecution[1].failClosed).toBe(true);
     expect(hooks.hooks.preToolUse[0].command).toBe(".cursor/hooks/deny-protected-write.mjs");
+    expect(projectRoot()).toBe(process.cwd());
   });
 });

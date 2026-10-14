@@ -4,6 +4,10 @@ export type ConsoleCheck = {
   detail: string;
 };
 
+export function visibleText(html: string): string {
+  return html.replace(/<!--[\s\S]*?-->/g, " ").replace(/\s+/g, " ");
+}
+
 export function checkReturnsApi(status: number, body: unknown): ConsoleCheck {
   if (status !== 200) {
     return { id: "returns-api", pass: false, detail: `HTTP ${status}` };
@@ -29,10 +33,11 @@ export function checkRejectsPage(status: number, html: string): ConsoleCheck {
   if (status !== 200) {
     return { id: "rejects", pass: false, detail: `HTTP ${status}` };
   }
-  if (!html.includes("Rejected returns")) {
+  const text = visibleText(html);
+  if (!text.includes("Rejected returns")) {
     return { id: "rejects", pass: false, detail: "page is missing the Rejected returns heading" };
   }
-  if (!html.includes("7 days left")) {
+  if (!text.includes("7 days left")) {
     return { id: "rejects", pass: false, detail: "page does not show 7 days left" };
   }
   return { id: "rejects", pass: true, detail: "HTTP 200, heading present, 7 days left" };
@@ -42,10 +47,11 @@ export function checkCreditReview(status: number, html: string): ConsoleCheck {
   if (status !== 200) {
     return { id: "credit-review", pass: false, detail: `HTTP ${status}` };
   }
-  if (!html.includes("Allowed credit") || !html.includes("$2,500.00")) {
+  const text = visibleText(html);
+  if (!text.includes("Allowed credit") || !text.includes("$2,500.00")) {
     return { id: "credit-review", pass: false, detail: "allowed credit is not $2,500.00" };
   }
-  if (!html.includes("$4,000.00")) {
+  if (!text.includes("$4,000.00")) {
     return { id: "credit-review", pass: false, detail: "the $4,000.00 claim is missing" };
   }
   return {

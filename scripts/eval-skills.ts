@@ -1,10 +1,15 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { formatBenchmark, listSkillEvals, loadSkillEval, planTriggerEvals, type TriggerQuery } from "@/lib/skill-eval";
+import { runLiveSkillEval } from "@/scripts/eval-live";
 
 const root = process.cwd();
-const spend = process.argv.includes("--agent");
+const live = process.argv.includes("--live");
 let failed = false;
+
+if (live) {
+  process.exit(runLiveSkillEval(root));
+}
 
 for (const skill of listSkillEvals(root)) {
   const report = loadSkillEval(root, skill);
@@ -23,10 +28,6 @@ for (const skill of listSkillEvals(root)) {
   const withFailed = report.withSkill.some((run) => run.summary.failed > 0);
   const withoutPerfect = report.withoutSkill.every((run) => run.summary.failed === 0);
   if (withFailed || withoutPerfect || !report.prune.keep) failed = true;
-}
-
-if (spend) {
-  console.log("Refusing --agent. Spawning a judge spends tokens. The grader prompt is evals/grader.md. Use /skill-judge in the IDE.");
 }
 
 if (failed) process.exitCode = 1;
