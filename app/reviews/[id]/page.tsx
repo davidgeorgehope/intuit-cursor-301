@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { ResolutionPanel } from "@/components/reviews/resolution-panel";
 import { ReturnStatusBadge, ReviewStatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { getReview } from "@/lib/data";
 import { formatDate } from "@/lib/dates";
 import { educationCreditRule } from "@/lib/education-credit";
@@ -73,20 +72,12 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
         </Card>
       </div>
 
-      {/*
-        MULTI-FILE STUB
-        Complete together:
-          1. lib/reviews/resolve.ts
-          2. app/api/reviews/[id]/resolve/route.ts
-          3. this panel — enable Approve / Decline and persist an expert note
-      */}
-      <Card className="border-dashed">
+      <Card>
         <CardHeader>
           <CardTitle>Resolution</CardTitle>
           <CardDescription>
-            This panel is unfinished. Approve and Decline should call{" "}
-            <span className="font-mono text-foreground">POST /api/reviews/{review.id}/resolve</span> once the
-            helper exists. Never allow more than {formatUsd(limit)} {EDUCATION_CREDIT_SCOPE[review.credit]}.
+            Approve or decline, and save an expert note. Allowed credit stays within {formatUsd(limit)}{" "}
+            {EDUCATION_CREDIT_SCOPE[review.credit]}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -95,27 +86,16 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
               Allowed credit {formatUsd(review.allowedCreditCents)}
             </p>
             <p className={cn("text-xs", overClaimed ? "text-danger" : "text-muted-foreground")}>
-              {overClaimed
-                ? `The filer claimed ${formatUsd(review.claimedCents)}. `
-                : ""}
+              {overClaimed ? `The filer claimed ${formatUsd(review.claimedCents)}. ` : ""}
               {educationCreditLabel(review.credit)}: {educationCreditRule(review.credit)}
             </p>
           </div>
 
-          <Label htmlFor="expert-note">Expert note</Label>
-          <Textarea
-            id="expert-note"
-            placeholder="TODO(agent): bind this to resolveReview and store the allowed credit, never the claim."
-            defaultValue={review.expertNote ?? ""}
+          <ResolutionPanel
+            key={`${review.status}:${review.expertNote ?? ""}`}
+            reviewId={review.id}
+            expertNote={review.expertNote ?? ""}
           />
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" disabled title="Not wired — multi-file stub">
-              Approve credit
-            </Button>
-            <Button type="button" variant="outline" disabled title="Not wired — multi-file stub">
-              Decline
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

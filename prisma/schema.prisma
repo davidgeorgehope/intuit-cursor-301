@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Client engine plus prisma.config.ts. Generate does not download binaries.prisma.sh.
+  engineType = "client"
 }
 
 datasource db {

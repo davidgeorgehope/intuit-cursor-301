@@ -1,11 +1,10 @@
 import { execSync } from "node:child_process";
-import { PrismaClient } from "@prisma/client";
 import { demoDay } from "../lib/clock";
+import { prisma } from "../lib/prisma";
 import { allowedEducationCreditCents } from "../lib/education-credit";
 import { EXTENSION_DEADLINE, FILING_DEADLINE, TAX_YEAR, type EducationCredit } from "../lib/tax-year";
 import { EXTRA_FILINGS, type SeedFiling } from "./extra-filers";
 
-const prisma = new PrismaClient();
 const WORKSPACE_ID = "ws_expertops";
 
 const dollars = (amount: number) => amount * 100;

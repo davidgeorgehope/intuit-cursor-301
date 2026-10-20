@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Draft the message Avery Quinn would send Remy and Ana Sato about return TY25-1042.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write Ellis Marlow a note about the American opportunity credit on TY25-1043.",
+    "should_trigger": true
+  },
+  {
+    "query": "What does reject code IND-032-04 mean?",
+    "should_trigger": false
+  },
+  {
+    "query": "How many days are left before the extension deadline?",
+    "should_trigger": false
+  }
+]

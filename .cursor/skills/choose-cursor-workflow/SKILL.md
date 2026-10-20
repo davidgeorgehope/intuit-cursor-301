@@ -5,7 +5,7 @@ description: Walk the 301 TurboTax Expert Ops track, then choose the mode, model
 
 # Walk the 301 track
 
-The demo ships one track: **301**. Every beat is independent — if the user names a beat, jump directly to it. You still review the result.
+The 301 track is the original workshop. The 401 follow-on is `/runbooks/401` and `DEMO-401.md`. If the user names a 401 beat, go there. Otherwise walk 301. Every beat is independent. You still review the result.
 
 ## The track
 
@@ -17,10 +17,11 @@ Start a demo session with `npm run demo:session -- start` and record any rule, s
 
 ## Sections and beats
 
-1. **How do you engineer context?** — open AGENTS.md and `app/api/AGENTS.md`, ask what rides every turn, personal and team skills, trigger the SSN hook, read the context ring.
-2. **How do you decompose a feature?** — Plan mode, the plan prompt for the tax summary export, review and edit the plan, save it, start the data model session, show the everything-at-once prompt, and the optional `decompose-feature` skill.
-3. **How do you orchestrate the work?** — read the data model checklist, Build in Parallel (or the `/multitask` fallback), watch the task cards, verify with `turbotax-reviewer`, download the CSV, the optional `acceptance-verifier`, the `demo/all-sessions-done` fallback branch, the optional credit-review stub, and rung three: a Project on this repo (starter, shared notes, subscription).
-4. **How do you spend tokens on purpose?** — the model per role, the usage dashboard, a fresh chat per task.
+1. **Where do you start?** — the optional refactor check in Ask mode, then the finished refactor on `demo/status-refactor-done`: tests that pin today's behavior first, then the change.
+2. **How do you engineer context?** — open AGENTS.md and `app/api/AGENTS.md`, ask what rides every turn, personal and team skills, trigger the SSN hook, read the context ring.
+3. **How do you decompose a feature?** — Plan mode, the plan prompt for the tax summary export, review and edit the plan, save it, start the data model session, show the everything-at-once prompt, and the optional `decompose-feature` skill.
+4. **How do you orchestrate the work?** — read the data model checklist, Build in Parallel (or the `/multitask` fallback), watch the task cards, verify with `turbotax-reviewer`, download the CSV, the optional `acceptance-verifier`, the `demo/all-sessions-done` fallback branch, the optional credit-review stub, and rung three: a Project on this repo (starter, subscription, gate review, review comment).
+5. **How do you spend tokens on purpose?** — the model per role, the usage dashboard, a fresh chat per task.
 
 ## Choose the mode
 

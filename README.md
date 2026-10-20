@@ -17,7 +17,7 @@ npm run dev
 
 Open **http://localhost:43173**, or ask an agent to run the `start-expert-ops` skill — it starts the app on 43173 and seeds only when the database is empty.
 
-`npm test` is **0 failed / 37 passed** on a clean tree. The prompt hook has its own tests: `node --test .cursor/hooks`. Reset after a session with `npm run demo:reset`.
+`npm test` is **0 failed / 59 passed** on a clean tree. `npm run check` is typecheck, lint, and that suite. The 401 runbook is `DEMO-401.md`. The prompt hook has its own tests: `node --test .cursor/hooks`. Reset after a session with `npm run demo:reset`.
 
 ## App
 
@@ -75,7 +75,7 @@ Verify (live demo B):
 /turbotax-reviewer Review the combined diff against the plan in .cursor/plans/. Then run npm test and curl -sS "http://127.0.0.1:43173/api/filers/fil_marlow/tax-summary?year=2025". Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don't fix anything.
 ```
 
-Fallback branches for the live demos: `demo/session-1-done` and `demo/all-sessions-done`.
+Prepared branches for the live demos: `demo/status-refactor-done` (the finished status refactor), `demo/session-1-done`, and `demo/all-sessions-done`.
 
 Run the same plans as a Cursor Project (rung three): create a Project on this repository, then paste the coordinator starter from "Rung three: Projects" in `demo-howto.md`. It delivers the tax summary export and credit-review resolution as two reviewed PRs.
 

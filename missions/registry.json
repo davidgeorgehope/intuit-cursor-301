@@ -1,0 +1,26 @@
+{
+  "extension-pace": {
+    "title": "Extension pace",
+    "outcome": "Every rejected return shows 7 days left, counted from the frozen clock (8 October 2026) to the 15 October 2026 extension deadline.",
+    "doneWhen": "npm test -- tests/extension-pace.test.ts",
+    "doneWhenArgs": ["npm", "test", "--", "tests/extension-pace.test.ts"],
+    "stop": "Stop when that command exits 0. Also stop when the stop hook has already sent the mission's follow-up budget, even if the test is still failing.",
+    "escalation": "Write missions/escalation.md with the failing command and its exit code, then stop. Do not edit lib/tax-year.ts, prisma/seed.ts, prisma/extra-filers.ts, or the credit-review resolve stub.",
+    "budget": {
+      "maxFollowups": 3,
+      "note": "Each follow-up is another model turn. The dry-run harness spends nothing. A live CLI or SDK run spends tokens and should stay inside this cap."
+    }
+  },
+  "verify-console": {
+    "title": "Verify the running console",
+    "outcome": "The app on port 43173 serves the returns API, the rejects page with 7 days left, and the rev_1043 review with the $2,500.00 allowed credit under a $4,000.00 claim.",
+    "doneWhen": "npm run verify",
+    "doneWhenArgs": ["npm", "run", "verify"],
+    "stop": "Stop when npm run verify exits 0, or when the follow-up budget is spent.",
+    "escalation": "If the server is down, start it with npm run dev and rerun once. If a check still fails, stop and report the check. Do not change product code to force a pass.",
+    "budget": {
+      "maxFollowups": 2,
+      "note": "Verification is a read. Two follow-ups cover starting the server and rerunning. More than that is a stuck loop."
+    }
+  }
+}
