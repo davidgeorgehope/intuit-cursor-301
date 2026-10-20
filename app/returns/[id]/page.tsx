@@ -19,12 +19,21 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: taxReturn ? taxReturn.number : "Return" };
 }
 
-export default async function ReturnDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReturnDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ year?: string }>;
+}) {
   const { id } = await params;
+  const { year: yearParam } = await searchParams;
   const taxReturn = await getReturn(id);
   if (!taxReturn) notFound();
 
   const { filer } = taxReturn;
+  const summaryYear = yearParam?.trim() ? yearParam.trim() : String(taxReturn.taxYear);
+  const taxSummaryHref = `/api/filers/${filer.id}/tax-summary?year=${encodeURIComponent(summaryYear)}`;
   const totals = returnTotals(taxReturn.forms);
   const reject = taxReturn.rejectCode ? rejectDetail(taxReturn.rejectCode) : null;
   const final = taxReturn.status === "ACCEPTED";
@@ -144,7 +153,10 @@ export default async function ReturnDetailPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <div>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline">
+          <a href={taxSummaryHref}>Download tax summary (CSV)</a>
+        </Button>
         <Button asChild variant="outline">
           <Link href="/returns">Back to returns</Link>
         </Button>

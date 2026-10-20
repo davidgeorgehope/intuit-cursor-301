@@ -132,3 +132,50 @@ export async function getOpenReviewNotices() {
 export async function getWorkspace() {
   return prisma.workspace.findUniqueOrThrow({ where: { id: "ws_expertops" } });
 }
+
+export type TaxSummaryRow = {
+  formType: string;
+  issuer: string;
+  amountCents: number;
+  withheldCents: number;
+};
+
+/** One row per form. Totals stay in returnTotals; this does not append a totals row. */
+export async function getTaxSummary(
+  filerId: string,
+  taxYear: number,
+): Promise<{ filerId: string; filerName: string; taxYear: number; rows: TaxSummaryRow[] } | null> {
+  const filer = await prisma.filer.findUnique({
+    where: { id: filerId },
+    select: {
+      id: true,
+      name: true,
+      returns: {
+        where: { taxYear },
+        orderBy: { id: "asc" },
+        select: {
+          forms: {
+            orderBy: { id: "asc" },
+            select: {
+              formType: true,
+              issuer: true,
+              amountCents: true,
+              withheldCents: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!filer) {
+    return null;
+  }
+
+  return {
+    filerId: filer.id,
+    filerName: filer.name,
+    taxYear,
+    rows: filer.returns.flatMap((taxReturn) => taxReturn.forms),
+  };
+}

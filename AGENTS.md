@@ -16,7 +16,7 @@ Demo console for the Intuit × Cursor 301 session and the 401 follow-on. Tax yea
 
 - Setup: `npm i && npx prisma generate && npx prisma db seed` (the seed is safe to re-run).
 - Dev server: `npm run dev` on port **43173**.
-- Tests: `npm test`. Shipped suite on a clean tree: **0 failed / 56 passed**. `npm run check` is typecheck, lint, and tests.
+- Tests: `npm test`. Shipped suite on a clean tree: **0 failed / 59 passed**. `npm run check` is typecheck, lint, and tests.
 - Lint: `npm run lint`. Reset after a demo: `npm run demo:reset`.
 
 ## Data

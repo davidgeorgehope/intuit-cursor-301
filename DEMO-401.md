@@ -17,7 +17,7 @@ Do this once on the laptop before anyone is in the room. The app does not fetch 
 | Install | `npm install` | Finishes without a registry error |
 | Client | `npx prisma generate` | `Generated Prisma Client` |
 | Seed | `npx prisma db seed` | `24 filers` and `24 returns`. A warning that the schema `url` is unused is expected. The adapter path is `prisma/dev.db`. |
-| Suite | `npm test` | `0 failed / 56 passed` |
+| Suite | `npm test` | `0 failed / 59 passed` |
 | App | `npm run dev` | Ready on port 43173. Open http://127.0.0.1:43173/rejects and see `7 days left`. |
 | Hooks | Customize, Hooks, in a trusted window | `.cursor/hooks.json` is listed. If an edit does not show up, start a new chat, then restart Cursor. |
 
@@ -247,7 +247,7 @@ Fetched 14 October 2026:
 - https://cursor.com/docs/cli/using — `-p` / `--print`, `--output-format`, `--mode`.
 - https://cursor.com/docs/sdk/typescript — local `Agent.create`, `disallowedTools`, `run.stream()`, `run.steer()`, `agent.getUsage()`.
 
-Rehearsed on this branch after the font and Prisma changes: `npx prisma generate` (no `binaries.prisma.sh` download), `npx prisma db seed` (24 filers), `npm test` and `npm run check` at 0 failed / 56 passed, `npm run verify` with three PASS lines, both pages HTTP 200, `npm run eval:skills`, `npm run eval:trigger`, both `--live` commands (they stop before a model call because `cursor-agent` is not installed here), hook smoke, failClosed exit 1 while armed, the planted stop-hook follow-up, restore, and both harness commands at costUsd 0.
+Rehearsed on this branch after the font and Prisma changes: `npx prisma generate` (no `binaries.prisma.sh` download), `npx prisma db seed` (24 filers), `npm test` and `npm run check` at 0 failed / 59 passed, `npm run verify` with three PASS lines, both pages HTTP 200, `npm run eval:skills`, `npm run eval:trigger`, both `--live` commands (they stop before a model call because `cursor-agent` is not installed here), hook smoke, failClosed exit 1 while armed, the planted stop-hook follow-up, restore, and both harness commands at costUsd 0.
 
 Not confirmed, because they need the IDE or a logged-in CLI:
 

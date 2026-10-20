@@ -41,8 +41,8 @@ const confirmLinear = args.includes("--confirm-linear");
 const anyOrigin = args.includes("--any-origin");
 const knownProjectPaths = new Set<string>();
 const EXPECTED_ORIGIN = "intuit-cursor-301";
-/** Shipped suite on a clean tree: 0 failed / 56 passed. */
-const EXPECTED_PASSED = 56;
+/** Shipped suite on a clean tree: 0 failed / 59 passed. */
+const EXPECTED_PASSED = 59;
 /** Demo beats write new files here. Untracked files under these paths are removed on reset. */
 const DEMO_OUTPUT_PATHS = [
   "app",
