@@ -1,0 +1,26 @@
+{
+  "copy": "B-ready",
+  "claimedDone": true,
+  "ranTests": true,
+  "toolCalls": 15,
+  "shellCommands": 2,
+  "totalTokens": 247984,
+  "durationMs": 26853,
+  "hiddenTest": "PASS",
+  "usesWallClock": false,
+  "verdict": "CORRECT",
+  "filesChanged": [
+    "lib/extension-pace.ts"
+  ],
+  "shell": [
+    "cd /tmp/ready-vs-bare-CffiMz/B-ready && npm test -- tests/extension-pace.test.ts 2>&1",
+    "cd /tmp/ready-vs-bare-CffiMz/B-ready && npm test -- tests/extension-pace.test.ts tests/verify-console.test.ts 2>&1"
+  ],
+  "toolKinds": {
+    "grep": 4,
+    "glob": 1,
+    "read": 7,
+    "shell": 2,
+    "edit": 1
+  }
+}

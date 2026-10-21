@@ -1,0 +1,10 @@
+{"type":"tool_call","name":"glob","status":"completed"}
+{"type":"steer","outcome":"complete_delivered"}
+{"type":"tool_call","name":"grep","status":"completed"}
+{"type":"tool_call","name":"grep","status":"completed"}
+{"type":"tool_call","name":"grep","status":"completed"}
+{"type":"usage","totalTokens":74862}
+{"type":"result","status":"finished","toolCallsBeforeSteer":1,"toolCallsAfterSteer":3,"durationMs":6710}
+result: `lib/tax-year.ts` exports `EXTENSION_DEADLINE` as **15 October 2026** (`demoDay("2026-10-15")`).
+tokens total=74862 in=48090 out=308 cacheRead=26464 cacheWrite=0
+cost unavailable (getUsage: feature_unavailable). Read dollars in the usage dashboard under the SDK tag.

@@ -1,0 +1,7 @@
+{"type":"tool_call","name":"read","status":"completed"}
+{"type":"usage","totalTokens":25007}
+{"type":"result","status":"finished","model":"composer-2.5","durationMs":5534}
+result: `npm test -- tests/extension-pace.test.ts`
+PRESENT
+tokens total=25007 in=23428 out=363 cacheRead=1216 cacheWrite=0
+cost unavailable (getUsage: feature_unavailable). Read dollars in the usage dashboard under the SDK tag.

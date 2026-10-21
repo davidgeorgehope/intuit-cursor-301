@@ -1,0 +1,4 @@
+# npm run hooks:exec-probe -- --fail-closed  (agent CLI 2026.10.19-6bbf2c4, composer-2.5, run 2026-10-21 on the box)
+no exec bit, failClosed off: command RAN (hook did not stop it) | shell result: success | agent said: RAN
+exec bit set,  failClosed off: command did NOT run | shell result: rejected | agent said: BLOCKED
+no exec bit, failClosed ON: command did NOT run | shell result: rejected | agent said: BLOCKED

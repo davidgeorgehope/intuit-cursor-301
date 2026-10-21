@@ -1,0 +1,41 @@
+{
+  "runner": "cli",
+  "model": "composer-2.5",
+  "prompt": "Bug report from the expert team: on the rejects page, every rejected return shows the wrong number of extension days left. Fix it.",
+  "date": "2026-10-21T17:59:10.926Z",
+  "results": [
+    {
+      "copy": "A-bare",
+      "claimedDone": true,
+      "ranTests": false,
+      "toolCalls": 19,
+      "shellCommands": 2,
+      "totalTokens": 243513,
+      "durationMs": 55440,
+      "hiddenTest": "PASS",
+      "usesWallClock": false,
+      "verdict": "CORRECT",
+      "filesChanged": [
+        "lib/extension-pace.ts",
+        "package-lock.json"
+      ],
+      "wallMs": 67001
+    },
+    {
+      "copy": "B-ready",
+      "claimedDone": true,
+      "ranTests": true,
+      "toolCalls": 13,
+      "shellCommands": 1,
+      "totalTokens": 225144,
+      "durationMs": 19675,
+      "hiddenTest": "PASS",
+      "usesWallClock": false,
+      "verdict": "CORRECT",
+      "filesChanged": [
+        "lib/extension-pace.ts"
+      ],
+      "wallMs": 31324
+    }
+  ]
+}

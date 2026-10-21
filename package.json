@@ -30,7 +30,13 @@
     "db:seed": "prisma db seed",
     "db:reset": "prisma db push --force-reset && prisma db seed",
     "demo:session": "tsx scripts/demo-reset.ts",
-    "demo:reset": "tsx scripts/demo-reset.ts reset"
+    "demo:reset": "tsx scripts/demo-reset.ts reset",
+    "setup": "npm ci && prisma generate && prisma db push && prisma db seed",
+    "harness:ready-vs-bare": "tsx scripts/harness-ready-vs-bare.ts",
+    "sdk:readonly": "tsx scripts/sdk/readonly-cost.ts",
+    "sdk:steer": "tsx scripts/sdk/steer.ts",
+    "sdk:mission": "tsx scripts/sdk/mission-runner.ts",
+    "hooks:exec-probe": "node scripts/hooks-exec-probe.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -52,6 +58,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@cursor/sdk": "^1.0.40",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -64,5 +71,8 @@
     "typescript": "^5",
     "vitest": "^4.1.11",
     "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": ">=22.13"
   }
 }

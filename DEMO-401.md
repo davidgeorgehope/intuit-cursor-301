@@ -17,7 +17,7 @@ Do this once on the laptop before anyone is in the room. The app does not fetch 
 | Install | `npm install` | Finishes without a registry error |
 | Client | `npx prisma generate` | `Generated Prisma Client` |
 | Seed | `npx prisma db seed` | `24 filers` and `24 returns`. A warning that the schema `url` is unused is expected. The adapter path is `prisma/dev.db`. |
-| Suite | `npm test` | `0 failed / 59 passed` |
+| Suite | `npm test` | `0 failed / 61 passed` |
 | App | `npm run dev` | Ready on port 43173. Open http://127.0.0.1:43173/rejects and see `7 days left`. |
 | Hooks | Customize, Hooks, in a trusted window | `.cursor/hooks.json` is listed. If an edit does not show up, start a new chat, then restart Cursor. |
 
@@ -34,7 +34,7 @@ Offline skill replay is `npm run eval:skills`. It cannot catch a prune that only
 | 3. Evaluating skills | With/without and the prune | 4 min | `npm run eval:skills` |
 | 4. Hooks and guardrails | Deny, format, stop, failClosed | 5 min | `node scripts/hooks-smoke.mjs` |
 | 5. Missions and loops | Plant, arm, `/goal` | 6 min | `npm run mission:plant` |
-| 6. Harness, fleet, cost | Dry-run stream and compare | 4 min | `npm run harness:mission` |
+| 6. Harness, fleet, cost | Real mission run, ready vs bare | 4 min | `npm run harness:mission -- --cli` |
 
 ## Before you start
 
@@ -198,7 +198,7 @@ Show the restored test passing. That is the fallback. Do not leave the plant in 
 
 ## 6. Harness, fleet, and cost
 
-**Say:** Headless is `agent -p --output-format stream-json`. Dollars come from usage, not from the token count. This laptop demo prints the shape and a zero cost.
+**Say:** Headless is `agent -p --output-format stream-json`. Dollars come from usage, not from the token count. `npm run harness:mission` with no flag is an offline dry-run: it simulates the stream and costs $0. `--cli` and `--sdk` are real.
 
 **Do:**
 
@@ -224,18 +224,31 @@ npm run harness:compare
 npm run mission:restore
 ```
 
-**Paths that spend tokens.** The scripts do not launch them:
+**Real runs (spend tokens).** Plant first, then let a real agent work the mission. The harness runs done-when itself after the agent stops.
 
 ```bash
-npm run harness:mission -- --cli
-npm run harness:mission -- --sdk
+npm run mission:plant
+npm run harness:mission -- --cli     # agent -p --output-format stream-json, then done-when
+npm run mission:plant
+npm run harness:mission -- --sdk     # @cursor/sdk local runtime, loops on done-when
+npm run mission:restore
 ```
 
-`--cli` prints the `agent -p --output-format stream-json` command. `--sdk` prints the local `Agent.create` shape: `disallowedTools: ["shell"]`, `run.stream()`, and `agent.getUsage()` for dollars. Do not pass a cloud runtime. Intuit's unattended runs go through AAP, not Cursor cloud.
+Verified 21 Oct 2026 (composer-2.5): `--cli` ended `"doneWhenExit":0,"ranTests":true,"toolCalls":7,"totalTokens":112131`. `--sdk` ended `"passed":true,"turns":1,"totalTokens":92032`. Logs: `fallback/harness-mission/`.
+
+SDK one-offs: `npm run sdk:readonly` (disallowedTools, tokens and cost per run), `npm run sdk:steer` (run.steer mid-run), `npm run sdk:mission`. See `scripts/sdk/README.md`. `agent.getUsage()` returned `feature_unavailable` for local agents on this account, so dollars come from the usage dashboard (SDK tag). Never pass `cloud`. Intuit's unattended runs go through AAP.
+
+**Agent-ready vs bare (spends tokens, about 2 minutes):**
+
+```bash
+npm run harness:ready-vs-bare
+```
+
+Same prompt, same model, run on a bare copy (code only, cold) and on this repo (AGENTS.md, rules, skills, hooks, armed mission, warm `node_modules`). A hidden test grades both. Three recorded runs are in `fallback/ready-vs-bare/README.md`: both fixed it 3/3; only the ready copy proved it with the test (3/3 vs 0/3) and it used fewer tool calls each time.
 
 A bot or service account holds `CURSOR_API_KEY` for a real SDK run. Do not paste the key into a prompt. The subagent hook denies a task that contains one.
 
-**If it goes wrong:** `npm run harness:mission` is enough. Skip CLI and SDK.
+**If it goes wrong:** `npm run harness:mission` (dry-run, labeled as simulated) plus the recorded files in `fallback/`. Say they are recordings.
 
 ## What was checked against the docs
 
@@ -245,9 +258,9 @@ Fetched 14 October 2026:
 - https://cursor.com/docs/subagents — `.cursor/agents/*.md`, `model`, `readonly`, `is_background`.
 - https://cursor.com/docs/agent/overview — `/goal` is rolling out. `/loop` is the recurring skill.
 - https://cursor.com/docs/cli/using — `-p` / `--print`, `--output-format`, `--mode`.
-- https://cursor.com/docs/sdk/typescript — local `Agent.create`, `disallowedTools`, `run.stream()`, `run.steer()`, `agent.getUsage()`.
+- https://cursor.com/docs/api/sdk/typescript (re-checked 21 Oct 2026, @cursor/sdk 1.0.40) — local `Agent.create({ apiKey, model, disallowedTools, local: { cwd } })`, `run.stream()`, `run.steer()` (local only), `result.usage`, `agent.getUsage()` (local usage gated per account).
 
-Rehearsed on this branch after the font and Prisma changes: `npx prisma generate` (no `binaries.prisma.sh` download), `npx prisma db seed` (24 filers), `npm test` and `npm run check` at 0 failed / 59 passed, `npm run verify` with three PASS lines, both pages HTTP 200, `npm run eval:skills`, `npm run eval:trigger`, both `--live` commands (they stop before a model call because `cursor-agent` is not installed here), hook smoke, failClosed exit 1 while armed, the planted stop-hook follow-up, restore, and both harness commands at costUsd 0.
+Rehearsed on this branch after the font and Prisma changes: `npx prisma generate` (no `binaries.prisma.sh` download), `npx prisma db seed` (24 filers), `npm test` and `npm run check` at 0 failed / 61 passed, `npm run verify` with three PASS lines, both pages HTTP 200, `npm run eval:skills`, `npm run eval:trigger`, both `--live` commands (they stop before a model call because `cursor-agent` is not installed here), hook smoke, failClosed exit 1 while armed, the planted stop-hook follow-up, restore, and both harness commands at costUsd 0.
 
 Not confirmed, because they need the IDE or a logged-in CLI:
 

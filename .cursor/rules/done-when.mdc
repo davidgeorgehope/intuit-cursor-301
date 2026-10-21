@@ -1,0 +1,10 @@
+---
+description: A fix is done only when the covering test exits 0
+alwaysApply: true
+---
+
+# Done means a passing test
+
+- Before you say a bug is fixed, run the narrowest test that covers it and report the command and its exit code.
+- A mission's done-when command is in `missions/<id>/MISSION.md`. The test file states the expected value. Do not guess it from the bug report.
+- Never edit a test to make it pass. If you cannot fix it inside the budget, escalate (see the `fix-with-done-when` skill).

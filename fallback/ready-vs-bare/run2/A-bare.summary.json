@@ -1,0 +1,27 @@
+{
+  "copy": "A-bare",
+  "claimedDone": true,
+  "ranTests": false,
+  "toolCalls": 19,
+  "shellCommands": 2,
+  "totalTokens": 243513,
+  "durationMs": 55440,
+  "hiddenTest": "PASS",
+  "usesWallClock": false,
+  "verdict": "CORRECT",
+  "filesChanged": [
+    "lib/extension-pace.ts",
+    "package-lock.json"
+  ],
+  "shell": [
+    "cd /tmp/ready-vs-bare-Atg5Ay/A-bare && npm run typecheck",
+    "cd /tmp/ready-vs-bare-Atg5Ay/A-bare && npm install && npm run typecheck"
+  ],
+  "toolKinds": {
+    "grep": 5,
+    "glob": 5,
+    "read": 6,
+    "edit": 1,
+    "shell": 2
+  }
+}
