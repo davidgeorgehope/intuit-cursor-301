@@ -1,0 +1,25 @@
+{
+  "copy": "A-bare",
+  "claimedDone": true,
+  "ranTests": false,
+  "toolCalls": 16,
+  "shellCommands": 1,
+  "totalTokens": 224315,
+  "durationMs": 23895,
+  "hiddenTest": "PASS",
+  "usesWallClock": false,
+  "verdict": "CORRECT",
+  "filesChanged": [
+    "lib/extension-pace.ts"
+  ],
+  "shell": [
+    "cd /tmp/ready-vs-bare-CffiMz/A-bare && node -e \"\nconst { DEMO_AS_OF } = require('./lib/clock.ts');\n\" 2>/dev/null || npx tsx -e \"\nimport { extensionDaysLeft } from './lib/extension-pace';\nimport { DEMO_AS_OF } from './lib/clock';\nimport { daysBetween } from './lib/dates';\nimport { EXTENSION_DEADLINE } from './lib/tax-year';\nconsole.log('extensionDaysLeft():', extensionDaysLeft());\nconsole.log('dashboard calc:', daysBetween(EXTENSION_DEADLINE, DEMO_AS_OF));\n\"\n"
+  ],
+  "toolKinds": {
+    "grep": 4,
+    "read": 6,
+    "glob": 4,
+    "edit": 1,
+    "shell": 1
+  }
+}

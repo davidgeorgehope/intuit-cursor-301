@@ -11,7 +11,7 @@ Run the script first. It is the source of truth for local cleanup.
 npm run demo:reset
 ```
 
-The command restores tracked files with `git reset --hard HEAD`, removes untracked files that demo beats create under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/plans/`, switches to `main`, removes recorded personal rules, skills, Canvas files, and demo branches, reseeds SQLite, restarts port 43173, and confirms **0 failed / 59 passed**. It never runs a repo-wide `git clean` and never removes an unrecorded personal skill.
+The command restores tracked files with `git reset --hard HEAD`, removes untracked files that demo beats create under `app/`, `components/`, `lib/`, `tests/`, and `.cursor/plans/`, switches to `main`, removes recorded personal rules, skills, Canvas files, and demo branches, reseeds SQLite, restarts port 43173, and confirms **0 failed / 61 passed**. It never runs a repo-wide `git clean` and never removes an unrecorded personal skill.
 
 Add `--dry-run` first if you want to see the list before anything is removed.
 

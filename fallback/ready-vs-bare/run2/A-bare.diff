@@ -1,0 +1,16 @@
+diff --git a/lib/extension-pace.ts b/lib/extension-pace.ts
+index 2ba97e5..af538c5 100644
+--- a/lib/extension-pace.ts
++++ b/lib/extension-pace.ts
+@@ -1,7 +1,8 @@
++import { DEMO_AS_OF } from "@/lib/clock";
+ import { daysBetween } from "@/lib/dates";
+ import { EXTENSION_DEADLINE } from "@/lib/tax-year";
+ 
+ /** Days left until the Oct 15 extension deadline. */
+-export function extensionDaysLeft(asOf: Date = new Date()): number {
++export function extensionDaysLeft(asOf: Date = DEMO_AS_OF): number {
+   return daysBetween(EXTENSION_DEADLINE, asOf);
+ }
+
+# package-lock.json was also created by the agent's `npm install` in the cold copy. That diff (about 297 KB) is omitted here.

@@ -39,9 +39,9 @@ export function buildDryRunStream(input: {
     {
       type: "system",
       subtype: "init",
-      model: "dry-run",
+      model: "dry-run (no model called)",
       mission: input.mission.id,
-      note: "Dry-run does not call a model. costUsd is 0.",
+      note: "DRY-RUN: simulated stream. No model was called, so costUsd is 0. Use --cli or --sdk for a real run.",
     },
     {
       type: "assistant",

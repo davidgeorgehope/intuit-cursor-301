@@ -28,6 +28,16 @@ Deny beats ask beats allow when Cursor merges hook sources. These scripts return
 - Hooks do not fire for every tool. The docs' `preToolUse` matcher list includes `Write`, `Delete`, and `Task`. If an edit tool uses another name, the protected-path hook will not see it.
 - Cloud agents are out of scope for this workshop. Intuit keeps Projects, Automations, and cloud agents off. These hooks are for the local IDE and CLI.
 
+## Exec bit (found 21 Oct 2026)
+
+Cursor runs each `command` directly. It does not run it through `node`. A script without the exec bit cannot start. Verified with the CLI (`npm run hooks:exec-probe -- --fail-closed`, output in `fallback/hooks-exec-probe/`):
+
+- no exec bit, `failClosed` off: the hook never runs, so the command runs (fails open, silently)
+- exec bit set: the hook denies the command
+- no exec bit, `failClosed` on: every matching command is blocked
+
+`npm run hooks:smoke` now fails if any hook command lacks the bit. Fix: `chmod +x .cursor/hooks/*.mjs && git update-index --chmod=+x .cursor/hooks/*.mjs`.
+
 ## failClosed warning
 
 Creating `missions/fail-closed-armed` blocks agent shell commands. Delete that file to recover. Do not arm it during the 301 session.

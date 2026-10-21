@@ -1,0 +1,26 @@
+{
+  "copy": "A-bare",
+  "claimedDone": true,
+  "ranTests": false,
+  "toolCalls": 19,
+  "shellCommands": 2,
+  "totalTokens": 268071,
+  "durationMs": 29325,
+  "hiddenTest": "PASS",
+  "usesWallClock": false,
+  "verdict": "CORRECT",
+  "filesChanged": [
+    "lib/extension-pace.ts"
+  ],
+  "shell": [
+    "cd /tmp/ready-vs-bare-t87162/A-bare && node -e \"\nconst { DEMO_AS_OF } = require('./lib/clock.ts');\n\" 2>/dev/null || node --input-type=module -e \"\nimport { extensionDaysLeft } from './lib/extension-pace.ts';\nimport { daysBetween } from './lib/dates.ts';\nimport { EXTENSION_DEADLINE } from './lib/tax-year.ts';\nimport { DEMO_AS_OF } from './lib/clock.ts';\nconsole.log('extensionDaysLeft:', extensionDaysLeft());\nconsole.log('dashboard match:', daysBetween(EXTENSION_DEADLINE, DEMO_AS_OF));\n\"\n",
+    "cd /tmp/ready-vs-bare-t87162/A-bare && npm run typecheck 2>&1 | tail -20"
+  ],
+  "toolKinds": {
+    "grep": 4,
+    "glob": 5,
+    "read": 7,
+    "edit": 1,
+    "shell": 2
+  }
+}

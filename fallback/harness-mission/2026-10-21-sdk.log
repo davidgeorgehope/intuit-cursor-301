@@ -1,0 +1,16 @@
+{"type":"done_when","phase":"before","command":"npm test -- tests/extension-pace.test.ts","exitCode":1}
+18:00:18.810 INFO  LocalCursorRulesService load completed meta={durationMs: 46, ruleCount: 5}
+18:00:18.878 INFO  AgentSkillsCursorRulesService load completed meta={durationMs: 110, ruleCount: 44, skillCount: 34, servedFromCache: false}
+{"type":"tool_call","name":"read","status":"completed"}
+{"type":"tool_call","name":"read","status":"completed"}
+{"type":"tool_call","name":"read","status":"completed"}
+{"type":"tool_call","name":"read","status":"completed"}
+{"type":"tool_call","name":"grep","status":"completed"}
+{"type":"tool_call","name":"edit","status":"completed"}
+{"type":"tool_call","name":"shell","status":"completed"}
+{"type":"usage","totalTokens":92032}
+{"type":"turn","turn":1,"status":"finished","durationMs":8305}
+tokens total=92032 in=56437 out=651 cacheRead=34944 cacheWrite=0
+{"type":"done_when","phase":"after turn 1","exitCode":0}
+{"type":"result","mission":"extension-pace","passed":true,"turns":1,"totalTokens":92032}
+cost unavailable (getUsage: feature_unavailable). Read dollars in the usage dashboard under the SDK tag.

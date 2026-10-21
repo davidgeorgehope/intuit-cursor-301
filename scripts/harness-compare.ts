@@ -13,4 +13,4 @@ console.log(compareChecks({ weakExit, strongExit }));
 console.log("");
 console.log(formatBenchmark(loadSkillEval(process.cwd(), "draft-filer-message")));
 console.log("");
-console.log("Live before/after with the model is `npm run harness:mission -- --cli` twice, with and without the skill file in context. That spends tokens. This command does not.");
+console.log("This command does not call a model. The live version is `npm run harness:ready-vs-bare`: the same mission run by a real agent on a bare copy and on the agent-ready repo. That spends tokens. Recorded runs are in fallback/ready-vs-bare/.");

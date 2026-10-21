@@ -1,0 +1,14 @@
+# Skill named "compress" vs the built-in /compress (verified 21 Oct 2026, CLI 2026.10.19-6bbf2c4, on the box)
+
+Setup: a throwaway workspace with .cursor/skills/compress/SKILL.md
+(disable-model-invocation: true; body: "Reply with exactly: SHADOW-SKILL-RAN").
+Control: the same workspace without the skill. Driven through a pseudo-terminal.
+
+Without the skill, typing /compress: the menu's top item is /summarize.
+  (Docs: "/summarize - Summarize the conversation to reduce context. /compress is an alias.")
+With the skill, typing /compress: the menu shows "/compress" (the skill) first, then "/summarize".
+With the skill, in a live session, pressing Enter on /compress: the CLI showed "Summarizing".
+  SHADOW-SKILL-RAN never appeared. The built-in ran, not the skill.
+
+Result in the CLI: the skill is listed but does not override the built-in alias. A skill with a
+built-in's name is confusing (two entries, the built-in wins on Enter). IDE behavior: not tested.

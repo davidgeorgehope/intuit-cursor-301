@@ -1,0 +1,25 @@
+{
+  "copy": "B-ready",
+  "claimedDone": true,
+  "ranTests": true,
+  "toolCalls": 13,
+  "shellCommands": 1,
+  "totalTokens": 225144,
+  "durationMs": 19675,
+  "hiddenTest": "PASS",
+  "usesWallClock": false,
+  "verdict": "CORRECT",
+  "filesChanged": [
+    "lib/extension-pace.ts"
+  ],
+  "shell": [
+    "cd /tmp/ready-vs-bare-Atg5Ay/B-ready && npm test -- tests/extension-pace.test.ts"
+  ],
+  "toolKinds": {
+    "grep": 3,
+    "glob": 1,
+    "read": 7,
+    "edit": 1,
+    "shell": 1
+  }
+}
