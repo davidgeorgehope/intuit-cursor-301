@@ -84,3 +84,7 @@ Run the same plans as a Cursor Project (rung three): create a Project on this re
 - Filers come only from `prisma/seed.ts` and `prisma/extra-filers.ts`. Limits and deadlines come only from `lib/tax-year.ts`.
 - Port 43173 busy: stop the old `npm run dev`. Empty dashboard: `npm run db:reset`.
 - `npm run demo:reset` refuses to run unless `origin` is the `intuit-cursor-301` repository.
+
+## BDK example (Appendix A)
+
+`bdk/css-token-watch/` is a real Bot Development Kit project for CSS token migrations across plugin repos. Run `npm run bdk:setup`, then `npm run bdk:offline` and `npm run bdk:tool` (no API key, no tokens). See `bdk/css-token-watch/README.md`.

@@ -1,0 +1,57 @@
+
+> verify:offline
+> npm run check && npm test && npm run validate && npm run eval:list
+
+
+> check
+> tsc --noEmit
+
+
+> test
+> node --test test/token-map.test.ts
+
+TAP version 13
+# Subtest: finds each legacy token with its line and replacement
+ok 1 - finds each legacy token with its line and replacement
+  ---
+  duration_ms: 1.392441
+  type: 'test'
+  ...
+# Subtest: clean CSS returns no hits
+ok 2 - clean CSS returns no hits
+  ---
+  duration_ms: 0.133642
+  type: 'test'
+  ...
+# Subtest: same input, same output (deterministic)
+ok 3 - same input, same output (deterministic)
+  ---
+  duration_ms: 0.133535
+  type: 'test'
+  ...
+# Subtest: every replacement is a new token, never another legacy name
+ok 4 - every replacement is a new token, never another legacy name
+  ---
+  duration_ms: 0.138524
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90.925545
+
+> validate
+> bdk validate --dir .
+
+ok: css-token-watch (css-token-watch) has no diagnostics
+
+> eval:list
+> bdk eval --dir . --list
+
+tokens/legacy-token-found  [smoke] — Uses the tool and names the replacement token.
+tokens/clean-css-no-invented-tokens  [smoke] — Clean CSS: says clean and does not invent a migration.

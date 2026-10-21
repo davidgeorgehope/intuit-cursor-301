@@ -1,0 +1,25 @@
+
+> eval:smoke
+> bdk eval --dir . --tag smoke --out reports/evals.json --junit reports/evals.xml --artifacts reports/evals
+
+[bdk] GitHub auth: gh auth token
+[session] tool find_legacy_tokens start
+[session] tool find_legacy_tokens done (1ms)
+[session] tool Read start
+[session] tool Read failed: ENOENT: no such file or directory, open '~/.cache/agent-serve/css-token-watch/ses_45b44697ce0e28554cbce653/src/card.css'
+[bdk:otel] error: writeInitialRequest 9b3c802472010be6f19d183199e12634-aeda7c97935ab064 - You can only call end() on a span once.
+[session] tool find_legacy_tokens start
+[session] tool find_legacy_tokens done (0ms)
+[bdk:otel] error: writeInitialRequest f48636a0425596914e25c7f172b11afd-d6a952ec020bd885 - You can only call end() on a span once.
+PASS  tokens/legacy-token-found (7.2s) — Uses the tool and names the replacement token.
+  ✓ succeeded
+  ✓ calledTool(find_legacy_tokens)
+  ✓ check(includes)
+PASS  tokens/clean-css-no-invented-tokens (9.1s) — Clean CSS: says clean and does not invent a migration.
+  ✓ succeeded
+  ✓ calledTool(find_legacy_tokens)
+  ✓ check(includes)
+
+2 passed, 0 failed, 2 total
+artifacts: reports/evals
+results: reports/evals.json

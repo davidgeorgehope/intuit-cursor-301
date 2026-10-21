@@ -1,0 +1,28 @@
+{
+  "name": "css-token-watch",
+  "private": true,
+  "type": "module",
+  "description": "BDK example for the Cursor 401: watch CSS design-token migrations across plugin repos",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --test test/token-map.test.ts",
+    "validate": "bdk validate --dir .",
+    "info": "bdk info --dir .",
+    "tool:demo": "bdk call find_legacy_tokens --dir . --input '{\"path\":\"src/button.css\",\"css\":\".btn {\\n  color: var(--brand-blue);\\n  padding: var(--space-sm);\\n}\"}'",
+    "eval:list": "bdk eval --dir . --list",
+    "verify:offline": "npm run check && npm test && npm run validate && npm run eval:list",
+    "eval:smoke": "bdk eval --dir . --tag smoke --out reports/evals.json --junit reports/evals.xml --artifacts reports/evals",
+    "dev": "bdk dev"
+  },
+  "dependencies": {
+    "@cursor/bdk": "^0.2.27",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

@@ -1,0 +1,30 @@
+
+> tool:demo
+> bdk call find_legacy_tokens --dir . --input '{"path":"src/button.css","css":".btn {\n  color: var(--brand-blue);\n  padding: var(--space-sm);\n}"}'
+
+[bdk] GitHub auth: gh auth token
+[session] tool find_legacy_tokens start (direct tool_find_legacy_tokens_9e8da71cd7fdb37b)
+[session] tool find_legacy_tokens done (direct tool_find_legacy_tokens_9e8da71cd7fdb37b, 2ms)
+{
+  "ok": true,
+  "toolName": "find_legacy_tokens",
+  "callId": "tool_find_legacy_tokens_9e8da71cd7fdb37b",
+  "isError": false,
+  "result": {
+    "path": "src/button.css",
+    "clean": false,
+    "hits": [
+      {
+        "line": 2,
+        "legacy": "--brand-blue",
+        "replacement": "--color-action-primary"
+      },
+      {
+        "line": 3,
+        "legacy": "--space-sm",
+        "replacement": "--spacing-200"
+      }
+    ]
+  },
+  "durationMs": 2
+}

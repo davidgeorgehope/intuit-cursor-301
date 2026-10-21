@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone BDK project with its own package.json and checks.
+    "bdk/**",
   ]),
 ]);
 

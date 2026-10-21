@@ -49,6 +49,7 @@ const BARE_REMOVE = [
   "missions",
   "scripts",
   "fallback",
+  "bdk",
   "README.md",
   "DEMO-401.md",
   "demo-howto.md",
