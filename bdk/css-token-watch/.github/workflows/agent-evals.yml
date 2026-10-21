@@ -1,0 +1,32 @@
+# Runs the BDK smoke evals on each PR that changes the agent, and the full suite each weekday morning.
+name: agent-evals
+on:
+  pull_request:
+    paths: ["bot/**", "evals/**", "package.json"]
+  schedule:
+    - cron: "0 13 * * 1-5"   # 13:00 UTC = 9 AM Eastern (summer time)
+  workflow_dispatch:
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx bdk validate --dir .
+      - name: Smoke evals on PRs, full suite on schedule
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          mkdir -p reports
+          TAGS=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then TAGS="--tag smoke"; fi
+          npx bdk eval --dir . $TAGS --json --no-stream \
+            --junit reports/evals.xml --artifacts reports/evals --out reports/evals.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-evals
+          path: reports/

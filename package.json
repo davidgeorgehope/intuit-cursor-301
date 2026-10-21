@@ -2,7 +2,7 @@
   "name": "intuit-cursor-301",
   "version": "1.0.0",
   "private": true,
-  "description": "TurboTax Expert Ops — demo console for the Intuit × Cursor 301 session. Synthetic filers only.",
+  "description": "TurboTax Expert Ops \u2014 demo console for the Intuit \u00d7 Cursor 301 session. Synthetic filers only.",
   "repository": {
     "type": "git",
     "url": "https://github.com/davidgeorgehope/intuit-cursor-301.git"
@@ -36,7 +36,10 @@
     "sdk:readonly": "tsx scripts/sdk/readonly-cost.ts",
     "sdk:steer": "tsx scripts/sdk/steer.ts",
     "sdk:mission": "tsx scripts/sdk/mission-runner.ts",
-    "hooks:exec-probe": "node scripts/hooks-exec-probe.mjs"
+    "hooks:exec-probe": "node scripts/hooks-exec-probe.mjs",
+    "bdk:setup": "npm --prefix bdk/css-token-watch ci",
+    "bdk:offline": "npm --prefix bdk/css-token-watch run verify:offline",
+    "bdk:tool": "npm --prefix bdk/css-token-watch run tool:demo"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
