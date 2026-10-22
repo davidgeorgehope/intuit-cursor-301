@@ -1,3 +1,4 @@
+import { agentBin } from "@/lib/agent-bin";
 // Same mission, same prompt, same model, run twice by a real agent:
 //   A = bare copy: code only. No AGENTS.md, no .cursor (rules, skills, hooks),
 //       no tests, no test script, no mission files, cold (no node_modules).
@@ -105,8 +106,8 @@ function prepareReady(dir: string) {
 
 function runCli(dir: string): string[] {
   const r = spawnSync(
-    "agent",
-    ["-p", "--output-format", "stream-json", "--force", "--trust", "--model", model, PROMPT],
+    agentBin(),
+    ["--print", "--output-format", "stream-json", "--force", "--trust", "--model", model, PROMPT],
     { cwd: dir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024, env: { ...process.env } },
   );
   if (r.error) throw r.error;
@@ -163,7 +164,7 @@ function row(label: string, s: StreamSummary, g: Grade, files: string) {
 
 async function main() {
   if (runner === "cli") {
-    const which = spawnSync("agent", ["--version"], { encoding: "utf8" });
+    const which = spawnSync(agentBin(), ["--version"], { encoding: "utf8" });
     if (which.status !== 0) {
       console.error("The Cursor CLI (agent) is not on PATH. Install: curl https://cursor.com/install -fsS | bash, then agent login.");
       process.exit(2);
