@@ -49,3 +49,9 @@ node scripts/hooks-smoke.mjs
 ```
 
 That pipes sample JSON at the scripts. It does not prove the IDE fired the event. The Hooks tab in Customize is the IDE check.
+
+## CSS token codemod (added 22 Oct 2026)
+
+`migrate-css-tokens.mjs` (afterFileEdit) runs `migrations/css-tokens/codemod.mjs` on each edited `.css` file,
+using `migrations/css-tokens/map.json`. It skips the codemod's fixtures and logs to `.cursor/hook-logs/migrate.log`.
+Verified in the Cursor CLI on 22 Oct (see `fallback/css-tokens/2026-10-22.txt`). In the IDE: UNVERIFIED.
