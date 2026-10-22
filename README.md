@@ -88,3 +88,9 @@ Run the same plans as a Cursor Project (rung three): create a Project on this re
 ## BDK example (Appendix A)
 
 `bdk/css-token-watch/` is a real Bot Development Kit project for CSS token migrations across plugin repos. Run `npm run bdk:setup`, then `npm run bdk:offline` and `npm run bdk:tool` (no API key, no tokens). See `bdk/css-token-watch/README.md`.
+
+## Which agent CLI the scripts use
+
+`lib/agent-cli.mjs` picks the CLI for `harness:mission -- --cli`, `harness:ready-vs-bare`, `hooks:exec-probe` and the live skill evals. It prefers `agent` when `agent --version` says `grok`/`unified` (the Grok Build CLI: `agent -p "<prompt>" --output-format streaming-json -m <model> --always-approve`, or `--permission-mode plan` for read-only). Otherwise it uses `cursor-agent` (old Cursor CLI: `--print --output-format stream-json --trust --force`). Override with `CURSOR_AGENT_BIN=cursor-agent` (and `CURSOR_AGENT_FLAVOR=unified|cursor`). Both streams are normalized, so reports read the same. Offline tests: `npm run agent-cli:test`.
+
+On 22 Oct 2026 the unified CLI did not load this repo's `.cursor/hooks.json` (`agent inspect`: Hooks (None)). Use the IDE or `CURSOR_AGENT_BIN=cursor-agent` for hook demos.

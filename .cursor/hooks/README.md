@@ -55,3 +55,7 @@ That pipes sample JSON at the scripts. It does not prove the IDE fired the event
 `migrate-css-tokens.mjs` (afterFileEdit) runs `migrations/css-tokens/codemod.mjs` on each edited `.css` file,
 using `migrations/css-tokens/map.json`. It skips the codemod's fixtures and logs to `.cursor/hook-logs/migrate.log`.
 Verified in the Cursor CLI on 22 Oct (see `fallback/css-tokens/2026-10-22.txt`). In the IDE: UNVERIFIED.
+
+## Unified Grok Build CLI (found 22 Oct 2026)
+
+`agent` 1.0.67 [unified] did not run these project hooks: `npm run hooks:exec-probe` showed the command RAN even with the exec bit set, and `agent inspect` lists "Hooks (None)". For hook demos use the IDE or the old CLI (`CURSOR_AGENT_BIN=cursor-agent`).

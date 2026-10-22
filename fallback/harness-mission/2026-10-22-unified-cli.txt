@@ -1,0 +1,29 @@
+Verified 22 Oct 2026 on David's Mac, throwaway clone (/tmp), agent = grok 1.0.67 (2fe064390d07) [unified], Node 26.5.1.
+Key lines (thought/text deltas and long tool payloads omitted):
+
+$ npm run mission:plant
+planted an off-by-one in lib/extension-pace.ts
+$ npm run harness:mission -- --cli
+agent CLI: agent (unified: grok 1.0.67 (2fe064390d07) [unified])
+{"type":"done_when","phase":"before","command":"npm test -- tests/extension-pace.test.ts","exitCode":1}
+running: agent -p <prompt> --output-format streaming-json -m composer-2.5 --always-approve
+{"type":"available_commands", ...}
+{"type":"tool_call", ... "kind":"read","toolName":"read_file","rawInput":{"path":".../missions/extension-pace/MISSION.md"} ...}
+... reads lib/extension-pace.ts, tests/extension-pace.test.ts, grep, lib/dates.ts, lib/clock.ts ...
+{"type":"tool_call", ... "kind":"edit", ... "rawInput":{"path":".../lib/extension-pace.ts"} ...}
+{"type":"tool_call", ... "kind":"execute","toolName":"run_terminal_command","rawInput":{"command":"cd /private/tmp/i401-test && npm test -- tests/extension-pace.test.ts", ...} ...}
+{"type":"end","stopReason":"end_turn", ... "usage":{... "total_tokens":150739} ...}
+{"type":"harness_result","mode":"cli","cli":"unified","model":"composer-2.5","agentExit":0,"doneWhenExit":0,"ranTests":true,"toolCalls":8,"totalTokens":150739,"durationMs":23864,...}
+
+$ agent -p "Read missions/extension-pace/MISSION.md and say whether the done-when command is present. Do not edit files." --output-format streaming-json --permission-mode plan -m composer-2.5
+exit 0; summarizeStream: 1 read tool call, 0 edits, 54,691 tokens; answer: "Yes ... Done when: `npm test -- tests/extension-pace.test.ts` exits 0."
+
+$ npm run hooks:exec-probe
+agent CLI: agent (unified: grok 1.0.67 (2fe064390d07) [unified])
+no exec bit, failClosed off: command RAN (hook did not stop it) | shell result: success | agent said: RAN
+exec bit set,  failClosed off: command RAN (hook did not stop it) | shell result: success | agent said: RAN
+=> The unified CLI did not run the project's .cursor/hooks.json hooks. `agent inspect` in the repo shows "Hooks (None)".
+   For hook demos use the IDE, or the old CLI: CURSOR_AGENT_BIN=cursor-agent npm run hooks:exec-probe
+
+Note: `npm ci` failed on Node 26.5.1 (better-sqlite3 has no prebuilt binary and the native build failed).
+The test clone used `npm ci --ignore-scripts`. Do not run npm ci in a working checkout on Node 26 before the session.
