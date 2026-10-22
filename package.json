@@ -42,7 +42,8 @@
     "bdk:tool": "npm --prefix bdk/css-token-watch run tool:demo",
     "migrate:tokens": "node migrations/css-tokens/codemod.mjs migrations/css-tokens/sample",
     "migrate:check": "node migrations/css-tokens/codemod.mjs --check migrations/css-tokens/sample",
-    "migrate:golden": "node --test migrations/css-tokens/codemod.test.mjs"
+    "migrate:golden": "node --test migrations/css-tokens/codemod.test.mjs",
+    "agent-cli:test": "node --test scripts/agent-cli.test.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

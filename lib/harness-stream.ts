@@ -1,4 +1,6 @@
-// Summarize a real `agent -p --output-format stream-json` transcript.
+// Summarize a real headless agent transcript: the Cursor CLI (stream-json) or the unified
+// Grok Build CLI (streaming-json). Unified events are normalized to the older shapes first.
+import { normalizeStreamLines } from "./agent-cli.mjs";
 // Pure functions, so the unit tests can feed them recorded lines.
 
 export type StreamSummary = {
@@ -50,14 +52,8 @@ export function summarizeStream(lines: string[]): StreamSummary {
     result: "",
   };
   const edited = new Set<string>();
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    let event: Record<string, unknown>;
-    try {
-      event = JSON.parse(line);
-    } catch {
-      continue;
-    }
+  let explicitTotal = 0;
+  for (const event of normalizeStreamLines(lines) as Record<string, unknown>[]) {
     if (event.type === "tool_call" && event.subtype === "started") {
       const toolCall = (event.tool_call ?? {}) as Record<string, unknown>;
       const kind = toolKind(toolCall);
@@ -81,12 +77,15 @@ export function summarizeStream(lines: string[]): StreamSummary {
       summary.outputTokens += usage.outputTokens ?? 0;
       summary.cacheReadTokens += usage.cacheReadTokens ?? 0;
       summary.cacheWriteTokens += usage.cacheWriteTokens ?? 0;
+      explicitTotal += typeof usage.totalTokens === "number" ? usage.totalTokens : 0;
       summary.durationMs += typeof event.duration_ms === "number" ? event.duration_ms : 0;
       summary.isError = summary.isError || event.is_error === true;
       if (typeof event.result === "string") summary.result = event.result;
     }
   }
-  summary.totalTokens = summary.inputTokens + summary.outputTokens + summary.cacheReadTokens + summary.cacheWriteTokens;
+  const summed = summary.inputTokens + summary.outputTokens + summary.cacheReadTokens + summary.cacheWriteTokens;
+  // The unified CLI reports total_tokens itself. Prefer it; the old CLI does not, so sum the parts.
+  summary.totalTokens = explicitTotal > 0 ? explicitTotal : summed;
   summary.editedFiles = [...edited];
   return summary;
 }
@@ -97,7 +96,7 @@ export function compactStream(lines: string[]): string[] {
     if (!line.trim()) return false;
     try {
       const event = JSON.parse(line) as { type?: string; subtype?: string };
-      if (event.type === "thinking") return false;
+      if (event.type === "thinking" || event.type === "thought") return false;
       return true;
     } catch {
       return true;

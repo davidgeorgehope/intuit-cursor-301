@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { buildAgentArgs, detectAgentCli, type AgentCli } from "@/lib/agent-cli.mjs";
 import { gradeAssertion, JUDGE_MODEL, LIVE_COST_WARNING, skillWasRead, WORKER_MODEL, type SkillEvalFile, type TriggerQuery } from "@/lib/skill-eval";
 
 const FACTS = `Return TY25-1042 is Remy and Ana Sato. Rejected 6 Oct 2026, code IND-032-04. Ana's prior-year AGI was entered from a draft. The extension deadline is 15 Oct 2026, seven days from the console clock of 8 Oct 2026.
@@ -9,21 +10,12 @@ const FACTS = `Return TY25-1042 is Remy and Ana Sato. Rejected 6 Oct 2026, code 
 Return TY25-1043 is Ellis Marlow. The open review claims $4,000.00 of American opportunity credit. The allowed credit is $2,500.00 per student. The claim stays on the return.
 `;
 
-export function findAgentBinary(): string | null {
-  for (const name of ["cursor-agent", "agent"]) {
-    const found = spawnSync("bash", ["-lc", `command -v ${name}`], { encoding: "utf8" });
-    const path = found.stdout.trim();
-    if (found.status === 0 && path) return path;
-  }
-  return null;
+export function findAgentBinary(): AgentCli | null {
+  return detectAgentCli();
 }
 
-function agentArgs(model: string, format: "text" | "stream-json"): string[] {
-  return ["--print", "--trust", "--force", "--mode", "ask", "--output-format", format, "--model", model];
-}
-
-function runAgent(binary: string, cwd: string, model: string, format: "text" | "stream-json", prompt: string) {
-  return spawnSync(binary, [...agentArgs(model, format), prompt], {
+function runAgent(cli: AgentCli, cwd: string, model: string, format: "text" | "stream-json", prompt: string) {
+  return spawnSync(cli.bin, buildAgentArgs(cli, { prompt, model, format: format === "text" ? "text" : "stream", readOnly: true }), {
     cwd,
     encoding: "utf8",
     timeout: 180_000,
@@ -43,7 +35,7 @@ export function runLiveSkillEval(root: string): number {
   console.error(LIVE_COST_WARNING);
   const binary = findAgentBinary();
   if (!binary) {
-    console.error("cursor-agent is not on PATH. Install the Cursor CLI and log in, then rerun. No model call was made.");
+    console.error("No agent CLI on PATH (tried agent, then cursor-agent; override with CURSOR_AGENT_BIN). Install one and log in, then rerun. No model call was made.");
     return 1;
   }
   const file = JSON.parse(
@@ -95,7 +87,7 @@ export function runLiveTrigger(root: string): number {
     readFileSync(join(root, ".cursor/skills/draft-filer-message/evals/trigger-queries.json"), "utf8"),
   ) as TriggerQuery[];
   if (!binary) {
-    console.error("cursor-agent is not on PATH. Install the Cursor CLI and log in, then rerun. No model call was made.");
+    console.error("No agent CLI on PATH (tried agent, then cursor-agent; override with CURSOR_AGENT_BIN). Install one and log in, then rerun. No model call was made.");
     return 1;
   }
   const skillPath = join(root, ".cursor/skills/draft-filer-message/SKILL.md");

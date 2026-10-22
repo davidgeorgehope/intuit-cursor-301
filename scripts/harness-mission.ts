@@ -1,4 +1,4 @@
-import { agentBin } from "@/lib/agent-bin";
+import { buildAgentArgs, describeAgentCommand, detectAgentCli } from "@/lib/agent-cli.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { createInterface } from "node:readline";
 import { getMission } from "@/lib/missions";
@@ -9,7 +9,7 @@ import { summarizeStream } from "@/lib/harness-stream";
 //   (default) dry-run  OFFLINE FALLBACK. No model is called. It runs the real
 //                      done-when command and wraps the result in a simulated
 //                      stream-json shape. costUsd is 0 because nothing ran.
-//   --cli              REAL. agent -p --output-format stream-json works the mission,
+//   --cli              REAL. The agent CLI (unified agent -p ... streaming-json, or cursor-agent) works the mission,
 //                      then the harness runs done-when itself. Spends tokens.
 //   --sdk              REAL. scripts/sdk/mission-runner.ts (@cursor/sdk, local runtime)
 //                      works the mission and loops on done-when. Spends tokens.
@@ -50,22 +50,23 @@ const missionPrompt = [
 ].join("\n");
 
 async function runCli() {
-  if (spawnSync(agentBin(), ["--version"], { encoding: "utf8" }).status !== 0) {
-    console.error("The Cursor CLI (agent) is not on PATH. Install it and run agent login, or use the dry-run.");
+  const cli = detectAgentCli();
+  if (!cli) {
+    console.error("No agent CLI on PATH (tried agent, then cursor-agent; override with CURSOR_AGENT_BIN). Install one and log in, or use the dry-run.");
     process.exit(2);
   }
+  console.error(`agent CLI: ${cli.bin} (${cli.flavor}: ${cli.version.split("\n")[0]})`);
   const before = readOnly ? null : runDoneWhen();
   if (before) console.log(JSON.stringify({ type: "done_when", phase: "before", command: mission.doneWhen, exitCode: before.exitCode }));
-  const cliArgs = ["--print", "--output-format", "stream-json", "--trust", "--model", model];
-  if (readOnly) cliArgs.push("--mode", "ask");
-  else cliArgs.push("--force");
-  cliArgs.push(readOnly ? readOnlyPrompt : missionPrompt);
-  const child = spawn(agentBin(), cliArgs, { cwd: process.cwd(), stdio: ["ignore", "pipe", "inherit"] });
+  const cliArgs = buildAgentArgs(cli, { prompt: readOnly ? readOnlyPrompt : missionPrompt, model, readOnly });
+  console.error(`running: ${describeAgentCommand(cli, { model, readOnly })}`);
+  const started = Date.now();
+  const child = spawn(cli.bin, cliArgs, { cwd: process.cwd(), stdio: ["ignore", "pipe", "inherit"] });
   const lines: string[] = [];
   for await (const line of createInterface({ input: child.stdout })) {
     lines.push(line);
     // Pass real events through. Skip per-token thinking deltas so the screen stays readable.
-    if (!line.includes('"type":"thinking"')) console.log(line.length > 400 ? `${line.slice(0, 400)}…` : line);
+    if (!line.includes('"type":"thinking"') && !line.includes('"type":"thought"') && !line.includes('"type":"text"')) console.log(line.length > 400 ? `${line.slice(0, 400)}…` : line);
   }
   const code: number = await new Promise((r) => child.on("close", (c) => r(c ?? 1)));
   const s = summarizeStream(lines);
@@ -74,14 +75,15 @@ async function runCli() {
     JSON.stringify({
       type: "harness_result",
       mode: "cli",
+      cli: cli.flavor,
       model,
       agentExit: code,
       doneWhenExit: after?.exitCode ?? null,
       ranTests: s.ranTests,
       toolCalls: s.toolCalls,
       totalTokens: s.totalTokens,
-      durationMs: s.durationMs,
-      note: "Tokens come from the CLI result event. The CLI does not report dollars; see the usage dashboard.",
+      durationMs: s.durationMs || Date.now() - started,
+      note: "Tokens come from the CLI result or end event. The CLI does not report dollars; see the usage dashboard.",
     }),
   );
   if (after && after.exitCode !== 0) process.exitCode = after.exitCode;

@@ -1,0 +1,20 @@
+{"type": "available_commands", "tools": ["run_terminal_command", "read_file", "search_replace", "list_dir", "grep"], "commands": []}
+{"type": "text", "data": "Running"}
+{"type": "text", "data": " the"}
+{"type": "text", "data": " shell"}
+{"type": "text", "data": " command"}
+{"type": "text", "data": " and"}
+{"type": "text", "data": " reading"}
+{"type": "text", "data": " `"}
+{"type": "text", "data": "a"}
+{"type": "text", "data": ".txt"}
+{"type": "text", "data": "`.\n"}
+{"type": "tool_call", "toolCallId": "tool_974498f3-e9d5-4378-9a74-5ca7c14db49", "title": "Execute `cat a.txt && npm --version`", "kind": "execute", "status": "in_progress", "toolName": "run_terminal_command", "rawInput": {"command": "cat a.txt && npm --version", "description": "cat a.txt and print npm version"}, "content": [], "locations": []}
+{"type": "tool_call", "toolCallId": "tool_acfa5986-f77b-4e89-b1bc-f810c542f84", "title": "/private/tmp/grok-probe/a.txt", "kind": "read", "status": "in_progress", "toolName": "read_file", "rawInput": {"path": "/private/tmp/grok-probe/a.txt"}, "content": [], "locations": [{"path": "/private/tmp/grok-probe/a.txt"}]}
+{"type": "tool_call_update", "toolCallId": "tool_acfa5986-f77b-4e89-b1bc-f810c542f84", "status": "completed", "content": [{"type": "content", "content": {"type": "text", "text": "hi\n"}}], "rawOutput": {"totalLines": 2}, "locations": [{"path": "/private/tmp/grok-probe/a.txt"}]}
+{"type": "tool_call_update", "toolCallId": "tool_974498f3-e9d5-4378-9a74-5ca7c14db49", "status": "completed", "content": [{"type": "content", "content": {"type": "text", "text": "hi\n11.6.1\n"}}], "rawOutput": {"type": "Bash", "output_for_prompt": "hi\n11.6.1\n", "exit_code": 0, "command": "cat a.txt && npm --version", "truncated": false, "signal": null, "timed_out": false, "description": "cat a.txt and print npm version", "current_dir": "", "output_file": "", "total_bytes": 0}, "locations": []}
+{"type": "tool_call", "toolCallId": "tool_0a97d8c4-31cb-4729-a086-ebcfd8028a4", "title": "/private/tmp/grok-probe/a.txt", "kind": "edit", "status": "in_progress", "toolName": "/private/tmp/grok-probe/a.txt", "rawInput": {"path": "/private/tmp/grok-probe/a.txt"}, "content": [], "locations": [{"path": "/private/tmp/grok-probe/a.txt"}]}
+{"type": "tool_call_update", "toolCallId": "tool_0a97d8c4-31cb-4729-a086-ebcfd8028a4", "status": "completed", "content": [{"type": "diff", "path": "/private/tmp/grok-probe/a.txt", "oldText": "hi\n", "newText": "hello\n"}], "rawOutput": null, "locations": [{"path": "/private/tmp/grok-probe/a.txt"}]}
+{"type": "text", "data": "done"}
+{"type": "usage", "usage": {"input_tokens": 48713, "output_tokens": 219, "cache_read_input_tokens": 29756, "cache_creation_input_tokens": 0, "reasoning_tokens": 0}}
+{"type": "end", "stopReason": "end_turn", "sessionId": "e80cdefe-6458-4025-9243-4484126a6b5c", "requestId": "36230b43-0e0d-4d18-bf0c-ddb0c1ac5736", "cwd": "/private/tmp/grok-probe", "usage": {"input_tokens": 48713, "cache_read_input_tokens": 29756, "cache_creation_input_tokens": 0, "output_tokens": 219, "reasoning_tokens": 0, "total_tokens": 78688}, "modelUsage": {"composer-2.5": {"inputTokens": 48713, "outputTokens": 219, "cacheReadInputTokens": 29756, "cacheCreationInputTokens": 0}}}
