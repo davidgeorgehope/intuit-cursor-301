@@ -1,0 +1,8 @@
+{
+  "_note": "EXAMPLE tokens for the Cursor 401 demo. Not Intuit's design system. Same three entries as bdk/css-token-watch/bot/lib/token-map.ts (a test keeps them in sync).",
+  "tokens": {
+    "--brand-blue": "--color-action-primary",
+    "--brand-gray-100": "--color-surface-subtle",
+    "--space-sm": "--spacing-200"
+  }
+}

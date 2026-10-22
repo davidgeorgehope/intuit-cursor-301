@@ -1,0 +1,9 @@
+/* Example fixture. Legacy tokens on purpose. */
+.btn {
+  color: var(--color-action-primary);
+  padding: var(--spacing-200) calc(var(--spacing-200) * 2);
+}
+
+.btn:hover {
+  background: var(--color-surface-subtle, #f4f4f4);
+}

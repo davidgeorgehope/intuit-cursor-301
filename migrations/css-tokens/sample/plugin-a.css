@@ -1,0 +1,6 @@
+/* Sample plugin stylesheet for the 401 demo. Example tokens, not Intuit's design system.
+   npm run migrate:check flags it; npm run migrate:tokens fixes it; git checkout restores it. */
+.toolbar {
+  color: var(--brand-blue);
+  gap: var(--space-sm);
+}

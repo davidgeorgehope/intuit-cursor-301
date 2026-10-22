@@ -39,7 +39,10 @@
     "hooks:exec-probe": "node scripts/hooks-exec-probe.mjs",
     "bdk:setup": "npm --prefix bdk/css-token-watch ci",
     "bdk:offline": "npm --prefix bdk/css-token-watch run verify:offline",
-    "bdk:tool": "npm --prefix bdk/css-token-watch run tool:demo"
+    "bdk:tool": "npm --prefix bdk/css-token-watch run tool:demo",
+    "migrate:tokens": "node migrations/css-tokens/codemod.mjs migrations/css-tokens/sample",
+    "migrate:check": "node migrations/css-tokens/codemod.mjs --check migrations/css-tokens/sample",
+    "migrate:golden": "node --test migrations/css-tokens/codemod.test.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
