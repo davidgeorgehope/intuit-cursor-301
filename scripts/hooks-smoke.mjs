@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { accessSync, constants, readFileSync } from "node:fs";
+import { accessSync, constants, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -51,6 +51,16 @@ if (allow.status !== 0 || allowBody.permission !== "allow") process.exit(1);
 if (write.status !== 0 || writeBody.permission !== "deny") process.exit(1);
 if (subagent.status !== 0 || subagentBody.permission !== "deny") process.exit(1);
 if (failClosed.status !== 0 || failBody.permission !== "allow") process.exit(1);
+
+// afterFileEdit codemod: a legacy token in an edited .css file is rewritten from map.json.
+const cssDir = join(root, "artifacts/hook-smoke");
+mkdirSync(cssDir, { recursive: true });
+const cssFile = join(cssDir, "legacy.css");
+writeFileSync(cssFile, ".x { color: var(--brand-blue); }\n");
+const migrate = run(".cursor/hooks/migrate-css-tokens.mjs", { file_path: cssFile });
+const migrated = readFileSync(cssFile, "utf8").trim();
+console.log(`migrate css on edit exit ${migrate.status} ${migrated}`);
+if (migrate.status !== 0 || migrated !== ".x { color: var(--color-action-primary); }") process.exit(1);
 
 // Cursor runs each hook command directly, not through `node`. A script without
 // the exec bit cannot start: a normal hook then fails open (the action runs),

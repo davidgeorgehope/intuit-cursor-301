@@ -1,0 +1,5 @@
+.card {
+  background: var( --brand-gray-100 );
+  border-color: var(--brand-blue-dark);
+  margin: var(--spacing-200);
+}

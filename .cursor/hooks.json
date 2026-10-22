@@ -31,6 +31,10 @@
       {
         "command": ".cursor/hooks/format-edited.mjs",
         "timeout": 10
+      },
+      {
+        "command": ".cursor/hooks/migrate-css-tokens.mjs",
+        "timeout": 10
       }
     ],
     "subagentStart": [

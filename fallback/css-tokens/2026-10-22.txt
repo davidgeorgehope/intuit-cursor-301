@@ -1,0 +1,81 @@
+$ npm run hooks:smoke
+deny force-push exit 0 {"permission":"deny","user_message":"Blocked a shell command (force-push).","agent_message":"Blocked (force-push). Do not retry with a renamed command. Ask the operator if the work actually needs it."}
+allow npm test exit 0 {"permission":"allow"}
+deny tax-year write exit 0 {"permission":"deny","user_message":"Blocked a write to <repo>/lib/tax-year.ts. Filer data and tax-year figures stay as seeded.","agent_message":"Blocked a write to <repo>/lib/tax-year.ts. Filer data and tax-year figures stay as seeded."}
+deny shell subagent exit 0 {"permission":"deny","user_message":"Blocked a shell subagent. Run the command on the parent so the shell guardrail can see it."}
+failClosed unarmed exit 0 {"permission":"allow"}
+migrate css on edit exit 0 .x { color: var(--color-action-primary); }
+exec bit set on all 8 hook commands
+$ npm run migrate:golden
+TAP version 13
+# Subtest: bytes match the golden files
+ok 1 - bytes match the golden files
+  ---
+  duration_ms: 4.054508
+  type: 'test'
+  ...
+# Subtest: second run makes zero changes (idempotent)
+ok 2 - second run makes zero changes (idempotent)
+  ---
+  duration_ms: 0.92804
+  type: 'test'
+  ...
+# Subtest: shuffled file order gives the same result
+ok 3 - shuffled file order gives the same result
+  ---
+  duration_ms: 1.376575
+  type: 'test'
+  ...
+# Subtest: map order does not matter
+ok 4 - map order does not matter
+  ---
+  duration_ms: 0.166618
+  type: 'test'
+  ...
+# Subtest: --check exits 1 on the input and 0 on the golden files
+ok 5 - --check exits 1 on the input and 0 on the golden files
+  ---
+  duration_ms: 55.186743
+  type: 'test'
+  ...
+# Subtest: BDK token-map.ts has the same entries as map.json
+ok 6 - BDK token-map.ts has the same entries as map.json
+  ---
+  duration_ms: 0.313927
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 113.187639
+$ npm run migrate:check
+migrations/css-tokens/sample/plugin-a.css:4 --brand-blue -> --color-action-primary
+migrations/css-tokens/sample/plugin-a.css:5 --space-sm -> --spacing-200
+check: 2 legacy tokens in 1 files
+exit=1
+$ npm run migrate:tokens
+migrated migrations/css-tokens/sample/plugin-a.css (2 replacements)
+codemod: 1 of 1 files changed, 2 replacements
+exit=0
+$ npm run migrate:tokens
+codemod: 0 of 1 files changed, 0 replacements
+exit=0
+$ npm run migrate:check
+check: clean (1 files)
+exit=0
+
+$ agent -p --output-format stream-json --force --trust --model composer-2.5 "Append this exact CSS rule at the end of migrations/css-tokens/sample/plugin-a.css and do nothing else: .note { color: var(--brand-blue); }"   (CLI 2026.10.19, fresh worktree)
+agent result: Appended `.note { color: var(--brand-blue); }` to the end of `migrations/css-tokens/sample/plugin-a.css`.
+$ cat migrations/css-tokens/sample/plugin-a.css
+.toolbar {
+  color: var(--color-action-primary);
+  gap: var(--spacing-200);
+}
+.note { color: var(--color-action-primary); }
+$ cat .cursor/hook-logs/migrate.log
+2026-10-22T12:33:16.040Z migrated (3) migrations/css-tokens/sample/plugin-a.css
