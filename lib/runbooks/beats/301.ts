@@ -19,7 +19,7 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Optional: the refactor, done",
         promptType: "none",
         detail:
-          "Open the compare view for demo/status-refactor-done on GitHub. Tests that pin today's behavior come first, then the change. The one behavior change is a 400 for an unknown status, which app/api/AGENTS.md already promised. The third commit is turbotax-reviewer's catch: an empty status used to mean All, and no test pinned it.",
+          "Open the compare view for archive/status-refactor-done on GitHub. Tests that pin today's behavior come first, then the change. The one behavior change is a 400 for an unknown status, which app/api/AGENTS.md already promised. The third commit is turbotax-reviewer's catch: an empty status used to mean All, and no test pinned it.",
       },
     ],
   },
@@ -146,7 +146,7 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Read the data model checklist",
         promptType: "none",
         detail:
-          "Go back to the chat where Session 1 ran and read its PASS/FAIL checklist out loud. If it isn't finished, check out the demo/session-1-done branch.",
+          "Go back to the chat where Session 1 ran and read its PASS/FAIL checklist out loud. If it isn't finished, check out the archive/session-1-done tag.",
       },
       {
         id: "build-in-parallel",
@@ -205,7 +205,7 @@ export const RUNBOOK_SECTIONS_301 = [
         title: "Fallback: the finished branch",
         promptType: "none",
         detail:
-          "If it is still building near the end of the slot, check out demo/all-sessions-done and walk the diff, the task cards, and the reviewer's report.",
+          "If it is still building near the end of the slot, check out archive/all-sessions-done and walk the diff, the task cards, and the reviewer's report.",
       },
       {
         id: "resolve-review",

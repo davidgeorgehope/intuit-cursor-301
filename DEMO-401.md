@@ -13,7 +13,7 @@ Do this once on the laptop before anyone is in the room. The app does not fetch 
 | Check | Command | Pass looks like |
 | --- | --- | --- |
 | Node 20 or newer | `node -v` | `v20` or `v22` |
-| Branch | `git checkout main` | The 401 demos. 301 fallbacks stay on their own branches: `demo/status-refactor-done`, `demo/session-1-done`, `demo/all-sessions-done`. Do not reset those. |
+| Branch | `git checkout main` | The 401 demos. 301 fallbacks are archived as tags: `archive/status-refactor-done`, `archive/session-1-done`, `archive/all-sessions-done`. Check one out with `git checkout <tag>`. |
 | Install | `npm install` | Finishes without a registry error |
 | Client | `npx prisma generate` | `Generated Prisma Client` |
 | Seed | `npx prisma db seed` | `24 filers` and `24 returns`. A warning that the schema `url` is unused is expected. The adapter path is `prisma/dev.db`. |

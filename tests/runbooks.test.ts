@@ -83,7 +83,7 @@ describe("runbook catalog", () => {
       /^We want an agent to refactor how this app handles return and review statuses/,
     );
     expect(beat("refactor-check")?.example).toContain("Don't change anything yet.");
-    expect(beat("refactor-done")?.detail).toContain("demo/status-refactor-done");
+    expect(beat("refactor-done")?.detail).toContain("archive/status-refactor-done");
     expect(beat("plan-prompt")?.example).toMatch(/^Plan a tax summary export for TurboTax Expert Ops/);
     expect(beat("plan-prompt")?.example).toContain("GET /api/filers/[id]/tax-summary?year=YYYY");
     expect(beat("plan-prompt")?.example).toContain("exactly four sessions");

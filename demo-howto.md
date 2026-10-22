@@ -8,13 +8,13 @@ The app is a demo console for TurboTax tax experts during extension season. The 
 
 | Deck section | Slides | Live beats on `/runbooks/301` |
 | --- | --- | --- |
-| 01 The cultural shift | 3–7 | Optional refactor check in Ask mode, then the finished refactor on `demo/status-refactor-done` |
+| 01 The cultural shift | 3–7 | Optional refactor check in Ask mode, then the finished refactor on `archive/status-refactor-done` (tag) |
 | 02 Context engineering | 8–12 | Open AGENTS.md, ask what rides every turn, personal and team skills, trigger the hook, read the context ring |
 | 03 Decompose & scope | 13–15 | **Live demo A** — Plan mode, four sessions, edit a criterion, save the plan, start Session 1 |
 | 04 Orchestrating at scale | 16–21 | **Live demo B** — Build in Parallel, task cards, verify with `turbotax-reviewer`, download the CSV. Then rung three: a Project on this repo (optional) |
 | 05 Cost engineering | 22–26 | Model per role, usage dashboard, fresh chat per task |
 
-The pastes below and on `/runbooks/301` match the speaker notes on slides 7, 15, 20, and 21. The deck is the source of truth; when a speaker note changes, update this file and `lib/runbooks/beats/301.ts` to match. Three branches are prepared in this repo: `demo/status-refactor-done` (the status refactor, tests first), `demo/session-1-done` (Session 1 finished), and `demo/all-sessions-done` (all four sessions, reviewed).
+The pastes below and on `/runbooks/301` match the speaker notes on slides 7, 15, 20, and 21. The deck is the source of truth; when a speaker note changes, update this file and `lib/runbooks/beats/301.ts` to match. Three branches are prepared in this repo: `archive/status-refactor-done` (tag) (the status refactor, tests first), `archive/session-1-done` (tag) (Session 1 finished), and `archive/all-sessions-done` (tag) (all four sessions, reviewed).
 
 ---
 
@@ -66,7 +66,7 @@ We want an agent to refactor how this app handles return and review statuses: on
 ```
 
 2. **(0:45)** Read the gaps as they come back. Say: *Every item here is a quality problem today, and a reason you couldn't trust an agent's refactor. That list is the work.*
-3. **(1:00)** Open the finished refactor in the [compare view](https://github.com/davidgeorgehope/intuit-cursor-301/compare/main...demo/status-refactor-done). Point at the commit order: tests that pin today's behavior come first, then the change. Show the one behavior change, a 400 for an unknown status, which `app/api/AGENTS.md` already promised. Then open the third commit: `turbotax-reviewer` caught that an empty status used to mean All and no test pinned it, so now one does. Say: *It didn't claim a speedup it couldn't measure, and the review caught what the pinned tests missed.*
+3. **(1:00)** Open the finished refactor in the [compare view](https://github.com/davidgeorgehope/intuit-cursor-301/compare/main...archive/status-refactor-done). Point at the commit order: tests that pin today's behavior come first, then the change. Show the one behavior change, a 400 for an unknown status, which `app/api/AGENTS.md` already promised. Then open the third commit: `turbotax-reviewer` caught that an empty status used to mean All and no test pinned it, so now one does. Say: *It didn't claim a speedup it couldn't measure, and the review caught what the pinned tests missed.*
 
 **Look for:** status labels defined twice (`lib/status.ts` and the filter lists on the returns and reviews pages), statuses passed around as plain strings with labels that fall back to the raw code, `/api/returns?status=BOGUS` answering 200 with an empty list although `app/api/AGENTS.md` says bad input is 400, filtering in JavaScript after loading every return, and only one status filter under test.
 
@@ -164,7 +164,7 @@ Build the whole tax summary feature end to end, add tests and docs, and clean up
 - Plan mode is slow or off script: review `.cursor/plans/tax-summary-export.fallback.md` instead.
 - It merges sessions: reply "Keep exactly four sessions. Don't merge them."
 - Session 1 drifts into routes or pages: stop it, restore the checkpoint, and restate "data model only."
-- Session 1 isn't finished by demo B: `git checkout demo/session-1-done`.
+- Session 1 isn't finished by demo B: `git checkout archive/session-1-done`.
 
 **Optional:** the same decomposition is encoded as a team skill in `.cursor/skills/decompose-feature/SKILL.md` — the "encode one playbook" point on slide 27.
 
@@ -200,7 +200,7 @@ Report PASS, PARTIAL, or FAIL for each acceptance criterion, with evidence. Don'
 
 - Two workers collide on a file: reply "Serialize: finish Session 2, then 3, then 4."
 - `tests/runbooks.test.ts` fails: the repo's test-count rule is doing its job. Reply "Update the test-count references the repo rule lists."
-- It's still building near the end of the slot: `git checkout demo/all-sessions-done` and walk the diff, the task cards, and the reviewer's report.
+- It's still building near the end of the slot: `git checkout archive/all-sessions-done` and walk the diff, the task cards, and the reviewer's report.
 
 **Optional lighter verifier:** `acceptance-verifier` writes no code and runs on a cheaper model:
 
