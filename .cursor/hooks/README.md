@@ -26,7 +26,7 @@ Deny beats ask beats allow when Cursor merges hook sources. These scripts return
 - The docs say Cursor reloads `hooks.json` on save, and to restart if hooks still do not load. The Intuit incident was stricter: a `failClosed` hook kept blocking until the session was restarted. If a hooks edit does not show up, start a new chat, then restart Cursor.
 - `intuit-git-push-guard` is a managed hook. It is not in this repo. Off VPN it can block every shell command, including ones built from variables. Do not demo this repo from a cloud sandbox and expect that guard to pass.
 - Hooks do not fire for every tool. The docs' `preToolUse` matcher list includes `Write`, `Delete`, and `Task`. If an edit tool uses another name, the protected-path hook will not see it.
-- Cloud agents are out of scope for this workshop. Intuit keeps Projects, Automations, and cloud agents off. These hooks are for the local IDE and CLI.
+- Cloud agents are out of scope for this workshop. These hooks are for the local IDE and CLI.
 
 ## Exec bit (found 21 Oct 2026)
 

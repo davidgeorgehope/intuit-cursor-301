@@ -1,8 +1,8 @@
 # Cursor 401 runbook
 
-Presenter notes for **Cursor 401: From orchestrating to autonomous with oversight**. David Hope presents with Matthew Molnar. The 301 console still works. This file is the 401 track. Paste cards also live on `/runbooks/401`.
+Presenter notes for **Cursor 401: From orchestrating to autonomous with oversight**. The 301 console still works. This file is the 401 track. Paste cards also live on `/runbooks/401`.
 
-Every demo runs in the local Cursor IDE or CLI. Intuit has Projects, Automations, and cloud agents turned off. Do not hand a beat to a cloud agent.
+Every demo runs in the local Cursor IDE or CLI. No beat needs Projects, Automations, or cloud agents.
 
 The deck is the talk. This file is the commands, the expected output, the timing, and the fallback.
 
