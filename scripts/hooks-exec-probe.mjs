@@ -1,5 +1,12 @@
 #!/usr/bin/env node
-import { agentBin } from "./agent-bin.mjs";
+import { buildAgentArgs, detectAgentCli, normalizeStreamLines } from "../lib/agent-cli.mjs";
+
+const cli = detectAgentCli();
+if (!cli) {
+  console.error("No agent CLI on PATH (tried agent, then cursor-agent; override with CURSOR_AGENT_BIN).");
+  process.exit(2);
+}
+console.log(`agent CLI: ${cli.bin} (${cli.flavor}: ${cli.version.split("\n")[0]})`);
 // Proves what a hook script without the exec bit does. Builds two throwaway
 // workspaces with one beforeShellExecution hook that denies a probe command,
 // then asks the real CLI agent to run that command.
@@ -38,12 +45,14 @@ function workspace(executable, failClosed) {
 
 function ask(dir) {
   const r = spawnSync(
-    agentBin(),
-    ["--print", "--output-format", "stream-json", "--force", "--trust", "--model", process.env.HARNESS_MODEL ?? "composer-2.5",
-      `Run exactly this shell command once: ${PROBE}  Then reply with one word: RAN if you saw exec-probe-ran in the output, BLOCKED if the command was denied or did not run.`],
+    cli.bin,
+    buildAgentArgs(cli, {
+      model: process.env.HARNESS_MODEL ?? "composer-2.5",
+      prompt: `Run exactly this shell command once: ${PROBE}  Then reply with one word: RAN if you saw exec-probe-ran in the output, BLOCKED if the command was denied or did not run.`,
+    }),
     { cwd: dir, encoding: "utf8", timeout: 300_000, maxBuffer: 64 * 1024 * 1024 },
   );
-  const lines = (r.stdout ?? "").split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
+  const lines = normalizeStreamLines((r.stdout ?? "").split("\n"));
   const shellDone = lines.find((e) => e.type === "tool_call" && e.subtype === "completed" && e.tool_call?.shellToolCall);
   const shellResult = shellDone?.tool_call?.shellToolCall?.result ?? null;
   const final = lines.filter((e) => e.type === "result").at(-1)?.result ?? "";

@@ -1,4 +1,4 @@
-import { agentBin } from "@/lib/agent-bin";
+import { buildAgentArgs, detectAgentCli, type AgentCli } from "@/lib/agent-cli.mjs";
 // Same mission, same prompt, same model, run twice by a real agent:
 //   A = bare copy: code only. No AGENTS.md, no .cursor (rules, skills, hooks),
 //       no tests, no test script, no mission files, cold (no node_modules).
@@ -104,10 +104,13 @@ function prepareReady(dir: string) {
   writeFileSync(join(dir, "missions/active.json"), JSON.stringify({ id: "extension-pace" }) + "\n");
 }
 
+let cli: AgentCli | null = null;
+
 function runCli(dir: string): string[] {
+  if (!cli) throw new Error("no agent CLI");
   const r = spawnSync(
-    agentBin(),
-    ["--print", "--output-format", "stream-json", "--force", "--trust", "--model", model, PROMPT],
+    cli.bin,
+    buildAgentArgs(cli, { prompt: PROMPT, model }),
     { cwd: dir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024, env: { ...process.env } },
   );
   if (r.error) throw r.error;
@@ -164,11 +167,12 @@ function row(label: string, s: StreamSummary, g: Grade, files: string) {
 
 async function main() {
   if (runner === "cli") {
-    const which = spawnSync(agentBin(), ["--version"], { encoding: "utf8" });
-    if (which.status !== 0) {
-      console.error("The Cursor CLI (agent) is not on PATH. Install: curl https://cursor.com/install -fsS | bash, then agent login.");
+    cli = detectAgentCli();
+    if (!cli) {
+      console.error("No agent CLI on PATH (tried agent, then cursor-agent; override with CURSOR_AGENT_BIN). Install one and log in.");
       process.exit(2);
     }
+    console.log(`agent CLI: ${cli.bin} (${cli.flavor}: ${cli.version.split("\n")[0]})`);
   } else if (!process.env.CURSOR_API_KEY) {
     console.error("--runner sdk needs CURSOR_API_KEY.");
     process.exit(2);

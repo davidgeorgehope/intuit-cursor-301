@@ -198,7 +198,7 @@ Show the restored test passing. That is the fallback. Do not leave the plant in 
 
 ## 6. Harness, fleet, and cost
 
-**Say:** Headless is `agent -p --output-format stream-json`. Dollars come from usage, not from the token count. `npm run harness:mission` with no flag is an offline dry-run: it simulates the stream and costs $0. `--cli` and `--sdk` are real.
+**Say:** Headless is `agent -p "<prompt>" --output-format streaming-json` (unified Grok Build CLI; old Cursor CLI: `cursor-agent -p --output-format stream-json --force --trust`). Dollars come from usage, not from the token count. `npm run harness:mission` with no flag is an offline dry-run: it simulates the stream and costs $0. `--cli` and `--sdk` are real.
 
 **Do:**
 
@@ -228,7 +228,7 @@ npm run mission:restore
 
 ```bash
 npm run mission:plant
-npm run harness:mission -- --cli     # agent -p --output-format stream-json, then done-when
+npm run harness:mission -- --cli     # agent CLI (unified or cursor-agent, auto-detected), then done-when
 npm run mission:plant
 npm run harness:mission -- --sdk     # @cursor/sdk local runtime, loops on done-when
 npm run mission:restore
