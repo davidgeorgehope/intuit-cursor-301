@@ -7,7 +7,7 @@ many plugin repos. Plain code finds the legacy tokens. The model only explains a
 This folder is a standalone project with its own `package.json`. The demo app at the repo root
 does not use it, and the root typecheck and lint skip it.
 
-## How it maps to Aylin's CSS token migration use case
+## How it maps to a CSS token migration use case
 
 | The ask | The BDK piece | Status (Oct 21, 2026) |
 |---|---|---|
@@ -69,11 +69,8 @@ Notes from the runs:
 - In one eval case the model first tried to read `src/card.css`, which does not exist, then called the tool. The case still passed.
 - `[bdk:otel] error: ... You can only call end() on a span once.` was printed during evals. The evals passed. It looks like a BDK telemetry log, not a failure.
 
-## At Intuit
+## Running without Cloud Agents
 
-Cloud Agents are off. BDK can self-host, so each turn runs on your host. Whether that fits Intuit
-policy (API key, network egress, the GitHub connection with `cursorAccount: true`) is an open question
-for the Cursor account team. Some BDK templates, for example `pr-autofixer`, drive Cursor Cloud
-Agents, so they will not work at Intuit today.
+BDK can self-host, so each turn runs on your host. Check that this fits your org's policy (API key, network egress, the GitHub connection with `cursorAccount: true`). Some BDK templates, for example `pr-autofixer`, drive Cursor Cloud Agents, so they need Cloud Agents turned on.
 
 BDK is public on npm under the Cursor SDK License. It is not open source.
