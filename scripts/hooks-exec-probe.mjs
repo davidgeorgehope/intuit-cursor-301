@@ -57,7 +57,9 @@ function ask(dir) {
   const shellResult = shellDone?.tool_call?.shellToolCall?.result ?? null;
   const final = lines.filter((e) => e.type === "result").at(-1)?.result ?? "";
   const ran = JSON.stringify(shellResult ?? "").includes("exec-probe-ran\\n") || /stdout[^}]*exec-probe-ran/.test(JSON.stringify(shellResult ?? ""));
-  return { ran, shellResult: shellResult ? Object.keys(shellResult)[0] : "none", final: final.trim().slice(0, 120) };
+  // No events at all means the CLI itself failed (for example "Not logged in"); say so instead of a false "did NOT run".
+  const cliError = lines.length === 0 ? ((r.stderr || r.stdout || r.error?.message || "").trim().split("\n")[0] || `exit ${r.status}`) : null;
+  return { ran, cliError, shellResult: shellResult ? Object.keys(shellResult)[0] : "none", final: final.trim().slice(0, 120) };
 }
 
 const cases = [
@@ -68,5 +70,6 @@ if (process.argv.includes("--fail-closed")) cases.push({ name: "no exec bit, fai
 
 for (const c of cases) {
   const r = ask(workspace(c.executable, c.failClosed));
+  if (r.cliError) { console.log(`${c.name}: CLI FAILED, no result: ${r.cliError}`); process.exitCode = 1; continue; }
   console.log(`${c.name}: command ${r.ran ? "RAN (hook did not stop it)" : "did NOT run"} | shell result: ${r.shellResult} | agent said: ${r.final}`);
 }
