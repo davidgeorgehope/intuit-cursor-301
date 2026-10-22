@@ -19,7 +19,7 @@ export function findAgentBinary(): string | null {
 }
 
 function agentArgs(model: string, format: "text" | "stream-json"): string[] {
-  return ["-p", "--trust", "--force", "--mode", "ask", "--output-format", format, "--model", model];
+  return ["--print", "--trust", "--force", "--mode", "ask", "--output-format", format, "--model", model];
 }
 
 function runAgent(binary: string, cwd: string, model: string, format: "text" | "stream-json", prompt: string) {

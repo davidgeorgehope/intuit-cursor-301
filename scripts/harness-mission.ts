@@ -1,3 +1,4 @@
+import { agentBin } from "@/lib/agent-bin";
 import { spawn, spawnSync } from "node:child_process";
 import { createInterface } from "node:readline";
 import { getMission } from "@/lib/missions";
@@ -49,17 +50,17 @@ const missionPrompt = [
 ].join("\n");
 
 async function runCli() {
-  if (spawnSync("agent", ["--version"], { encoding: "utf8" }).status !== 0) {
+  if (spawnSync(agentBin(), ["--version"], { encoding: "utf8" }).status !== 0) {
     console.error("The Cursor CLI (agent) is not on PATH. Install it and run agent login, or use the dry-run.");
     process.exit(2);
   }
   const before = readOnly ? null : runDoneWhen();
   if (before) console.log(JSON.stringify({ type: "done_when", phase: "before", command: mission.doneWhen, exitCode: before.exitCode }));
-  const cliArgs = ["-p", "--output-format", "stream-json", "--trust", "--model", model];
+  const cliArgs = ["--print", "--output-format", "stream-json", "--trust", "--model", model];
   if (readOnly) cliArgs.push("--mode", "ask");
   else cliArgs.push("--force");
   cliArgs.push(readOnly ? readOnlyPrompt : missionPrompt);
-  const child = spawn("agent", cliArgs, { cwd: process.cwd(), stdio: ["ignore", "pipe", "inherit"] });
+  const child = spawn(agentBin(), cliArgs, { cwd: process.cwd(), stdio: ["ignore", "pipe", "inherit"] });
   const lines: string[] = [];
   for await (const line of createInterface({ input: child.stdout })) {
     lines.push(line);

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { agentBin } from "./agent-bin.mjs";
 // Proves what a hook script without the exec bit does. Builds two throwaway
 // workspaces with one beforeShellExecution hook that denies a probe command,
 // then asks the real CLI agent to run that command.
@@ -37,8 +38,8 @@ function workspace(executable, failClosed) {
 
 function ask(dir) {
   const r = spawnSync(
-    "agent",
-    ["-p", "--output-format", "stream-json", "--force", "--trust", "--model", process.env.HARNESS_MODEL ?? "composer-2.5",
+    agentBin(),
+    ["--print", "--output-format", "stream-json", "--force", "--trust", "--model", process.env.HARNESS_MODEL ?? "composer-2.5",
       `Run exactly this shell command once: ${PROBE}  Then reply with one word: RAN if you saw exec-probe-ran in the output, BLOCKED if the command was denied or did not run.`],
     { cwd: dir, encoding: "utf8", timeout: 300_000, maxBuffer: 64 * 1024 * 1024 },
   );
