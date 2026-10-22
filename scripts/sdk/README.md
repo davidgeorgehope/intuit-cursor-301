@@ -1,6 +1,6 @@
 # Cursor SDK scripts (local runtime only)
 
-`@cursor/sdk` 1.0.40. Needs Node 22.13+ and `CURSOR_API_KEY` (a user key from the Cursor dashboard, or a service-account key). These scripts never pass `cloud`. Intuit keeps cloud agents off.
+`@cursor/sdk` 1.0.40. Needs Node 22.13+ and `CURSOR_API_KEY` (a user key from the Cursor dashboard, or a service-account key). These scripts never pass `cloud`.
 
 | Script | npm | What it shows |
 | --- | --- | --- |
