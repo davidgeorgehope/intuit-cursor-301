@@ -50,6 +50,7 @@ const BARE_REMOVE = [
   "scripts",
   "fallback",
   "bdk",
+  "migrations",
   "README.md",
   "DEMO-401.md",
   "demo-howto.md",
