@@ -22,7 +22,7 @@ Replace `TOKEN_MAP` in `bot/lib/token-map.ts` with your design-system map.
 
 ```text
 css-token-watch/
-  bot/agent.ts                  model config (BDK default: grok-4.5, effort high, fast)
+  bot/agent.ts                  model config (BDK default: grok-4.7, effort high, fast)
   bot/instructions.md           judgment: the always-on prompt. Short.
   bot/tools/find_legacy_tokens.ts   tool: one typed tool per file, file name = tool name
   bot/lib/token-map.ts          plain code: the old -> new token map. Not a tool, never discovered.
