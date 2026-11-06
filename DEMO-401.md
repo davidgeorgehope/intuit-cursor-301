@@ -104,7 +104,7 @@ trigger evals: 4 queries, none executed
 
 Open `.cursor/skills/draft-filer-message/evals/evals.json` for the prompts, and `grader.md` for the judge. The recorded arms are `evals/runs/with-skill` and `evals/runs/without-skill`. The verbose skill is `evals/snapshots/verbose/SKILL.md`.
 
-**When to use which.** Default `npm run eval:skills` on stage. It is the recorded arms. Use `--live` in a rehearsal when you changed the skill text and need a new model to write the messages. The worker model is `composer-2.5`. The judge model is `claude-opus-5`. Confirm both on the Intuit plan.
+**When to use which.** Default `npm run eval:skills` on stage. It is the recorded arms. Use `--live` in a rehearsal when you changed the skill text and need a new model to write the messages. The worker model is `composer-2.5`. The judge model is `claude-opus-5-5`. Confirm both on the Intuit plan.
 
 ```bash
 npm run eval:skills -- --live
@@ -127,7 +127,7 @@ Count it as triggered only if the stream shows a read of `SKILL.md`. The public 
 /skill-judge Grade eval 1 under .cursor/skills/draft-filer-message/evals/runs using .cursor/skills/draft-filer-message/evals/grader.md. Call the outputs arm-a and arm-b. Don't edit files.
 ```
 
-`skill-judge` is readonly, `model: claude-opus-5[effort=high]`. `mission-worker` is `composer-2.5`. Confirm those ids on the Intuit plan. Cursor falls back if one is not.
+`skill-judge` is readonly, `model: claude-opus-5-5[effort=high]`. `mission-worker` is `composer-2.5`. Confirm those ids on the Intuit plan. Cursor falls back if one is not.
 
 **If it goes wrong:** The local command is the demo. Skip the live judge and the trigger run.
 
@@ -267,7 +267,7 @@ Not confirmed, because they need the IDE or a logged-in CLI:
 - That Customize shows each new hook after a reload.
 - That `/goal` is available on the Intuit build.
 - A live `agent -p` or SDK run, and a real dollar figure from `getUsage()`.
-- The model ids `claude-opus-5[effort=high]` and `composer-2.5` on the Intuit plan. They are the ids in the docs examples.
+- The model ids `claude-opus-5-5[effort=high]` and `composer-2.5` on the Intuit plan. They are the ids in the docs examples.
 
 Skill, eval, verification, and loop shapes follow the public pstack and ralph-loop plugins in https://github.com/cursor/plugins (MIT, https://github.com/cursor/plugins/blob/main/pstack/LICENSE). This repo does not copy those skill bodies. pstack ships an eval playbook and no `evals/` runner; the grader here is the offline stand-in.
 

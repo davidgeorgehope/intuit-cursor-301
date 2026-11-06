@@ -214,7 +214,7 @@ export type TriggerResult = {
 };
 
 export const WORKER_MODEL = "composer-2.5";
-export const JUDGE_MODEL = "claude-opus-5";
+export const JUDGE_MODEL = "claude-opus-5-5";
 
 export const LIVE_COST_WARNING = [
   "Token cost: --live calls the model.",
